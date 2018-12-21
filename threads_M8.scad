@@ -19,7 +19,7 @@
 // Weitere Verbesserungen:
 //  - Fasen/lead-in an die Gewindeenden.
 // 
-// Andreas Merz 19.12.2018, v0.3 
+// Andreas Merz 19.12.2018, v0.4, GPL 
 
 
 // http://dkprojects.net/openscad-threads/
