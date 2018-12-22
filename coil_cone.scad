@@ -2,7 +2,7 @@
 //
 // print 2 cone instances and stack them.
 //
-// Andreas Merz 21.12.2018, v0.3, GPL
+// Andreas Merz 21.12.2018, v0.4, GPL
 
 
 
@@ -24,4 +24,43 @@ module cone(dia=53, h=68) {
   }
 }  
 
-cone();
+module spokewheel(dia=58, h=2) {
+  difference() {
+    union() {
+      rotate_extrude($fn = 80)
+        translate([dia/2-3, 0, 0])  // inner rim 
+             polygon( points=[[0,0],[2.8,0],[3,3],[8,4],[8,5],[0,5]] );
+      
+      linear_extrude(height = 5)    // spoke
+             polygon( points=[[dia/2,-2.5],[dia/2,2.5],[-dia/2,2.5],[-dia/2,-2.5]]);
+      linear_extrude(height = 5)    // spoke
+             polygon( points=[[-2.5,dia/2],[2.5,dia/2],[2.5,-dia/2],[-2.5,-dia/2]]);
+      
+      linear_extrude(height = 5)    // hub 
+          circle(7, $fn = 90);
+      linear_extrude(height = 7)    // spacer 
+          circle(4, $fn = 90);
+    }
+    translate([0,0,-1])
+      linear_extrude(height = 9)    // bore hole
+        circle(2.5, $fn = 90);
+  }
+}
+    
+module axe(d=5, h=2) {
+    union() {
+      linear_extrude(height = 2.5)    //  
+        circle(d/2-0.2, $fn = 90);
+      translate([0,0,2.5])
+          linear_extrude(height = 1)    // rim
+            circle((d+1)/2, $fn = 90);
+      translate([0,0,2.5])
+          linear_extrude(height = 7, scale=0.1)    // tip
+            circle(d/2, $fn = 90);
+  }
+}
+
+//cone();
+spokewheel();
+
+//translate([10,10,0]) axe();
