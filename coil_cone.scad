@@ -127,5 +127,14 @@ module inset(diabore=10, h=7) {
 //spokewheelB();
 spokewheelB(dia=53);
 
-//translate([13,13,0]) inset();
-//translate([-13,-13,0]) axeB();
+translate([12,12,0]) inset();
+translate([-12,-12,0]) axeB();
+
+// extended inset
+translate([12,-12,0]) 
+  union() {
+    translate([0,0,12]) 
+      inset();
+    inset(h=13);
+  }
+
