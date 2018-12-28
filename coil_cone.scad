@@ -106,10 +106,10 @@ module axeB(diabore=10, h=3) {
   }
 }
 
-module inset(diabore=10, h=7) {
+module inset(diabore=10, h=7, hrim=2) {
   difference() {
     union() {
-      linear_extrude(height = 2)    // rim
+      linear_extrude(height = hrim)    // rim
         circle((diabore+1)/2, $fn = 90);
       linear_extrude(height = h)    //  
         circle(diabore/2-0.12, $fn = 90);
@@ -128,13 +128,6 @@ module inset(diabore=10, h=7) {
 spokewheelB(dia=53);
 
 translate([12,12,0]) inset();
+translate([12,-12,0]) inset(h=21, hrim=14);  // extended inset
 translate([-12,-12,0]) axeB();
-
-// extended inset
-translate([12,-12,0]) 
-  union() {
-    translate([0,0,12]) 
-      inset();
-    inset(h=13);
-  }
 
