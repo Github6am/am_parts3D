@@ -10,7 +10,7 @@
 //   - select the desired instances at the bottom of this file
 //     and use openscad to generate according STL files.
 //
-// Andreas Merz 30.12.2018, v0.3, GPL
+// Andreas Merz 01.01.2019, v0.4, GPL
 
 
 // general purpose
@@ -19,6 +19,8 @@ function ellipse(r1, r2, num=32) =
 
 
 //-------------------------------
+// dovetail
+//
 //       w2
 //    ---------
 //    \       /  h
@@ -30,6 +32,12 @@ module schwalbenschwanz(h=2, w1=4, w2=6) {
              //w1=(w2-h*tan(30));      // Flankenwinkel 30 deg
              c=0.12;   // clearance / spiel in mm
              polygon(points=[[-w1/2+c,0],[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h]]);
+}
+
+module neg_schwalbenschwanz(h=2, w1=4, w2=6, b=5) {
+             c=0.12;   // clearance / spiel in mm
+             polygon(points=[[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h],[-w1/2+c,0],
+             [-w2/2+c-h,-h],[-w2/2+c-b,-h],[-w2/2+c-b,b+h],[w2/2-c+b,b+h],[w2/2-c+b,-h],[w2/2-c+h,-h]]);
 }
 
 //-------------------------------------------
@@ -97,7 +105,7 @@ module rj45fixture(h=16.5, w=2.5, l=50) {
     // h: overall height, including bottom wall
     // w: wall thickness
     // l: length to mount point
-    // wb: bottom wall
+    // wb: bottom wallhttp://schiffahrt-kelheim.de/schiffscharter/
     wb=2.5;      // bottom
     difference() {
       union() {
@@ -143,26 +151,51 @@ module connection(h=32, w=4, l=60) {
     // h: overall height
     // w: wall thickness
     // l: length to mount point
-    union() {
-      linear_extrude(height = h)
-        union() {
-          square([w,l]);
-          for (i = [0 : l/10 - 1]) {
-          // left interface
-          translate([0, i*10+2.5, 0]) rotate( 90) schwalbenschwanz();
-          // right interface
-          translate([w, i*10+7.5, 0]) rotate(-90) schwalbenschwanz();
-          }
-        }
-    }
-  }
+    difference() {
+      union() {
+        linear_extrude(height = h)
+          difference() {
+            union() {
+              square([w,l]);
+              for (i = [0 : l/10 - 1]) {
+              // left interface
+              translate([0, i*10+2.5, 0]) rotate( 90) schwalbenschwanz();
+              // right interface
+              translate([w, i*10+7.5, 0]) rotate(-90) schwalbenschwanz();
+              }
+            }
 
+            // make ends a dovetail too for 90 deg connection
+            union() {
+              translate ([1, 2, 0]) rotate( 180)
+                neg_schwalbenschwanz();
+              translate ([3, l-2, 0]) rotate( 0)
+                neg_schwalbenschwanz();
+            }
+          }
+      }
+      // make long sides a dovetail too for 90 deg connection
+      // additional benefit: avoid inaccuacies from the bottom layers.
+      union() {
+        translate ([2, l+1, h-2]) rotate([ 90, 0, 0])
+          linear_extrude(height = l+2)
+             neg_schwalbenschwanz();
+        translate ([2, -1, 2]) rotate([ -90, 0, 0])
+          linear_extrude(height = l+2)
+             neg_schwalbenschwanz();
+        
+      }
+  }
+}
 
 //------------- Instances --------------------
+
 
 translate([-26,0,0])
 rj45case(PiVersion=1);
 
 rj45fixture();
 
-//connection();
+translate([60,0,0])
+connection();
+
