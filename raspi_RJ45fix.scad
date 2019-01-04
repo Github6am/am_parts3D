@@ -9,8 +9,10 @@
 //   - Pi3 not considered yet
 //   - select the desired instances at the bottom of this file
 //     and use openscad to generate according STL files.
+//   - the dovetail connection plates fit also to a 35mm DIN-rail
+//   - future ideas: make longsides of wallmount a dovetail snap-on
 //
-// Andreas Merz 01.01.2019, v0.4, GPL
+// Andreas Merz 01.01.2019, v0.6, GPL
 
 
 // general purpose
@@ -30,12 +32,12 @@ function ellipse(r1, r2, num=32) =
 
 module schwalbenschwanz(h=2, w1=4, w2=6) {
              //w1=(w2-h*tan(30));      // Flankenwinkel 30 deg
-             c=0.12;   // clearance / spiel in mm
+             c=0.13;   // clearance / spiel in mm
              polygon(points=[[-w1/2+c,0],[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h]]);
 }
 
 module neg_schwalbenschwanz(h=2, w1=4, w2=6, b=5) {
-             c=0.12;   // clearance / spiel in mm
+             c=0.13;   // clearance / spiel in mm
              polygon(points=[[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h],[-w1/2+c,0],
              [-w2/2+c-h,-h],[-w2/2+c-b,-h],[-w2/2+c-b,b+h],[w2/2-c+b,b+h],[w2/2-c+b,-h],[w2/2-c+h,-h]]);
 }
@@ -99,14 +101,15 @@ module rj45case(w=2.0, PiVersion=1) {
 
 
 //-------------------------------------------
-// wall fixture
+// wall mount fixture
 //-------------------------------------------
-module rj45fixture(h=16.5, w=2.5, l=50) {
+module wallmount(h=16.5, w=2.5, l=50) {
     // h: overall height, including bottom wall
     // w: wall thickness
     // l: length to mount point
-    // wb: bottom wallhttp://schiffahrt-kelheim.de/schiffscharter/
-    wb=2.5;      // bottom
+    // wb: bottom wall
+    wb=2.5;     // bottom thickness
+    ws=6;       // side wall
     difference() {
       union() {
         linear_extrude(height = h)    // box walls
@@ -116,22 +119,26 @@ module rj45fixture(h=16.5, w=2.5, l=50) {
               polygon( points=[[w,w],[l-w,w],[l-w,30-w],[w,30-w]]);  // inner rectangle
             }
             // left interface
-            translate([0,0*10+3,0]) rotate(90) schwalbenschwanz();
-            translate([0,1*10+3,0]) rotate(90) schwalbenschwanz();
-            translate([0,2*10+3,0]) rotate(90) schwalbenschwanz();
+            translate([0,0*10+5,0]) rotate(90) schwalbenschwanz();
+            translate([0,1*10+5,0]) rotate(90) schwalbenschwanz();
+            translate([0,2*10+5,0]) rotate(90) schwalbenschwanz();
+            // right interface
+            translate([l,0*10+0,0]) rotate(-90) schwalbenschwanz();
+            translate([l,1*10+0,0]) rotate(-90) schwalbenschwanz();
+            translate([l,2*10+0,0]) rotate(-90) schwalbenschwanz();
+            translate([l,3*10+0,0]) rotate(-90) schwalbenschwanz();
           }
           linear_extrude(height = wb)    // bottom plate
             polygon( points=[[0,0],[l,0],[l,30],[0,30]]);  // outer rectangle
       }
       union() {
-          translate([l/2,-1,2*wb])
-            linear_extrude(height = h-2*wb+1, scale=1.5)    // save material in longside wall
+          translate([l/2,-1,ws])
+            linear_extrude(height = h-ws+1, scale=1.5)    // save material in longside wall
               square( [(l-2*w)/1.5, 2*30+2*w], center=true);
           translate([l/2,30/2,-1])
             linear_extrude(height = h+1)     // save material in bottom
               //polygon(ellipse(l*0.4,30*1/3));
               square([2*(l/2-7), 2*(30/2-6)], center=true);
-              square([2*(w+16/2-5),2*(w+21.5/2-6)],center=true);
           translate([l-10,30*3/4,h/2])       // mounting hole 4mm
             rotate([0,90,0])
               linear_extrude(height = 20)
@@ -140,6 +147,12 @@ module rj45fixture(h=16.5, w=2.5, l=50) {
             rotate([0,90,0])
               linear_extrude(height = 20)
                 circle(4/2,$fn=32);
+          translate([l-1,-4,-1])
+            linear_extrude(height = h+2)    // cut excess dovetails
+              square( [4,4]);
+          translate([l-1,30,-1])
+            linear_extrude(height = h+2)    // cut excess dovetails
+              square( [4,4]);
       }
     }
   }
@@ -188,14 +201,89 @@ module connection(h=32, w=4, l=60) {
   }
 }
 
+//-------------------------------------------
+// enclosure for uBlox GPS module
+//-------------------------------------------
+module uBloxcase(w=1.0) {
+    // w: wall thickness
+    c=0.0;     // clearance between ridges
+    b=25.8;        // board with
+    a=15;        // board thickness with all parts plus space above antenna
+    wrl=0.8-c;   // left ridge height
+    hb=1.0;      // bottom
+    hc=15;       // height of cable fix
+    h=37+hb+3;     // overall height, including bottom wall
+    difference() {
+      union() {
+        linear_extrude(height = h)    // box walls
+          union() {
+            difference() {
+              polygon( points=[[0,0],[a+2*w,0],[a+2*w,b+2*w],[0,b+2*w]]);  // outer rectangle
+              polygon( points=[[w,w],[a+w,w],[a+w,b+w],[w,b+w]]);          // inner rectangle
+            }
+            translate([0,w+7,0]) square([w+wrl, w]);  // left ridge
+            translate([0,b-7,0]) square([w+wrl, w]);  // left ridge 
+            translate([w+wrl+8.4+c,w,0]) square([w, 1.6]);  // right ridge holding antenna down
+            translate([w+wrl+8.4+c,b,0]) square([w, 1.6]);  // right ridge holding antenna down 
+            // right interface
+            //translate([a+2*w,0*10+9,0]) rotate(-90) schwalbenschwanz();
+            //translate([a+2*w,1*10+9,0]) rotate(-90) schwalbenschwanz();
+            // left interface
+            translate([0,0*10+4,0]) rotate(90) schwalbenschwanz();
+            //translate([0,1*10+4,0]) rotate(90) schwalbenschwanz();
+            translate([0,2*10+4,0]) rotate(90) schwalbenschwanz();
+            // bottom interface
+            translate([(a+w)/2,0,0]) rotate(180) schwalbenschwanz();
+            // top interface
+            translate([(a+w)/2,b+2*w,h]) rotate(  0) schwalbenschwanz();
+          }
+        linear_extrude(height = hb)       // bottom plate
+          polygon( points=[[0,0],[a+2*w,0],[a+2*w,b+2*w],[0,b+2*w]]);     
+      }
+      
+      union() {
+          translate([0,b/2+w,h-3])    // breakout for cable 
+            linear_extrude(height = h) 
+              square( [5, 10], center=true);
+      }
+    }
+}
+
+module cableClipA(w=1.0, h=10, l=29) {
+    // w: wall thickness
+    linear_extrude(height = h)
+      difference() {
+        union() {
+          translate([0,30/2-l/2]) square([w,l]);
+          // right interface
+          translate([w,0*10-0,0]) rotate(-90) schwalbenschwanz();
+          translate([w,1*10-0,0]) rotate(-90) schwalbenschwanz();
+          translate([w,2*10-0,0]) rotate(-90) schwalbenschwanz();
+          translate([w,3*10-0,0]) rotate(-90) schwalbenschwanz();
+          // left interface
+          translate([0,0*10+5,0]) rotate(90) schwalbenschwanz();
+          translate([0,2*10+5,0]) rotate(90) schwalbenschwanz();
+        }
+        union() {
+            translate([w+2,-5+(30-l)/2,0])    // cut at end
+                square( [4,10], center=true);
+            translate([w+2,15,0])    // breakout for cable 
+                square( [4, 8], center=true);
+            translate([w+2,35-(30-l)/2,0])    // cut at end
+                square( [4,10], center=true);
+        }
+      }
+}
+
+
 //------------- Instances --------------------
 
 
-translate([-26,0,0])
-rj45case(PiVersion=1);
+translate([-26,0,0]) rj45case(PiVersion=1);
 
-rj45fixture();
+wallmount();
 
-translate([60,0,0])
-connection();
+translate([60,0,0]) connection();
 
+translate([ 0,-36,0]) uBloxcase();
+translate([-10,-36,0]) cableClipA();
