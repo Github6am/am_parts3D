@@ -10,10 +10,11 @@
 //   - select the desired instances at the bottom of this file
 //     and use openscad to generate according STL files.
 //   - the dovetail connection plates fit also to a 35mm DIN-rail
+//     and may be combined in various ways
 //   - future ideas: make longsides of wallmount a dovetail snap-on
 //
-// Andreas Merz 01.01.2019, v0.6, GPL
-
+// Andreas Merz 01.01.2019, v0.6 
+// GPLv3 or later, see http://www.gnu.org/licenses
 
 // general purpose
 function ellipse(r1, r2, num=32) = 
@@ -106,7 +107,7 @@ module rj45case(w=2.0, PiVersion=1) {
 module wallmount(h=16.5, w=2.5, l=50) {
     // h: overall height, including bottom wall
     // w: wall thickness
-    // l: length to mount point
+    // l: length to mount point - depending on connectors and cable bend radius
     // wb: bottom wall
     wb=2.5;     // bottom thickness
     ws=6;       // side wall
@@ -201,6 +202,56 @@ module connection(h=32, w=4, l=60) {
   }
 }
 
+// horizontal print
+module connectionH(h=60, w=1.5, l=30) {
+    // h: overall height
+    // w: wall thickness
+    // l: length 
+    difference() {
+      union() {
+        rotate([0,-90,0])
+        union() {
+          linear_extrude(height = h)
+              union() {
+                square([w,l]);
+                for (i = [0 : l/10 - 1]) {
+                  // right interface
+                  translate([w, i*10+5, 0]) rotate(-90) schwalbenschwanz();
+                }
+              }
+        }
+        // place tabs at the corners to prevent bending and rip-off
+        linear_extrude(height = 0.4)
+          translate([0,0])
+             circle(8/2,$fn=32);
+        linear_extrude(height = 0.4)
+          translate([0,l])
+             circle(8/2,$fn=32);
+        linear_extrude(height = 0.4)
+          translate([-h,l])
+             circle(8/2,$fn=32);
+        linear_extrude(height = 0.4)
+          translate([-h,0])
+             circle(8/2,$fn=32);
+        
+      }
+      union() {
+        for (ix = [0 : h/20]) {          // mounting hole grid 
+          for (iy = [0 : l/20]) {        // mounting hole grid 
+            union() {
+              translate([ix*20-h+10,iy*20+5,-0.1])          // hole - Bohrloch
+                linear_extrude(height = w+2)
+                  circle(2.2/2,$fn=32);
+              translate([ix*20-h+10,iy*20+5,2.0])
+                linear_extrude(height = w+0.1, scale=2.9)   // cone - Senkung
+                  circle(2.2/2,$fn=32);
+            }
+          }
+        }
+      }
+    }
+}
+
 //-------------------------------------------
 // enclosure for uBlox GPS module
 //-------------------------------------------
@@ -285,5 +336,8 @@ wallmount();
 
 translate([60,0,0]) connection();
 
-translate([ 0,-36,0]) uBloxcase();
+translate([  0,-36,0]) uBloxcase();
 translate([-10,-36,0]) cableClipA();
+
+
+translate([30, 40,0]) connectionH(h=60, l=30);
