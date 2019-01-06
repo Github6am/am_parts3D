@@ -13,7 +13,7 @@
 //     and may be combined in various ways
 //   - future ideas: make longsides of wallmount a dovetail snap-on
 //
-// Andreas Merz 01.01.2019, v0.6 
+// Andreas Merz 2019-01-06, v0.7 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 // general purpose
@@ -252,6 +252,32 @@ module connectionH(h=60, w=1.5, l=30) {
     }
 }
 
+
+//--------------------------------------------------
+// 35mm DIN-Rail adapter, if snap-on is needed
+//--------------------------------------------------
+// thanks to Robert Hunt https://www.thingiverse.com/thing:101024
+module connectionDIN(h=10.0, y=5) {
+  //y:  shift of dovetail pattern in y-direction
+  linear_extrude(height = h)
+      union() {
+        difference() {
+          import("/home/amerz/download/thingiverse/PCB_mounting_clips_for_35mm_DIN_Rail/din_clip_01.dxf");
+          translate([-10,0,0]) square([10,10]);
+          }
+        // left interface
+        translate([0.2,0*10+y,0]) rotate(90) schwalbenschwanz();
+        translate([0.2,1*10+y,0]) rotate(90) schwalbenschwanz();
+        translate([0.2,2*10+y,0]) rotate(90) schwalbenschwanz();
+        translate([0.2,3*10+y,0]) rotate(90) schwalbenschwanz();
+        translate([0.2,4*10+y,0]) rotate(90) schwalbenschwanz();
+        
+        // screwdriver hook for removal
+        translate([13.4,0.2,0]) polygon([[2.5,0],[2.5,-1.2],[0,-1.7],[0,-1.5],[0,-3],[3,-3],[6,0]]);
+      }
+}
+
+
 //-------------------------------------------
 // enclosure for uBlox GPS module
 //-------------------------------------------
@@ -326,10 +352,56 @@ module cableClipA(w=1.0, h=10, l=29) {
       }
 }
 
+// Mounting pins
+module clipB(h=4, shape=3) {
+    // h: overall height
+    opt_slot  =(shape%2 >=1); // bit 0: screwdriver slot at bottom
+    opt_shave =(shape%4 >=2); // bit 1: narrow in x-direction
+    opt_recb  =(shape%8 >=4); // bit 2: square shape bottom
+    opt_rect  =(shape%16>=8); // bit 3: square shape top
+    c=0.1;                   // clearance
+    difference() {
+      union() {
+        translate([0 ,0, 0])              // bottom cone
+          if( opt_recb ) {
+            linear_extrude(height = (h-c)/2, scale=(4-c)/(6-c))
+               circle((6*sqrt(2)-c)/2,$fn=4);
+          } else {
+            linear_extrude(height = (h-c)/2, scale=(4-c)/(6-c))
+               circle((6-c)/2,$fn=32);
+          }
+        translate([0 ,0, 1])              // spacer 
+          linear_extrude(height = 2)
+             circle(4/2,$fn=32);
+        translate([0 ,0, 2-c])            // top cone
+          if( opt_rect ) {
+            linear_extrude(height = (h-c)/2, scale=(6-c)/(4-c))
+               circle((4*sqrt(2)-c)/2,$fn=4);
+          } else {
+            linear_extrude(height = (h-c)/2, scale=(6-c)/(4-c))
+               circle((4-c)/2,$fn=32);
+          }
+      }
+      union() {
+        if( opt_shave) {
+        translate([-4.15 ,0, 2])            // right shave
+          linear_extrude(height = 3)
+             square([4,6], center=true);
+        translate([4.15 ,0, 2])            // left shave
+          linear_extrude(height = 3)
+             square([4,6], center=true);
+        }
+        if( opt_slot) {
+          translate([0 ,0, 0])              // screwdriver slot
+            linear_extrude(height = 1.5, scale=0.8)
+               square([1,3.5], center=true);
+        }
+      }
+    }
+}
+
 
 //------------- Instances --------------------
-
-
 translate([-26,0,0]) rj45case(PiVersion=1);
 
 wallmount();
@@ -341,3 +413,28 @@ translate([-10,-36,0]) cableClipA();
 
 
 translate([30, 40,0]) connectionH(h=60, l=30);
+
+// print all the small parts close together to avoid rip-off
+if(true) {
+  translate([-30, -15,0])
+    union() {
+      translate(6*[ 1,  1, 0]) rotate(45) clipB(shape=13);
+      translate(6*[ 1,  0, 0]) rotate(90) clipB();
+      translate(6*[ 1, -1, 0]) rotate(45) clipB(shape=13);
+
+      translate(6*[ 0,  1, 0]) clipB(shape=1);
+      translate(6*[ 0,  0, 0]) clipB();
+      translate(6*[ 0, -1, 0]) clipB(shape=1);
+
+      translate(6*[-1, -1, 0]) rotate(45) clipB(shape=7);
+      translate(6*[-1,  0, 0]) rotate(45) clipB(shape=8);
+      translate(6*[-1,  1, 0]) rotate(45) clipB(shape=7);
+
+      translate(6*[-2, -1, 0]) rotate(45) clipB(shape=11);
+      translate(6*[-2,  0, 0]) rotate(45) clipB(shape=5);
+      translate(6*[-2,  1, 0]) rotate(45) clipB(shape=9);
+
+    }
+  }
+
+translate([ 30, -60, 0]) connectionDIN();
