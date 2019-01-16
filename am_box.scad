@@ -13,6 +13,19 @@ module octaeder(r=1) {
   }
 }
 
+module halfsphere(r=1) {
+  intersection() { 
+    sphere(r, $fn=20); 
+    translate([-2,-2,0]*r) cube(4*r);
+  }
+}
+
+
+module trapezrot(r=1) {
+   rotate_extrude($fn=20)
+      polygon([[0,r/2],[r,r/3],[r,-r/3],[0,-r/2]]);
+}
+
 module mouseear4(xm=100, ym=100, hm=0.45) {
   rm=9;
   linear_extrude(height=hm)
@@ -24,7 +37,9 @@ module mouseear4(xm=100, ym=100, hm=0.45) {
     }
 }
 
-
+//------------------------
+// simple brick-shaped box
+//------------------------
 module am_boxA(x=100, y=100, z=20) {
   // x,y,z: inner dimensions
   w=1;    // wall thickness
@@ -39,20 +54,30 @@ module am_boxA(x=100, y=100, z=20) {
   }
 }
 
+//------------------------
+// stackable box
+//------------------------
 module am_boxB(x=100, y=100, z=20) {
   // x,y,z: inner dimensions
-  w=1;    // wall thickness
+  w=0.8;         // wall thickness
+  sx=(x+2*w)/x;  // slope factor x
+  sy=(y+2*w)/y;  // slope factor y
   union() {
     difference() {
-      minkowski() {        // outer contour, chamfered
-        cube([x,y,z]);
-        rotate([180,0,0]) pyramid(h=w);
+      union() {
+        minkowski() {                    // outer contour, chamfered
+          linear_extrude(height=z, scale=[sx,sy]) square([x,y],center=true);
+          rotate([180,0,0]) halfsphere(r=w);
+        }
+        translate([0,0,3])               // stacking rim
+          minkowski() { 
+            linear_extrude(height=0.1) 
+              square([x+2*w,y+2*w],center=true);
+            trapezrot(r=w);
+          }
+            
       }
-      translate([0.25, 0.25, 0]) // inner box
-      minkowski() {        // outer contour, chamfered
-        cube([x-0.5,y-0.5,z+w]);
-        cylinder(r=0.25,h=0.1,$fn=32);
-      }
+      linear_extrude(height=z+0.05, scale=[sx,sy]) square([x,y],center=true); // inner box
     }
   }
 }
@@ -61,6 +86,6 @@ module am_boxB(x=100, y=100, z=20) {
 
 //octaeder(r=10);
 
-am_boxA(x=50);
+translate([0,0,-21]) am_boxB(x=50);
 
-
+//trapezrot(r=10);

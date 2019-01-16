@@ -1,4 +1,4 @@
-// Raspberry Pi fixture for 3D printing
+// Raspberry Pi fixture for 3D printing, modular system
 // 
 // Attach to the RJ45 case, if using Raspi's mounting holes is not an option.
 // 
@@ -12,8 +12,10 @@
 //   - the dovetail connection plates fit also to a 35mm DIN-rail
 //     and may be combined in various ways
 //   - future ideas: make longsides of wallmount a dovetail snap-on
+//   - repository: https://github.com/Github6am/am_parts3D
+//   - CAD manual: http://www.openscad.org/documentation.html
 //
-// Andreas Merz 2019-01-06, v0.7 
+// Andreas Merz 2019-01-12, v0.8 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 // general purpose
@@ -257,12 +259,15 @@ module connectionH(h=60, w=1.5, l=30) {
 // 35mm DIN-Rail adapter, if snap-on is needed
 //--------------------------------------------------
 // thanks to Robert Hunt https://www.thingiverse.com/thing:101024
+// for din_clip_01.dxf released under 
+// https://creativecommons.org/licenses/by/3.0/
+//
 module connectionDIN(h=10.0, y=5) {
   //y:  shift of dovetail pattern in y-direction
   linear_extrude(height = h)
       union() {
         difference() {
-          import("/home/amerz/download/thingiverse/PCB_mounting_clips_for_35mm_DIN_Rail/din_clip_01.dxf");
+          import("din_clip_01.dxf");
           translate([-10,0,0]) square([10,10]);
           }
         // left interface
@@ -414,7 +419,7 @@ translate([-10,-36,0]) cableClipA();
 
 translate([30, 40,0]) connectionH(h=60, l=30);
 
-// print all the small parts close together to avoid rip-off
+// print all the small clipB parts close together to avoid rip-off
 if(true) {
   translate([-30, -15,0])
     union() {
