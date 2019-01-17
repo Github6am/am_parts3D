@@ -60,8 +60,9 @@ module am_boxA(x=100, y=100, z=20) {
 module am_boxB(x=100, y=100, z=20) {
   // x,y,z: inner dimensions
   w=0.8;         // wall thickness
-  sx=(x+2*w)/x;  // slope factor x
-  sy=(y+2*w)/y;  // slope factor y
+  c=0.9;         // clearance
+  sx=(x+2*w+c)/x;  // slope factor x
+  sy=(y+2*w+c)/y;  // slope factor y
   union() {
     difference() {
       union() {
@@ -86,6 +87,6 @@ module am_boxB(x=100, y=100, z=20) {
 
 //octaeder(r=10);
 
-translate([0,0,-21]) am_boxB(x=50);
+translate([0,0,0]) am_boxB(x=50);
 
 //trapezrot(r=10);
