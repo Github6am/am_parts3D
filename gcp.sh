@@ -13,6 +13,8 @@
 #  gcp.sh -t   # test run, do not copy but show what will be done
 #  gcp.sh *.g  # copy all g-files to SD-card, print the first
 #
+#  gcp.sh temp=215 *.g  # patch g-files, set temperature, and copy
+#
 # Background:
 #   - frequently plugging, mounting, copying, unmounting is boring...
 #   - used for my Dagoma DiscoEasy200 printer wich prints by default
@@ -26,8 +28,11 @@ hc=cat
 #--- default settings ---
 gext=dagoma0.g      # g-file file name extension for SD-card print target
 gfile=$(ls -1tr *.g | tail -n 1)  # take latest g-file in actual directory
-mountpoint=/mnt/mnt
-sdev=/dev/sdd1
+mountpoint=/mnt/mnt               # where to mount the SD-card
+sdev=/dev/sdd1                    # SD-card device
+header=";$USER@$HOSTNAME $(date  '+%F %T')"     # add a header to gcode file
+fixfan="M106 S81"                 # patch for M107 fan off bug in dagoma.g
+temp=""                           # patch extruder temperature
 
 #--- process arguments ---
 cmdline="$0 $@"
@@ -73,6 +78,27 @@ if [ "$gfiles" == "" ] ; then
 fi
 
 #-------------------------------------------------
+# patch g-code loop
+#-------------------------------------------------
+for ii in $gfiles ; do
+  if [ "$fixfan$header$temp" ] ; then 
+    $t cp -pi $ii $ii.orig
+  fi
+  if [ "$header" ] ; then
+    echo "# $ii  - adding header in $ii"
+    $t sed -i -e "2,2s#^;#$header $ii\n;$cmdline\n;#" $ii
+  fi
+  if [ "$fixfan" ] ; then
+    echo "# $ii  - patching M107 statement to $fixfan"
+    $t sed -i -e "/;LAYER:0/,/;TYPE:SKIRT/s/^M107/$fixfan ; M107 patched by gcp.sh /" $ii
+  fi
+  if [ "$temp" ] ; then
+    echo "# $ii  - changing temperature to $temp"
+    $t sed -i -e "s/^\(M104 S[1-9].*\)/M104 S$temp ; \1 - patched by gcp.sh /" $ii
+  fi
+done
+
+#-------------------------------------------------
 # copy loop
 #-------------------------------------------------
 if ! sudo mount | grep $mountpoint ; then
@@ -85,6 +111,4 @@ $t sudo cp --preserve=timestamps $gfiles $mountpoint
 $t sudo cp --preserve=timestamps $gfile $mountpoint/$gext
 $t sudo umount $mountpoint
 
-
-# todo: add original filename as comment in g-file
 
