@@ -80,6 +80,7 @@ module mouseear4(xm=50, ym=100, hm=0.45) {
     }
 }
 
+
 //------------------------
 // simple brick-shaped box
 //------------------------
@@ -159,12 +160,62 @@ module am_boxC(x=50, y=100, z=20) {
   }
 }
 
+//---------------------------------
+// label to fit between dovetail 
+//---------------------------------
+// for symbols, consider png23d
+//
+module am_boxlabelA( txt="1", lx=25, ly=15, align=3/4 ) {
+  // lx:    mean label width
+  w=0.8;               // thickness
+  fontname = "Liberation Sans";
+  fontsize = 5;
+  c=0.3;               // clearance - negative: make tighter
+  s=1-w/(2*(lx+1-c));  // scale factor
+  union() {
+    translate([(lx+1-c)/2,ly/2,0]) linear_extrude(height = w, scale=[s,1]) 
+      square([lx+1-c,ly],center=true);
+    color("red")
+    translate([lx/2,ly*align,w]) linear_extrude(height = 0.4) 
+      text(txt, size = fontsize, font = fontname, halign = "center", valign = "center", $fn = 16);
+  }
+}
+
+module am_boxlabel( txt="1", lx=25, ly=15, align=2/3 ) {
+  // lx:    mean label width
+  w=0.8;               // thickness
+  fontname = "Liberation Sans";
+  fontsize = 5;
+  c=0.3;               // clearance
+  difference() {
+    union() {
+      translate([0,0,0]) linear_extrude(height = w) 
+        square([lx+2,ly]);
+      color("red")
+      translate([(lx+0.5)/2,ly*align,w]) linear_extrude(height = 0.4) 
+        text(txt, size = fontsize, font = fontname, halign = "center", valign = "center", $fn = 16);
+    }
+
+    union() {
+        translate([-5/2+0.8+c,-1,0.75]) rotate([92.5,0,180]) dovetail3D(h=ly+2);
+        translate([lx+5-5/2,  -1,0.75]) rotate([92.5,0,180]) dovetail3D(h=ly+2);
+    }
+  }
+}
+
 
 //---------------- Instances ---------------------
 
 //octaeder(r=10);
+//trapezrot(r=10);
 
-translate([0,0,0]) am_boxC();
+//translate([0,0,0]) am_boxC();
 //translate([0,106,0]) am_boxC();
 
-//trapezrot(r=10);
+if ( 1 ) {
+  // do not forget to change color in slicer before the text layers
+  translate([0,0,0]) am_boxlabel(txt="M4");
+  translate([0,17,0]) am_boxlabel(txt="M3");
+  translate([0,-17,0]) am_boxlabel(txt="M2.5");
+  translate([0,-17*2,0]) am_boxlabelA(txt="M2");
+}
