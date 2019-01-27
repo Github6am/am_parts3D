@@ -3,7 +3,7 @@
 # gcp.sh
 #
 # Purpose: 
-#   mount, copy g-file to sdcard, unmount
+#   patch, mount, copy g-file to sdcard, unmount
 #
 # Usage examples:
 #
@@ -17,10 +17,11 @@
 #
 # Background:
 #   - frequently plugging, mounting, copying, unmounting is boring...
-#   - used for my Dagoma DiscoEasy200 printer wich prints by default
-#     the file dagoma0.g on the SD-card
-
-# $Header: gcp.sh, v0.1, Andreas Merz, 2019-01-06 $
+#   - optional patching of g-code files
+#   - used for my Dagoma DiscoEasy200 printer which prints by default
+#     the file dagoma0.g from the SD-card
+#
+# $Header: gcp.sh, v0.2, Andreas Merz, 2019-01-27 $
 # GPLv3 or later, see http://www.gnu.org/licenses
 
 hc=cat
