@@ -165,7 +165,7 @@ module am_boxC(x=50, y=100, z=20) {
 //---------------------------------
 // for symbols, consider png23d
 //
-module am_boxlabelA( txt="1", lx=25, ly=15, align=3/4 ) {
+module am_boxlabelA( txt="1", lx=25, ly=15, align=2/3 ) {
   // lx:    mean label width
   w=0.8;               // thickness
   fontname = "Liberation Sans";
@@ -214,8 +214,8 @@ module am_boxlabel( txt="1", lx=25, ly=15, align=2/3 ) {
 
 if ( 1 ) {
   // do not forget to change color in slicer before the text layers
-  translate([0,0,0]) am_boxlabel(txt="M4");
-  translate([0,17,0]) am_boxlabel(txt="M3");
-  translate([0,-17,0]) am_boxlabel(txt="M2.5");
-  translate([0,-17*2,0]) am_boxlabelA(txt="M2");
+  translate([0, 2*17,0]) am_boxlabel(lx=35,txt="Baubles");
+  translate([0, 1*17,0]) am_boxlabel(lx=35,txt="Bangles");
+  translate([0, 0*17,0]) am_boxlabel(      txt="Beads");
+  translate([0,-1*17,0]) am_boxlabel(      txt="Rings");
 }
