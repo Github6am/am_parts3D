@@ -1,21 +1,45 @@
-echo '
-;LAYER:1
-M117 Nb = 2 / 2    ; Display Message
-M106 S96
-G0 F6000 X102.377 Y100.301 Z0.460
-;TYPE:WALL-OUTER
-G1 F1140 X102.623 Y100.301 E7.93287
-G1 X102.623 Y104.569 E8.07483
-G1 X104.271 Y104.569 E8.12964
-G1 X104.271 Y104.699 E8.13397
-G1 X100.729 Y104.699 E8.25177
-G1 X100.729 Y104.569 E8.25610
-G1 X102.377 Y104.569 E8.31091
-G1 X102.377 Y100.301 E8.45286
-' |
+
+# https://reprap.org/wiki/G-code/de#G0_.26_G1:_Move
+
+#echo '
+#;LAYER:1
+#M117 Nb = 2 / 2    ; Display Message
+#M106 S96
+#G0 F6000 X102.377 Y100.301 Z0.460
+#;TYPE:WALL-OUTER
+#G1 F1140 X102.623 Y100.301 E7.93287
+#G1 X102.623 Y104.569 E8.07483
+#G1 X104.271 Y104.569 E8.12964
+#G1 X104.271 Y104.699 E8.13397
+#G1 X100.729 Y104.699 E8.25177
+#G1 X100.729 Y104.569 E8.25610
+#G1 X102.377 Y104.569 E8.31091
+#G1 X102.377 Y100.301 E8.45286
+#' |
+
+cat T.dagoma0.g |
 awk '
-  /^ *;/    {  print "%" $0 }
-  /LAYER:/  { split($0, val, "LAYER:", key); n=val[2];}
+           {
+             #comment=sprintf("%%%5d %s",FNR,$0);   # add line number of current file
+             comment=sprintf("%%%s",$0);
+           }
+  /LAYER:/ { split($0, val, "LAYER:", key); 
+             n=val[2];    # Layer number
+             flushmat=1;
+           }
+  /TYPE:/  { split($0, val, "TYPE:",  key); 
+             type=val[2];
+             switch(type) {
+               case /SKIRT/:      typeshort="sk"; break;
+               case /WALL-OUTER/: typeshort="wo"; break;
+               case /FILL/:       typeshort="fi"; break;
+               default:           typeshort="";   break;
+             }
+             flushmat=2;
+           }
+  /M84/    {
+             flushmat=3;   # Shut down at end
+           }
   /^G[01]/ { split($0, val, " *[XYZEF;]", key);
              #print "%" $0 
              for(i=1; key[i]!="" ; i++) { 
@@ -41,14 +65,21 @@ awk '
              ee=sprintf("%s %8.3f", ee, Enew);
              #ee=sprintf("%s %8.3f", ee, rextrusion);
              Xold=Xnew; Yold=Ynew; Zold=Znew; Fold=Fnew;
+             comment="";
            }
-       END {
-             printf("x%d=[%s];\n",n,xx);
-             printf("y%d=[%s];\n",n,yy);
-             printf("z%d=[%s];\n",n,zz);
-             printf("d%d=[%s];\n",n,dd);
-             printf("e%d=[%s];\n",n,ee);
-             printf("f%d=[%s];\n",n,ff);
-             printf("plot3( x%d,y%d,z%d, %cLineWidth%c, 2);\n",n,n,n,39, 39);
-           }'
+           { if(comment!="") print comment;
+             if(flushmat > 0) {
+               v=sprintf("%d%s",n,typeshort);  # variable number + extension
+               printf("x%s=[%s];\n",v,xx);
+               printf("y%s=[%s];\n",v,yy);
+               printf("z%s=[%s];\n",v,zz);
+               printf("d%s=[%s];\n",v,dd);
+               printf("e%s=[%s];\n",v,ee);
+               printf("f%s=[%s];\n",v,ff);
+               printf("plot3( x%s,y%s,z%s, %cLineWidth%c, 2); grid on; hold on;\n",v,v,v, 39, 39);
+               flushmat=0;
+               xx=""; yy=""; zz=""; dd=""; ee=""; ff="";
+             }
+           }
+           '
 
