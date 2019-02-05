@@ -166,7 +166,8 @@ module am_boxC(x=50, y=100, z=20) {
 // for symbols, consider png23d
 //
 module am_boxlabelA( txt="1", lx=25, ly=15, align=2/3 ) {
-  // lx:    mean label width
+  // lx:    label width, actually it will be 1 mm more to fit between dovetails
+  // ly:    label heigth
   w=0.8;               // thickness
   fontname = "Liberation Sans";
   fontsize = 5;
@@ -211,8 +212,9 @@ module am_boxlabel( txt="1", lx=25, ly=15, align=2/3 ) {
 
 //translate([0,0,0]) am_boxC();
 //translate([0,106,0]) am_boxC();
+translate([0,106,0]) am_boxC(z=37);  // double height
 
-if ( 1 ) {
+if ( 0 ) {
   // do not forget to change color in slicer before the text layers
   translate([0, 2*17,0]) am_boxlabel(lx=35,txt="Baubles");
   translate([0, 1*17,0]) am_boxlabel(lx=35,txt="Bangles");
