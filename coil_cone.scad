@@ -3,7 +3,7 @@
 // print 2 cone instances and stack them.
 // or print spokewheels to put reels in a box
 //
-// Andreas Merz 21.12.2018, v0.4, GPL
+// Andreas Merz 21.12.2018, v0.5, GPL
 
 
 
@@ -107,12 +107,13 @@ module axeB(diabore=10, h=3) {
 }
 
 module inset(diabore=10, h=7, hrim=2) {
+  c=0.3;
   difference() {
     union() {
       linear_extrude(height = hrim)    // rim
-        circle((diabore+1)/2, $fn = 90);
+        circle((diabore+1-c)/2, $fn = 90);
       linear_extrude(height = h)    //  
-        circle(diabore/2-0.12, $fn = 90);
+        circle((diabore-c)/2, $fn = 90);
     }
     translate([0,0,-1])
       linear_extrude(height = h+4)    // bore hole
@@ -130,9 +131,26 @@ module rolle(di=10) {
          rotate_extrude($fn = 80)
            translate([(di+c)/2, 0, 0])
              difference() {
-               square([(24-(di+c))/2,10-c]);
-               translate([(24-(di+c)+1)/2, 5-c/2]) circle(r=5/2);
+               polygon( [[(22-(di+c))/2,   9-c], [(1+c)/2,9-c], [(1+c)/2,7-c], [0,7-c], [0,0], [(22-(di+c))/2,0]]);
+               //square( [(22-(di+c))/2,   9-c]);
+               translate([(22-(di+c)+1)/2, (9-c)/2]) circle(r=5/2);
              }
+}
+
+//-------------------------------------
+// Filament Clip
+//-------------------------------------
+module filamentclip(di=9) {
+         c=0.2;
+         d=1.75;  // filament diameter
+         union() {
+           translate([ 0, 0, 1]) cube([10,20,2], center=true);
+           translate([ 0, -2*(2+d-c),2])   linear_extrude(height=10, scale=[1, 0.8]) square([10,2], center=true);
+           translate([ 0, -1*(2+d-c),2])   linear_extrude(height=10, scale=[1, 0.8]) square([10,2], center=true);
+           translate([ 0,  0*(2+d-c),2])   linear_extrude(height=10, scale=[1, 0.8]) square([10,2], center=true);
+           translate([ 0,  1*(2+d-c),2])   linear_extrude(height=10, scale=[1, 0.8]) square([10,2], center=true);
+           translate([ 0,  2*(2+d-c),2])   linear_extrude(height=10, scale=[1, 0.8]) square([10,2], center=true);
+    }
 }
 
 
@@ -141,10 +159,17 @@ module rolle(di=10) {
 
 //cone();
 //spokewheelB();
-spokewheelB(dia=53);
+//spokewheelB(dia=53);
 
-translate([12,12,0]) inset();
-translate([12,-12,0]) inset(h=21, hrim=14);  // extended inset
-translate([-12,-12,0]) axeB();
+//translate([12,12,0]) inset();
+//translate([12,-12,0]) inset(h=21, hrim=14);  // extended inset
+//translate([-12,-12,0]) axeB();
 
+
+translate([12,0,0]) inset(h=9.3);
 //rolle();
+
+
+translate([-0*12,0,0]) filamentclip();
+translate([-1*12,0,0]) filamentclip();
+translate([-2*12,0,0]) filamentclip();

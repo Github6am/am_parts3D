@@ -182,11 +182,11 @@ module am_boxlabelA( txt="1", lx=25, ly=15, align=2/3 ) {
   }
 }
 
-module am_boxlabel( txt="1", lx=25, ly=15, align=2/3, fontname = "Liberation Sans" ) {
+module am_boxlabel( txt="1", lx=25, ly=15, align=1/2, fontname = "FreeSans:Bold" ) {
   // lx:    mean label width
   w=0.8;               // thickness
   //fontname = "Liberation Sans";
-  fontsize = 5;
+  fontsize = 7;
   c=0.3;               // clearance
   difference() {
     union() {
@@ -194,7 +194,7 @@ module am_boxlabel( txt="1", lx=25, ly=15, align=2/3, fontname = "Liberation San
         square([lx+2,ly]);
       color("red")
       translate([(lx+0.5)/2,ly*align,w]) linear_extrude(height = 0.4) 
-        text(txt, size = fontsize, font = fontname, halign = "center", valign = "center", $fn = 16);
+        text(txt, size = fontsize, font = fontname, halign = "center", valign = "center", $fn = 40);
     }
 
     union() {
@@ -205,13 +205,12 @@ module am_boxlabel( txt="1", lx=25, ly=15, align=2/3, fontname = "Liberation San
 }
 
 
-module am_gauge( fontname = "Liberation Sans" ) {
-  // lx:    mean label width
+module am_gauge( fontname = "FreeSans:Bold" ) {
   w=0.8;               // thickness
   //fontname = "Liberation Sans";
   fontsize = 4;
   c=0.3;               // clearance
-  n=7;
+  n=7;                 // step length
     union() {
       translate([0,0,0]) linear_extrude(height = w) 
         difference() {
@@ -226,21 +225,21 @@ module am_gauge( fontname = "Liberation Sans" ) {
                     [-5.0,3*n],[-5.0,2*n],
                     [-5.5,2*n],[-5.5,1*n],
                     [-6.0,1*n],[-6.0,0*n],
-                    [0, 0],    [0,10*n] ]);
+                    [c, 0],    [c,10*n] ]);
       }
       color("red")
       translate([0,3,w]) linear_extrude(height = 0.4) 
       union() {
-        translate([-14,9*n]) text("1.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
-        translate([-14,8*n]) text("2  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
-        translate([-14,7*n]) text("2.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
-        translate([-14,6*n]) text("3  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
-        translate([-14,5*n]) text("3.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
-        translate([-14,4*n]) text("4  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
-        translate([-14,3*n]) text("4.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
-        translate([-14,2*n]) text("5  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
-        translate([-14,1*n]) text("5.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
-        translate([-14,0*n]) text("6  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,9*n]) text("1.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
+        translate([-14,8*n]) text("2  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
+        translate([-14,7*n]) text("2.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
+        translate([-14,6*n]) text("3  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
+        translate([-14,5*n]) text("3.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
+        translate([-14,4*n]) text("4  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
+        translate([-14,3*n]) text("4.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
+        translate([-14,2*n]) text("5  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
+        translate([-14,1*n]) text("5.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
+        translate([-14,0*n]) text("6  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 32);
       }
     }
 
@@ -265,13 +264,13 @@ if ( 0 ) {
 }
 if ( 1 ) {
   // do not forget to change color in slicer before the text layers
-  translate([0, 3*17,0]) am_boxlabel(txt="M8");
-  translate([0, 2*17,0]) am_boxlabel(txt="M6");
-  translate([0, 1*17,0]) am_boxlabel(txt="M5");
-  translate([0, 0*17,0]) am_boxlabel(txt="M4");
-  translate([0,-1*17,0]) am_boxlabel(txt="M3");
-  translate([0,-2*17,0]) am_boxlabel(txt="M2.5");
-  translate([0,-3*17,0]) am_boxlabel(txt="M2");
+  translate([0, 3*17,0]) am_boxlabel(txt="M 8");
+  translate([0, 2*17,0]) am_boxlabel(txt="M 6");
+  translate([0, 1*17,0]) am_boxlabel(txt="M 5");
+  translate([0, 0*17,0]) am_boxlabel(txt="M 4");
+  translate([0,-1*17,0]) am_boxlabel(txt="M 3");
+  translate([0,-2*17,0]) am_boxlabel(txt="M 2.5");
+  translate([0,-3*17,0]) am_boxlabel(txt="M 2");
 
   translate([27, 3*17,0]) am_boxlabel(txt="\u2300 8", fontname="FreeSans:style=Mittel");
   translate([27, 2*17,0]) am_boxlabel(txt="\u2300 6", fontname="FreeSans:style=Mittel");
