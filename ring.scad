@@ -25,6 +25,10 @@ module ringC(di=16) {
              polygon( points=ellipse(num=6, dx=2,dy=5));
 }
 
+
+// --------------------- Instances ------------------------------
+
+
 color("blue")
 translate([0, 0, 0])
   ringA();

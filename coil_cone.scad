@@ -121,7 +121,23 @@ module inset(diabore=10, h=7, hrim=2) {
   }
 }
 
+
+//-------------------------------------
+// Laufrolle fuer Kirchenweg Glashaus
+//-------------------------------------
+module rolle(di=10) {
+         c=0.4;
+         rotate_extrude($fn = 80)
+           translate([(di+c)/2, 0, 0])
+             difference() {
+               square([(24-(di+c))/2,10-c]);
+               translate([(24-(di+c)+1)/2, 5-c/2]) circle(r=5/2);
+             }
+}
+
+
 //------------- Instances --------------------
+
 
 //cone();
 //spokewheelB();
@@ -131,3 +147,4 @@ translate([12,12,0]) inset();
 translate([12,-12,0]) inset(h=21, hrim=14);  // extended inset
 translate([-12,-12,0]) axeB();
 
+//rolle();

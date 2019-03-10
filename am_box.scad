@@ -182,10 +182,10 @@ module am_boxlabelA( txt="1", lx=25, ly=15, align=2/3 ) {
   }
 }
 
-module am_boxlabel( txt="1", lx=25, ly=15, align=2/3 ) {
+module am_boxlabel( txt="1", lx=25, ly=15, align=2/3, fontname = "Liberation Sans" ) {
   // lx:    mean label width
   w=0.8;               // thickness
-  fontname = "Liberation Sans";
+  //fontname = "Liberation Sans";
   fontsize = 5;
   c=0.3;               // clearance
   difference() {
@@ -205,6 +205,48 @@ module am_boxlabel( txt="1", lx=25, ly=15, align=2/3 ) {
 }
 
 
+module am_gauge( fontname = "Liberation Sans" ) {
+  // lx:    mean label width
+  w=0.8;               // thickness
+  //fontname = "Liberation Sans";
+  fontsize = 4;
+  c=0.3;               // clearance
+  n=7;
+    union() {
+      translate([0,0,0]) linear_extrude(height = w) 
+        difference() {
+          translate([-15,-5,0]) square([20,80]);
+          polygon([ [-1.5,10*n],[-1.5,9*n],
+                    [-2.0,9*n],[-2.0,8*n],
+                    [-2.5,8*n],[-2.5,7*n],
+                    [-3.0,7*n],[-3.0,6*n],
+                    [-3.5,6*n],[-3.5,5*n],
+                    [-4.0,5*n],[-4.0,4*n],
+                    [-4.5,4*n],[-4.5,3*n],
+                    [-5.0,3*n],[-5.0,2*n],
+                    [-5.5,2*n],[-5.5,1*n],
+                    [-6.0,1*n],[-6.0,0*n],
+                    [0, 0],    [0,10*n] ]);
+      }
+      color("red")
+      translate([0,3,w]) linear_extrude(height = 0.4) 
+      union() {
+        translate([-14,9*n]) text("1.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,8*n]) text("2  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,7*n]) text("2.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,6*n]) text("3  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,5*n]) text("3.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,4*n]) text("4  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,3*n]) text("4.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,2*n]) text("5  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,1*n]) text("5.5", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+        translate([-14,0*n]) text("6  ", size = fontsize, font = fontname, halign = "left", valign = "center", $fn = 16);
+      }
+    }
+
+}
+
+
 //---------------- Instances ---------------------
 
 //octaeder(r=10);
@@ -212,7 +254,7 @@ module am_boxlabel( txt="1", lx=25, ly=15, align=2/3 ) {
 
 //translate([0,0,0]) am_boxC();
 //translate([0,106,0]) am_boxC();
-translate([0,106,0]) am_boxC(z=37);  // double height
+//translate([0,106,0]) am_boxC(z=20);  // double height
 
 if ( 0 ) {
   // do not forget to change color in slicer before the text layers
@@ -221,3 +263,23 @@ if ( 0 ) {
   translate([0, 0*17,0]) am_boxlabel(      txt="Beads");
   translate([0,-1*17,0]) am_boxlabel(      txt="Rings");
 }
+if ( 1 ) {
+  // do not forget to change color in slicer before the text layers
+  translate([0, 3*17,0]) am_boxlabel(txt="M8");
+  translate([0, 2*17,0]) am_boxlabel(txt="M6");
+  translate([0, 1*17,0]) am_boxlabel(txt="M5");
+  translate([0, 0*17,0]) am_boxlabel(txt="M4");
+  translate([0,-1*17,0]) am_boxlabel(txt="M3");
+  translate([0,-2*17,0]) am_boxlabel(txt="M2.5");
+  translate([0,-3*17,0]) am_boxlabel(txt="M2");
+
+  translate([27, 3*17,0]) am_boxlabel(txt="\u2300 8", fontname="FreeSans:style=Mittel");
+  translate([27, 2*17,0]) am_boxlabel(txt="\u2300 6", fontname="FreeSans:style=Mittel");
+  translate([27, 1*17,0]) am_boxlabel(txt="\u2300 5", fontname="FreeSans:style=Mittel");
+  translate([27, 0*17,0]) am_boxlabel(txt="\u2300 4", fontname="FreeSans:style=Mittel");
+  translate([27,-1*17,0]) am_boxlabel(txt="\u2300 3", fontname="FreeSans:style=Mittel");
+  translate([27,-2*17,0]) am_boxlabel(txt="\u2300 2.5", fontname="FreeSans:style=Mittel");
+  translate([27,-3*17,0]) am_boxlabel(txt="\u2300 2", fontname="FreeSans:style=Mittel");
+}
+
+translate([-7,-9,0]) am_gauge();
