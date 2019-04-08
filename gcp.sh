@@ -20,6 +20,7 @@
 #   - optional patching of g-code files
 #   - used for my Dagoma DiscoEasy200 printer which prints by default
 #     the file dagoma0.g from the SD-card
+#   - https://reprap.org/wiki/G-code/de#M109:_Set_Extruder_Temperature_and_Wait
 #
 # $Header: gcp.sh, v0.2, Andreas Merz, 2019-01-27 $
 # GPLv3 or later, see http://www.gnu.org/licenses
@@ -33,6 +34,7 @@ mountpoint=/mnt/mnt               # where to mount the SD-card
 sdev=/dev/sdd1                    # SD-card device
 header=";$USER@$HOSTNAME $(date  '+%F %T')"     # add a header to gcode file
 fixfan="M106 S81"                 # patch for M107 fan off bug in dagoma.g
+cooldown="M109 R90/M109 R150"     # change M109 max temp Range in dagoma.g
 temp=""                           # patch extruder temperature
 
 #--- process arguments ---
@@ -97,6 +99,10 @@ for ii in $gfiles ; do
     echo "# $ii  - changing temperature to $temp"
     $t sed -i -e "s/^\(M104 S[1-9].*\)/M104 S$temp ; \1 - patched by gcp.sh /" $ii
   fi
+  if [ "$cooldown" ] ; then
+    echo "# $ii  - changing wait for cooldown max temp $cooldown"
+    $t sed -i -e "s/^$cooldown ; patched by gcp.sh /" $ii
+  fi
 done
 
 #-------------------------------------------------
@@ -110,6 +116,7 @@ echo "# copying $gfiles to SD-Card"
 echo "# $gfile -> $gext"
 $t sudo cp --preserve=timestamps $gfiles $mountpoint
 $t sudo cp --preserve=timestamps $gfile $mountpoint/$gext
-$t sudo umount $mountpoint
-
+if $t sudo umount $mountpoint ; then
+  echo "# SDcard unmounted."
+fi
 

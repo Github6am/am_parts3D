@@ -64,7 +64,7 @@ module rj45case(w=2.0, PiVersion=1) {
               polygon( points=[[0,0],[16+2*w+b,0],[16+2*w+b,21.5+2*w],[0,21.5+2*w]]);  // outer rectangle
               polygon( points=[[w-c,w-c],[16+w+c,w-c],[16+w+c,21.5+w+c],[w-c,21.5+w+c]]);          // inner rectangle
             }
-            if (PiVersion == 2) {
+            if (PiVersion >= 2) {
               // Raspberry Pi 2 only: add Screw fixture
               translate([16+2*w-6.5,21.5+2*w,0]) square([6.5+b, 5]);
             }
@@ -89,6 +89,9 @@ module rj45case(w=2.0, PiVersion=1) {
           translate([-3,-1, h-2.5])
             linear_extrude(height = h)    // breakout for SMD capacitor in Pi2 
               square( [3+w-2, 28]);
+          translate([-3,-1+19, h-2.5])
+            linear_extrude(height = h)    // breakout for SMD capacitor in Pi3 
+              square( [3+w-1.5, 10]);
           translate([-3,0, -1])
             linear_extrude(height = h+2)  // cut schwalbenschwanz for Pi2 USB jack
               square( [3+w-2, w+1]);
@@ -407,7 +410,7 @@ module clipB(h=4, shape=3) {
 
 
 //------------- Instances --------------------
-translate([-26,0,0]) rj45case(PiVersion=1);
+translate([-26,0,0]) rj45case(PiVersion=3);
 
 wallmount();
 
@@ -443,3 +446,4 @@ if(true) {
   }
 
 translate([ 30, -60, 0]) connectionDIN();
+
