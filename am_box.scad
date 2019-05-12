@@ -161,6 +161,27 @@ module am_boxC(x=50, y=100, z=20) {
 }
 
 //---------------------------------
+// box with separator wall 
+//---------------------------------
+module am_boxWall(x=50, y=40, z=20) {
+  w=0.8;         // wall thickness
+  c=0.6;         // clearance
+  t=3.2;         // clearance on top of wall
+  sx=(x+2*w*(z-t)/z+c)/x;  // slope factor x
+         linear_extrude(height=z-t,scale=[sx,1]) 
+           square([x+w,w],center=true);
+}
+
+module am_boxD(x=50, y=100, z=20) {
+  yratio=0.6;  // size ratio of separation
+  union() {
+    am_boxC(x=x, y=y, z=z);
+    translate([0,y*(0.5 - yratio),0]) am_boxWall(x=x, y=y, z=z);
+  }
+}
+
+
+//---------------------------------
 // label to fit between dovetail 
 //---------------------------------
 // for symbols, consider png23d
@@ -251,10 +272,11 @@ module am_gauge( fontname = "FreeSans:Bold" ) {
 //octaeder(r=10);
 //trapezrot(r=10);
 
-//translate([0,0,0]) am_boxC();
+translate([0,0,0]) am_boxD();
 //translate([0,106,0]) am_boxC();
 //translate([0,106,0]) am_boxC(z=20);  // double height
 
+/*
 if ( 0 ) {
   // do not forget to change color in slicer before the text layers
   translate([0, 2*17,0]) am_boxlabel(lx=35,txt="Baubles");
@@ -282,3 +304,4 @@ if ( 1 ) {
 }
 
 translate([-7,-9,0]) am_gauge();
+*/
