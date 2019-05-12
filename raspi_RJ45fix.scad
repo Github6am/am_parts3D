@@ -163,6 +163,37 @@ module wallmount(h=16.5, w=2.5, l=50) {
     }
   }
 
+module wallmount1(h=16.5+6.5, w=2.5, l=50) {
+  difference() {
+    union() {
+      wallmount(h=h, w=w, l=l);
+        translate([0,     0,0]) linear_extrude(height = w) square( [16.5,30]);
+        translate([l-16.5,0,0]) linear_extrude(height = w) square( [16.5,30]);
+    }
+    union() {
+         translate([l-8.25,30*3/4,-5])       // mounting hole 4mm
+             linear_extrude(height = 20)
+               circle(4/2,$fn=32);
+         translate([l-8.25,30*1/4,-5])       // mounting hole 4mm
+             linear_extrude(height = 20)
+               circle(4/2,$fn=32);
+         translate([  8.25,30*3/4,-5])       // mounting hole 4mm
+             linear_extrude(height = 20)
+               circle(4/2,$fn=32);
+         translate([  8.25,30*1/4,-5])       // mounting hole 4mm
+             linear_extrude(height = 20)
+               circle(4/2,$fn=32);
+    }
+  }   
+}
+
+module wallmount2(h=23, w=2.5, l=50) {
+  difference() {
+      wallmount1(h=h, w=w, l=l);
+      translate([-3, -1,-1]) linear_extrude(height = h+2) square( [l+3.5-16.5,32]);
+    }
+}
+
 //-------------------------------------------
 // connection plate for general purpose
 //-------------------------------------------
@@ -412,6 +443,9 @@ module clipB(h=4, shape=3) {
 //------------- Instances --------------------
 translate([-26,0,0]) rj45case(PiVersion=3);
 
+translate([-82,0,0]) wallmount2();
+
+/*
 wallmount();
 
 translate([60,0,0]) connection();
@@ -438,7 +472,7 @@ if(true) {
       translate(6*[-1,  0, 0]) rotate(45) clipB(shape=8);
       translate(6*[-1,  1, 0]) rotate(45) clipB(shape=7);
 
-      translate(6*[-2, -1, 0]) rotate(45) clipB(shape=11);
+      translate(6*[-2, -1raspi_RJ45fix.scad, 0]) rotate(45) clipB(shape=11);
       translate(6*[-2,  0, 0]) rotate(45) clipB(shape=5);
       translate(6*[-2,  1, 0]) rotate(45) clipB(shape=9);
 
@@ -446,4 +480,4 @@ if(true) {
   }
 
 translate([ 30, -60, 0]) connectionDIN();
-
+*/
