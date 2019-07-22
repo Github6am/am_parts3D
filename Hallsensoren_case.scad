@@ -106,10 +106,24 @@ module sensorcase() {
     }
 }
 
-
+module sensorcap() {
+    difference() {
+        linear_extrude(height = 2.8) hull() { sensorcase2D(); };  // cap
+        union() {
+          translate([0, 0, 1]) linear_extrude(height = 2) 
+            minkowski() { 
+              sensorcase2D();
+              square([0.15,0.5], center=true);
+            }
+          translate([0, 2.5, -1]) linear_extrude(height = 4) circle(5.5/2,$fn=32);
+          translate([0, 2.5,  1]) linear_extrude(height = 4) circle(7/2,$fn=32);
+        }
+    }  
+}
 
 
 //------------- Instances --------------------
 
 //translate([0,0,0]) connectionH(h=40, l=30);
 sensorcase();
+//sensorcap();
