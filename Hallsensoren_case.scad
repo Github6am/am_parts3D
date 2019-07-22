@@ -20,7 +20,7 @@
 //     - Sollen die Sensoren grob in der Board-Flucht liegen oder Z-foermig?
 //       ersteres fuehrt zu einem laengeren Gehaeuse.
 //
-// Andreas Merz 2019-01-12, v0.1 
+// Andreas Merz 2019-07-20, v0.2 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 
@@ -28,9 +28,9 @@
 use <raspi_RJ45fix.scad>
 
 // Main dimensions
-xbrd=14;       // board width
-zbrd=30;       // board length
-dbrd=1.8;      // board thickness
+xbrd=13;       // board width
+zbrd=20+8.5;   // board length: 20, Sensors: 8.5
+dbrd=1.7;      // board thickness
 yout=24-3.5;   // sensor space - mounting plate thickness
 wall=0.8;      // wall thickness
 
@@ -40,8 +40,8 @@ wall=0.8;      // wall thickness
 // Die Bauhoehe samt 
 module sensorcase2Dhalf() {
     w=wall;      // w: wall thickness
-    u=0;         // excess wall thickness at lower part of the case
-    c=0.2;       // clearance between ridges
+    u=0;         // excess wall thickness at lower part of the case, optional
+    c=0.1;       // clearance between ridges
     x=xbrd/2;    // half board width
     y=yout-2*w;  // inner y dimension
     d=dbrd;      // board thickness
@@ -49,8 +49,10 @@ module sensorcase2Dhalf() {
     xf=5/2+c;    // half distance of cable clamp ridges
     xi=x-1.4;    // inset of board fixture
     yf=xf+sqrt((2*xf-w)*w)-0.3+u;  // cable clamp ridge hook
-    yi=y-2-d-c;
-    yj=yi+d;
+    yk=y-2;      // board 2mm from top
+    yj=yk-d-w-c;
+    yi=yj-d-w-c;
+    yh=yi-d-w-c;
     yc=y-w/2;
     // inner contour
     polygon( points=[[0,u],
@@ -58,8 +60,10 @@ module sensorcase2Dhalf() {
        [xf,u], [xf,yf],[xf-w,yf],[xf-w,yf+w],[xf+w,yf+w],[xf+w,u],
        [x-u,u],
        // Platinenhalterung
-       [x-u,yi-w],[xi,yi-w],[xi,yi],[x,yi],
-       [x,yj],[xi,yj],[xi,yj+w],[x,yj+w],
+       [x-u,yh],[xi,yh],[xi,yh+w],[x,yh+w],
+       [x,yi],  [xi,yi],[xi,yi+w],[x,yi+w],
+       [x,yj],  [xi,yj],[xi,yj+w],[x,yj+w],
+       [x,yk],  [xi,yk],[xi,yk+w],[x,yk+w],
        // abgeschraegte Ecke
        [x,y-w*1.4],[x-w*1.4,y],
        // Mittelsteg
@@ -80,18 +84,18 @@ module sensorcase() {
     w=wall;             // w: wall thickness
     hb=1.0;             // bottom
     hc=4.5+hb;          // sensor space depth
-    yc=2;               // sensor space height
-    h=0*zbrd+hb+yc+10;  // overall height, including bottom wall
+    yc=1.7;             // sensor space height
+    h=zbrd+hb+2.5;  // overall height, including bottom wall
     x=xbrd/2;           // half board width
     y=yout-2*w;         // inner y dimension
 
     difference() {
       union() {
-          //linear_extrude(height = hb) hull() { sensorcase2D(); };  // bottom
+          linear_extrude(height = hb) hull() { sensorcase2D(); };  // bottom
           linear_extrude(height = h) 
             sensorcase2D();
-          linear_extrude(height = hc)
-            polygon( points=[[-x,y-yc],[x,y-yc],[x,y-yc-2],[-x,y-yc-2]]);
+          linear_extrude(height = hc)   // sensor support
+            polygon( points=[[-x,y-yc],[x,y-yc],[x,y-yc-2-w],[-x,y-yc-2-w]]);
           linear_extrude(height = h)
              translate([ 5,-w,0]) rotate(180) schwalbenschwanz();
           linear_extrude(height = h)
@@ -107,5 +111,5 @@ module sensorcase() {
 
 //------------- Instances --------------------
 
-//translate([30, 40,0]) connectionH(h=40, l=30);
+//translate([0,0,0]) connectionH(h=40, l=30);
 sensorcase();
