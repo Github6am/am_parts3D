@@ -35,12 +35,12 @@ function ellipse(r1, r2, num=32) =
 
 module schwalbenschwanz(h=2, w1=4, w2=6) {
              //w1=(w2-h*tan(30));      // Flankenwinkel 30 deg
-             c=0.13;   // clearance / spiel in mm
+             c=0.14;   // clearance / spiel in mm
              polygon(points=[[-w1/2+c,0],[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h]]);
 }
 
 module neg_schwalbenschwanz(h=2, w1=4, w2=6, b=5) {
-             c=0.13;   // clearance / spiel in mm
+             c=0.14;   // clearance / spiel in mm
              polygon(points=[[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h],[-w1/2+c,0],
              [-w2/2+c-h,-h],[-w2/2+c-b,-h],[-w2/2+c-b,b+h],[w2/2-c+b,b+h],[w2/2-c+b,-h],[w2/2-c+h,-h]]);
 }
@@ -239,7 +239,7 @@ module connection(h=32, w=4, l=60) {
 }
 
 // horizontal print
-module connectionH(h=60, w=1.5, l=30) {
+module connectionH(h=60, w=1.5, l=30, holes=true) {
     // h: overall height
     // w: wall thickness
     // l: length 
@@ -272,17 +272,19 @@ module connectionH(h=60, w=1.5, l=30) {
         
       }
       union() {
-        for (ix = [0 : h/20]) {          // mounting hole grid 
-          for (iy = [0 : l/20]) {        // mounting hole grid 
-            union() {
-              translate([ix*20-h+10,iy*20+5,-0.1])          // hole - Bohrloch
-                linear_extrude(height = w+2)
-                  circle(2.2/2,$fn=32);
-              translate([ix*20-h+10,iy*20+5,2.0])
-                linear_extrude(height = w+0.1, scale=2.9)   // cone - Senkung
-                  circle(2.2/2,$fn=32);
+        if(holes==true) {
+          for (ix = [0 : h/20]) {          // mounting hole grid 
+            for (iy = [0 : l/20]) {        // mounting hole grid 
+              union() {
+                translate([ix*20-h+10,iy*20+5,-0.1])          // hole - Bohrloch
+                  linear_extrude(height = w+2)
+                    circle(2.2/2,$fn=32);
+                translate([ix*20-h+10,iy*20+5,2.0])
+                  linear_extrude(height = w+0.1, scale=2.9)   // cone - Senkung
+                    circle(2.2/2,$fn=32);
+              }
             }
-          }
+          }  
         }
       }
     }
