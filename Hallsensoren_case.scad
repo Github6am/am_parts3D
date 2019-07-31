@@ -124,6 +124,6 @@ module sensorcap() {
 
 //------------- Instances --------------------
 
-//translate([0,0,0]) connectionH(h=40, l=30);
-sensorcase();
+translate([0,0,0]) connectionH(h=40, l=30, holes=false);
+//sensorcase();
 //sensorcap();
