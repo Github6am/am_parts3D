@@ -1,12 +1,14 @@
-// Halterung fuer TP-Link WLAN Router fuer Hutschienenmontage
+// Fixture for TP-Link MR3020 WLAN Router 
 // 
 // 
 // Background:
+//   - Optional mounting on a 35mm DIN-Rail (Hutschiene) 
+//     using dovetail connection
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
 //
-// Andreas Merz 2019-08-19, v0.2 
+// Andreas Merz 2019-08-20, v0.3 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 
@@ -15,7 +17,7 @@ use <raspi_RJ45fix.scad>
 
 // Main dimensions
 xin=67.2;      // width
-yin=74.5;      // length
+yin=74.4;      // length
 zin=22.7;      // height
 wall=0.8;      // wall thickness
 
@@ -46,12 +48,16 @@ module MR3020fixture() {
          MR3020shape(w=-5);
        }
      difference() {
-         union(){
-         translate([0, yin/2-1, 5])              cube([xin*0.9, 4, 10], center=true);
-         translate([0, yin/2-0, (zin+wall+2)/2]) cube([xin*0.2, 2, zin+wall], center=true);
-         //translate([0, yin/2-0, zin+wall+2]) rotate([45,0,0]) cube([xin*0.2, 2, 2], center=true);
+         union(){    // Halteclips
+           translate([0, yin/2-1, 5])              cube([xin*0.9, 4, 10], center=true);
+           translate([0, yin/2-1, (zin+wall+2)/2+1.2]) cube([10, 4, zin+wall], center=true);
+           translate([  xin/2+wall-3.4/2,  0, (zin+wall+2)/2+1.2]) cube([3.4, 10, zin+wall], center=true);
+           translate([-(xin/2+wall-3.4/2), 0, (zin+wall+2)/2+1.2]) cube([3.4, 10, zin+wall], center=true);
          }
-         linear_extrude(height = zin+wall) MR3020shape(w=0);
+         union() {   // TP-Link Gehaeuse mit Dachschraege
+           linear_extrude(height = zin+wall) MR3020shape(w=0);
+           translate([0,0,zin+wall-0.1]) linear_extrude(height = xin/3,scale=0) MR3020shape(w=0);
+         }
      }
      // right interface
      linear_extrude(height = 10) 
@@ -69,3 +75,4 @@ module MR3020fixture() {
 //------------- Instances --------------------
 
 MR3020fixture();
+
