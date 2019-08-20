@@ -35,12 +35,12 @@ function ellipse(r1, r2, num=32) =
 
 module schwalbenschwanz(h=2, w1=4, w2=6) {
              //w1=(w2-h*tan(30));      // Flankenwinkel 30 deg
-             c=0.14;   // clearance / spiel in mm
+             c=0.17;   // clearance / spiel in mm
              polygon(points=[[-w1/2+c,0],[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h]]);
 }
 
 module neg_schwalbenschwanz(h=2, w1=4, w2=6, b=5) {
-             c=0.14;   // clearance / spiel in mm
+             c=0.17;   // clearance / spiel in mm
              polygon(points=[[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h],[-w1/2+c,0],
              [-w2/2+c-h,-h],[-w2/2+c-b,-h],[-w2/2+c-b,b+h],[w2/2-c+b,b+h],[w2/2-c+b,-h],[w2/2-c+h,-h]]);
 }
@@ -298,7 +298,7 @@ module connectionH(h=60, w=1.5, l=30, holes=true) {
 // for din_clip_01.dxf released under 
 // https://creativecommons.org/licenses/by/3.0/
 //
-module connectionDIN(h=10.0, y=5) {
+module connectionDIN(h=10.0, y=5) {              // Hutschienenadapter
   //y:  shift of dovetail pattern in y-direction
   linear_extrude(height = h)
       union() {
@@ -312,6 +312,9 @@ module connectionDIN(h=10.0, y=5) {
         translate([0.2,2*10+y,0]) rotate(90) schwalbenschwanz();
         translate([0.2,3*10+y,0]) rotate(90) schwalbenschwanz();
         translate([0.2,4*10+y,0]) rotate(90) schwalbenschwanz();
+
+        translate([0*10+3,50-0.2,0]) rotate(0) schwalbenschwanz();
+        translate([1*10+3,50-0.2,0]) rotate(0) schwalbenschwanz();
         
         // screwdriver hook for removal
         translate([13.4,0.2,0]) polygon([[2.5,0],[2.5,-1.2],[0,-1.7],[0,-1.5],[0,-3],[3,-3],[6,0]]);
@@ -443,9 +446,16 @@ module clipB(h=4, shape=3) {
 
 
 //------------- Instances --------------------
+translate([0,0,0]) connectionDIN();
+
+
+/*
 translate([-26,0,0]) rj45case(PiVersion=3);
 
 translate([-82,0,0]) wallmount2();
+*/
+
+
 
 /*
 wallmount();
