@@ -108,11 +108,11 @@ done
 #-------------------------------------------------
 # copy loop
 #-------------------------------------------------
+echo "# copying $gfiles to SD-Card"
 if ! sudo mount | grep $mountpoint ; then
   $t sudo mount $sdev $mountpoint
   sleep 1
 fi
-echo "# copying $gfiles to SD-Card"
 echo "# $gfile -> $gext"
 $t sudo cp --preserve=timestamps $gfiles $mountpoint
 $t sudo cp --preserve=timestamps $gfile $mountpoint/$gext
