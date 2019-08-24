@@ -6,7 +6,7 @@
 //     using dovetail connection
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
-//
+//   - die duennen Schnappnasen brechen leicht ab.
 //
 // Andreas Merz 2019-08-21, v0.4 
 // GPLv3 or later, see http://www.gnu.org/licenses
@@ -18,7 +18,7 @@ use <raspi_RJ45fix.scad>
 // Main dimensions
 xin=67.1;      // width
 yin=74.2;      // length
-zin=22.0;      // height
+zin=22.3;      // height
 wall=0.8;      // wall thickness
 h1=4+wall;     // wall height
 
@@ -45,26 +45,26 @@ module MR3020cornerclip() {
 }
 
 module MR3020fixture() {
-   h2= zin/2;  // height of mounting plane
+   h2= zin/2+wall;  // height of mounting backplane
    union() {
      difference() {
          union(){    
            linear_extrude(height = h1) MR3020shape(w=wall);  // outer wall
            
            // Rueckwand
-           translate([0, yin/2-1, h2/2]) cube([xin*0.94, 4, h2], center=true);
+           translate([0, yin/2-6+1, h2/2]) cube([xin+2*wall, 12, h2], center=true);
 
            // Halteclips
            translate([0, yin/2-1, (zin+wall)/2+2*wall]) cube([10, 4, zin+wall], center=true);
            //translate([  xin/2+wall-3.4/2,  0, (zin+wall+2)/2+1.2]) cube([3.4, 10, zin+wall], center=true);
            //translate([-(xin/2+wall-3.4/2), 0, (zin+wall+2)/2+1.2]) cube([3.4, 10, zin+wall], center=true);
-           MR3020cornerclip();
+           //MR3020cornerclip();
          }
          union() {   // TP-Link Gehaeuse mit Dachschraege
-           translate([0,0, -0.2]) linear_extrude(height = wall+0.2) MR3020shape(w=-5);   // bottom hole
+           translate([0,0, -0.1]) linear_extrude(height = wall+0.2) MR3020shape(w=-5);   // bottom hole
            translate([0,0,+wall]) linear_extrude(height = zin)      MR3020shape(w= 0);    // body for TP-Link
            translate([0,0,zin+wall-0.1]) linear_extrude(height = xin/4,scale=0) MR3020shape(w=0);  // roof
-           linear_extrude(height = zin+wall+10) MR3020shape(w=-3);
+           translate([0,0,zin+wall-0.1]) linear_extrude(height = zin+wall+10) MR3020shape(w=-3);   // chimney
          }
      }
      // right interface
