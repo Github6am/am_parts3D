@@ -35,12 +35,12 @@ function ellipse(r1, r2, num=32) =
 
 module schwalbenschwanz(h=2, w1=4, w2=6) {
              //w1=(w2-h*tan(30));      // Flankenwinkel 30 deg
-             c=0.19;   // clearance / spiel in mm
+             c=0.21;   // clearance / spiel in mm
              polygon(points=[[-w1/2+c,0],[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h]]);
 }
 
 module neg_schwalbenschwanz(h=2, w1=4, w2=6, b=5) {
-             c=0.19;   // clearance / spiel in mm
+             c=0.21;   // clearance / spiel in mm
              polygon(points=[[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h],[-w1/2+c,0],
              [-w2/2+c-h,-h],[-w2/2+c-b,-h],[-w2/2+c-b,b+h],[w2/2-c+b,b+h],[w2/2-c+b,-h],[w2/2-c+h,-h]]);
 }

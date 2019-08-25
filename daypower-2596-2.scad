@@ -16,9 +16,9 @@ use <raspi_RJ45fix.scad>
 
 // Main dimensions
 bw=43.6;       // board width
-dw=0.5;        // ridge depth to hold board
+dw=0.6;        // ridge depth to hold board
 bt=1.8;        // board thickness
-wall=1.6;      // wall thickness
+wall=1.8;      // wall thickness
 fw=10;         // fixture width
 
 //-------------------------------------------

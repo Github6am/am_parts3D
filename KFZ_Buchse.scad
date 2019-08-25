@@ -56,7 +56,7 @@ module screwholes() {
 }
 
 module mounts(y1=16) {
-     linear_extrude(height = zin) 
+     linear_extrude(height = zin+hb) 
        union() {
          translate([-1*10+5, y1,0]) rotate(0) schwalbenschwanz();
          translate([ 0*10+5, y1,0]) rotate(0) schwalbenschwanz();
