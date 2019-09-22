@@ -32,13 +32,14 @@ module nozzle2(lcyl=20,lcon=15) {
   R=20/2;
   w=0.1;   // excess, needed in difference
   m=10;   // rounding radius
+  c=0.15;  // clearance
   rotate_extrude($fn = 90) 
   //offset(r=-m) {   // trick to create a smooth transition
   //  polygon( [[-m,-m-w],[R+m,-m-w],[r+m,lcon],[r+m,lcyl+lcon+m+w],[-m,lcyl+lcon+m+w]]);
   difference() {
-    polygon( [[0,0-w],[R,0-w],[R,lcyl+lcon+w],[0,lcyl+lcon+w]]);
+    polygon( [[0,0-w],[R+c,0-w],[R+c,lcyl+lcon+w],[0,lcyl+lcon+w]]);
     minkowski() {
-      polygon( [[R+m,0-w],[r+m,lcon],[r+m,lcyl+lcon+w+m],[R+m,lcyl+lcon+w+m]]);
+      polygon( [[R+m+c,0-w],[r+m+c,lcon],[r+m+c,lcyl+lcon+w+m],[R+m+c,lcyl+lcon+w+m]]);
       circle(r=m,$fn = 90);
     }
   }
@@ -75,8 +76,9 @@ module cola_nozzle1(diaouter=21.8, diainner=dnozzle, hh=35, hrim=5) {
 
 module cola_nozzle2(diaouter=21.8, diainner=dnozzle, hh=20, hrim=15) {
   // Diese Duese muss mit einem durchbohrten Flaschendeckel fixiert werden
+  // ein Kabelbinder verhindert, dass die Duese ins Flascheninnere gedrueckt werden kann
   c=0.3;
-  drim=14;
+  drim=15;
   difference() {
     union() {
       translate([0,0,hh])
@@ -97,14 +99,18 @@ module cola_nozzle2(diaouter=21.8, diainner=dnozzle, hh=20, hrim=15) {
       } else {
         nozzle2();
       }
-      // die folgende Fase ist deaktiviert. Eine scharfe Kante ist besser...?
-      translate([0,0,hh+hrim-0])
-        linear_extrude(height = 3.1, scale=2)    // bottom cone ( on top)
+      // die folgende Fase hilft, dass der O-Ring des Launchers leichter reingeht.
+      translate([0,0,hh+hrim-2])
+        linear_extrude(height = 3.1, scale=1.2)    // bottom cone ( on top)
           circle(d=diainner, $fn = 90); 
       //--- O-Ring Nut ---
       translate([0,0,hh-8])
          rotate_extrude($fn = 80)
            translate([diaouter/2-2.2,0,0]) oshape();
+      //--- Kabelbinder Nut ---
+      translate([0,0,hh+2])
+         rotate_extrude($fn = 80)
+           translate([drim/2-0.5,0,0]) oshape(w=8,d=8);
     }
   }
 }
