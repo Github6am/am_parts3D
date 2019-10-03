@@ -45,7 +45,7 @@ module nozzle2(lcyl=20,lcon=15) {
   }
 }
 
-module cola_nozzle1(diaouter=21.8, diainner=dnozzle, hh=35, hrim=5) {
+module cola_nozzle1(diaouter=21.6, diainner=dnozzle, hh=35, hrim=5) {
   // Diese Duese steht nach innen, ist also zu lang.
   // und sie muss reingeklebt werden.
   c=0.3;
@@ -69,7 +69,7 @@ module cola_nozzle1(diaouter=21.8, diainner=dnozzle, hh=35, hrim=5) {
       //--- O-Ring Nut ---
       translate([0,0,hh-20])
          rotate_extrude($fn = 80)
-           translate([diaouter/2-2.2,0,0]) oshape();
+           translate([diaouter/2-2.4,0,0]) oshape();
     }
   }
 }
@@ -81,6 +81,7 @@ module cola_nozzle2(diaouter=21.8, diainner=dnozzle, hh=20, hrim=15) {
   drim=15;
   difference() {
     union() {
+      // Aussenkontur
       translate([0,0,hh])
       linear_extrude(height = hrim)    // rim
         circle(d=drim, $fn = 90);
@@ -106,11 +107,11 @@ module cola_nozzle2(diaouter=21.8, diainner=dnozzle, hh=20, hrim=15) {
       //--- O-Ring Nut ---
       translate([0,0,hh-8])
          rotate_extrude($fn = 80)
-           translate([diaouter/2-2.2,0,0]) oshape();
+           translate([diaouter/2-2.4,0,0]) oshape();
       //--- Kabelbinder Nut ---
       translate([0,0,hh+2])
          rotate_extrude($fn = 80)
-           translate([drim/2-0.5,0,0]) oshape(w=8,d=8);
+           translate([drim/2-0.6,0,0]) oshape(w=10,d=8);
     }
   }
 }
