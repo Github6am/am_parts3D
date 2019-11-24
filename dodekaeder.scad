@@ -5,18 +5,20 @@
 //   - CAD manual: http://www.openscad.org/documentation.html
 //   - https://de.wikipedia.org/wiki/Dodekaeder
 //   - https://en.wikipedia.org/wiki/Dodecahedron
+//   - print with a layer step of 0.15 mm
 //
 // Andreas Merz 2019-11-23, v0.1 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
-a=20;   // outer edge length
+a=20;     // outer edge length
+b=18;     // inner edge length
 w=0.6;    // wall thickness
 
 // Dodekaederzahlen
 ci=1.113516364411607;    // Inkugelradius/a  sqrt((25+11*sqrt(5))/10)/2;
-h=a*ci;
+h=a*ci;                  // height of a cone           
 
-beta=121.7174744114610;  // Flaechen-Kantenwinkel
+beta=121.7174744114610;  // deg, Flaechen-Kantenwinkel
 
 
 module poly2D(r=30, n=5) {
@@ -40,13 +42,13 @@ module facet0() {
 }
 
 module facet1() {
-  u=1.5*w;
+  u=ci*(a-b);
   union() {
     facet0();
     difference() {
-      linear_extrude(height=u, scale=1) pentagon2D(l_edge=a-1.5*w);
+      linear_extrude(height=u, scale=(h-u)/h) pentagon2D(l_edge=a-w);
       translate([0, 0, -0.1])
-        linear_extrude(height=u+0.2, scale=1) pentagon2D(l_edge=a-3*w);
+        linear_extrude(height=u+0.2, scale=1) pentagon2D(l_edge=b);
     }
   }
 }
@@ -74,6 +76,24 @@ module facet12() {
   }
 }
 
-translate([2*a, 0, 0]) facet12();
+
+module cap1() {
+  c=0.35;
+  hrim=0.7*(a-b);
+  union() {
+    linear_extrude(height=w, scale=1) pentagon2D(l_edge=a-c);
+    difference() {    // rim
+      linear_extrude(height=w+hrim, scale=1) pentagon2D(l_edge=b-c);
+      translate([0, 0, w+0.15])
+  	linear_extrude(height=w+hrim, scale=1) pentagon2D(l_edge=b-c-1.5*w);
+    }
+  }
+}
+
+//---------------- Instances ---------------------
+
+//translate([2*a, 0, 0]) facet12();
 
 facet1();
+
+translate([-1.8*a, 0, 0]) cap1();
