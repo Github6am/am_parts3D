@@ -24,7 +24,7 @@
 
 module schwalbenschwanz(h=2, w1=4, w2=6) {
              //w1=(w2-h*tan(30));      // Flankenwinkel 30 deg
-             c=0.13;   // clearance / spiel in mm
+             c=0.16;   // clearance / spiel in mm
              polygon(points=[[-w1/2+c,0],[w1/2-c,0],[w2/2-c,h],[-w2/2+c,h]]);
 }
 
@@ -173,7 +173,7 @@ module am_boxWall(x=50, y=40, z=20) {
 }
 
 module am_boxD(x=50, y=100, z=20) {
-  yratio=0.6;  // size ratio of separation
+  yratio=0.6;  // size ratio of compartments
   union() {
     am_boxC(x=x, y=y, z=z);
     translate([0,y*(0.5 - yratio),0]) am_boxWall(x=x, y=y, z=z);
@@ -226,6 +226,76 @@ module am_boxlabel( txt="1", lx=25, ly=15, align=1/2, fontname = "FreeSans:Bold"
 }
 
 
+//---------------------------------
+// handle to attach to am_box 
+//---------------------------------
+module am_boxhandleHalf(lx=40, ly=15, b=0) {
+   // b: additional spacing from center line
+   c=0;             // dummy
+   h=5;             // height of dovetails
+   w=1.0;           // thickness of handle
+   t=4;             // trapez shape
+   union() {
+     // handle
+     linear_extrude(height=w)
+        polygon(points=[[0,0],[lx/2-c,0], [lx/2-c,-t],[lx/2-c-t,-ly],[0,-ly]]);
+     // dovetail connection
+     linear_extrude(height=h)
+       difference() {
+         union() {
+           translate([ 1*10+0+b,0]) schwalbenschwanz();
+           translate([ 2*10+0+b,0]) schwalbenschwanz();
+         }
+         union() {
+           translate([ 0*10+0+b,-0.1]) square([10,3]);
+           translate([ 2*10+0+b,-0.1]) square([10,3]);
+         }
+       }
+       // reinforcement
+       linear_extrude(height=h, scale=[1,0])
+       rotate(180)
+       union() {
+         translate([-2*10+0-b,-0.1]) square([2,t]);
+         translate([-1*10-2-b,-0.1]) square([2,t]);
+       }
+     }
+}
+
+module am_boxhandleA( txt="A", align=1/2, ly=15, fontname = "FreeSans:Bold",  fontsize = 10 ) {
+   w=1.0;           // thickness of handle
+   union() {
+        // handle
+        am_boxhandleHalf(lx=40, ly=15);
+        mirror([1,0,0]) 
+        am_boxhandleHalf(lx=40, ly=15);
+        // text
+        if ( txt != "" ) {
+          translate([0,-ly*align,w]) linear_extrude(height = 0.4) 
+            text(txt, size = fontsize, font = fontname, halign = "center", valign = "center", $fn = 40);
+        }
+   }
+}
+
+module am_boxhandleB( txt="B", align=1/2, ly=15, fontname = "FreeSans:Bold",  fontsize = 10 ) {
+   w=1.0;           // thickness of handle
+   union() {
+        // handle
+        am_boxhandleHalf(lx=50, ly=15, b=5);
+        mirror([1,0,0]) 
+        am_boxhandleHalf(lx=50, ly=15, b=5);
+        // text
+        if ( txt != "" ) {
+          translate([0,-ly*align,w]) linear_extrude(height = 0.4) 
+            text(txt, size = fontsize, font = fontname, halign = "center", valign = "center", $fn = 40);
+        }
+   }
+}
+
+
+//---------------------------------
+// gauge to check screw diameters
+//---------------------------------
+
 module am_gauge( fontname = "FreeSans:Bold" ) {
   w=0.8;               // thickness
   //fontname = "Liberation Sans";
@@ -272,7 +342,9 @@ module am_gauge( fontname = "FreeSans:Bold" ) {
 //octaeder(r=10);
 //trapezrot(r=10);
 
-translate([0,0,0]) am_boxD();
+am_boxhandleA();
+
+//translate([0,0,0]) am_boxD();
 //translate([0,106,0]) am_boxC();
 //translate([0,106,0]) am_boxC(z=20);  // double height
 
