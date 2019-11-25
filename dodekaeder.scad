@@ -10,8 +10,8 @@
 // Andreas Merz 2019-11-23, v0.1 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
-a=20;     // outer edge length
-b=18;     // inner edge length
+a=30;     // outer edge length
+b=27;     // inner edge length
 w=0.6;    // wall thickness
 
 // Dodekaederzahlen
@@ -90,10 +90,33 @@ module cap1() {
   }
 }
 
+module grid2D(spacing=0.8) {
+  w=0.5;
+  for( i=[-a:spacing:a] ) {
+    translate([i,0,-0.01]) square([spacing/2,a],center=true);
+  }
+}
+
+module capA(txt="12") {
+  depth=0.2;
+  fontname = "Liberation Sans:Bold";
+  fontsize = 20;
+  difference() {
+    cap1();
+    //color("red")
+    translate([0,0,-0.01]) mirror([1,0,0]) rotate(90)
+      linear_extrude(height = depth)
+	difference() {
+	  text(txt, size = fontsize, font = fontname, halign = "center", valign = "center", $fn = 16);
+	  grid2D();
+	}
+  }
+}
+
 //---------------- Instances ---------------------
 
-//translate([2*a, 0, 0]) facet12();
+//translate([0, 0, 0]) facet12();     // das hat bisher beim Ausdrucken Probleme gemacht.
 
 facet1();
 
-translate([-1.8*a, 0, 0]) cap1();
+// translate([-1.8*a, 0, 0]) capA(txt="8");
