@@ -31,7 +31,7 @@ use <raspi_RJ45fix.scad>
 xbrd=13;       // board width
 zbrd=20+8.5;   // board length: 20, Sensors: 8.5
 dbrd=1.7;      // board thickness
-yout=24-3.5;   // sensor space - mounting plate thickness
+yout=14-3.5;   // sensor space - mounting plate thickness
 wall=0.8;      // wall thickness
 
 //-------------------------------------------
@@ -48,7 +48,8 @@ module sensorcase2Dhalf() {
     xc=w/2;      // half width of top center ridge
     xf=5/2+c;    // half distance of cable clamp ridges
     xi=x-1.4;    // inset of board fixture
-    yf=xf+sqrt((2*xf-w)*w)-0.3+u;  // cable clamp ridge hook
+    //yf=xf+sqrt((2*xf-w)*w)-0.3+u;  // cable clamp ridge hook
+    yf=3.3;
     yk=y-2;      // board 2mm from top
     yj=yk-d-w-c;
     yi=yj-d-w-c;
@@ -57,11 +58,12 @@ module sensorcase2Dhalf() {
     // inner contour
     polygon( points=[[0,u],
        // Kabelhalterung
-       [xf,u], [xf,yf],[xf-w,yf],[xf-w,yf+w],[xf+w,yf+w],[xf+w,u],
+       //[xf,u], [xf,yf],[xf-w,yf],[xf-w,yf+w],[xf+w,yf+w],[xf+w,u],
+       [xf,u], [xf-w/2,yf],[xf+w/2,yf],[xf+w,u],
        [x-u,u],
        // Platinenhalterung
-       [x-u,yh],[xi,yh],[xi,yh+w],[x,yh+w],
-       [x,yi],  [xi,yi],[xi,yi+w],[x,yi+w],
+       //[x-u,yh],[xi,yh],[xi,yh+w],[x,yh+w],
+       //[x,yi],  [xi,yi],[xi,yi+w],[x,yi+w],
        [x,yj],  [xi,yj],[xi,yj+w],[x,yj+w],
        [x,yk],  [xi,yk],[xi,yk+w],[x,yk+w],
        // abgeschraegte Ecke
@@ -124,6 +126,6 @@ module sensorcap() {
 
 //------------- Instances --------------------
 
-translate([0,0,0]) connectionH(h=40, l=30, holes=false);
-//sensorcase();
-//sensorcap();
+translate([-15,0,0]) connectionH(h=40, l=30, holes=false);
+translate([0,2.5,0]) sensorcase();
+translate([0,yout+4,0]) sensorcap();
