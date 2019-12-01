@@ -34,6 +34,10 @@ module pentagon2D(l_edge = a) {
   poly2D(r = l_edge/(2*sin(36)), n=5);
 }
 
+//-----------------------------------------------
+// pyramid shaped parts of a dodecahedron
+//-----------------------------------------------
+
 module facet0() {
   d=a/(2*tan(36));   // Abstand Seitenmitte vom Zentrum
   phi1=atan(d/h);    // Winkel zwischen Seitenflaeche und Lot
@@ -81,6 +85,9 @@ module facet12() {
   }
 }
 
+//-----------------------------------------------
+// numbered caps to close the faces
+//-----------------------------------------------
 
 module cap1() {
   c=0.35;
@@ -95,7 +102,7 @@ module cap1() {
   }
 }
 
-module grid2D(spacing=0.8) {
+module grid2D(spacing=0.8) {    // a grid pattern for the text
   w=0.5;
   for( i=[-a:spacing:a] ) {
     translate([i,0,-0.01]) square([spacing/2,a],center=true);
@@ -118,13 +125,72 @@ module capA(txt="12") {
   }
 }
 
+//-----------------------------------------------
+// a foot to place the dodecahedron segments in
+//-----------------------------------------------
+
+nf=5;	   // nf     number of faces, a high number yields a circular shape.
+h2=h/3;    // h2     height of foot cone above rim
+c2=2;	   // c2     height of foot cone below rim
+
+module foot0(hole=0) {
+  //hole    option for depth of conical borehole
+  
+  // helper sizes
+  rr = a/(2*sin(36)); // inner rim radius
+  r2 = rr*(h+h2)/h;   // inner upper radius
+  rc = rr*(h-c2)/h;   // inner lower radius
+  rh = rr*(h-hole)/h; // inner lower hole radius
+  phi1=atan(rr/h);    // Winkel zwischen Kante und Lot
+  dh=w/sin(phi1);     // vertikale Verschiebung, um Wandstaerke zu erreichen
+  H=h+dh;             // outer height of full cone
+  Rr=rr+w;            // outer radius
+  R2=r2+w;
+  Rc=rc+w;
+  Rh=rh+w;
+  
+  translate([0, 0, 0])
+    difference() {
+      translate([0, 0, 0])            linear_extrude(height=(h2+c2),   scale=R2/Rc) poly2D(r = Rc, n=nf);
+      translate([0, 0, c2-hole+0.05]) linear_extrude(height=(h2+hole), scale=r2/rh) poly2D(r = rh, n=nf);
+  }
+}
+
+module foot1() {
+  rim=2;
+  rr = a/(2*sin(36)); // rim radius
+  rc = rr*(h-c2)/h;   // lower radius
+  r2 = rr*(h+h2)/h;   // inner upper radius
+  
+  union() {
+  translate([0, 0, h2+c2])
+    union() {
+      translate([0, 0, 0])
+	difference() {
+          foot0(hole=0);
+          translate([0, 0, -h]) linear_extrude(height=2*h) poly2D(r = rc, n=nf);
+	}
+      mirror([0, 0, 1]) foot0(hole=c2+1);
+    }
+    difference() {
+       translate([0, 0, 0])    linear_extrude(height=1)  poly2D(r = r2+rim, n=nf);
+       translate([0, 0, -0.1]) linear_extrude(height=1.2, scale=0.99) poly2D(r = r2, n=nf);
+    }
+  }
+}
+
+
 //---------------- Instances ---------------------
 
 //translate([0, 0, 0]) facet12();     // das hat bisher beim Ausdrucken Probleme gemacht.
 
-facet1();
+//facet1();
 
-translate([1.6*a, 0, 0]) capA(txt=str(12));
+//translate([2*a, 0, 0]) capA(txt=str(12));
+
+//difference() {
+foot1();
+//translate([0, 0, -10]) cube(40, center=false); }
 
 if(false) {
   for( ii=[1:3] ) {
