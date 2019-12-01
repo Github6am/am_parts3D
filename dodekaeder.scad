@@ -1,13 +1,18 @@
-// experiments with pentagons
+// dodekaeder.scad
+//   experiments with pentagons forming a dodecahedron
 //
 //
 // Background:
+//   - kann auch als Adventskalender benutzt werden.
+//   - printed with a layer step of 0.15 mm
 //   - CAD manual: http://www.openscad.org/documentation.html
 //   - https://de.wikipedia.org/wiki/Dodekaeder
 //   - https://en.wikipedia.org/wiki/Dodecahedron
-//   - print with a layer step of 0.15 mm
+//   - hosted on:
+//     https://www.thingiverse.com/thing:4012530
+//     git@github.com:Github6am/am_parts3D.git
 //
-// Andreas Merz 2019-11-23, v0.1 
+// Andreas Merz 2019-11-30, v1.0 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 a=30;     // outer edge length
@@ -119,4 +124,21 @@ module capA(txt="12") {
 
 facet1();
 
-// translate([-1.8*a, 0, 0]) capA(txt="8");
+translate([1.6*a, 0, 0]) capA(txt=str(12));
+
+if(false) {
+  for( ii=[1:3] ) {
+    rotate(ii*120) translate([-0.9*a, 0, 0]) capA(txt=str(ii*2));
+  }
+
+  for( ii=[7:9] ) {
+    translate([-10, -2.6*a, 0])
+    rotate(ii*120+60) translate([-0.9*a, 0, 0]) capA(txt=str(ii*2));
+  }
+
+
+  for( ii=[10:12] ) {
+    translate([1.6*a, (ii-11)*1.7*a, 0]) capA(txt=str(ii*2));
+  }
+
+}
