@@ -12,7 +12,7 @@
 //     https://www.thingiverse.com/thing:4012530
 //     git@github.com:Github6am/am_parts3D.git
 //
-// Andreas Merz 2019-11-30, v1.1 
+// Andreas Merz 2019-12-01, v1.2 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 a=30;     // outer edge length
@@ -134,23 +134,24 @@ module capA(txt="12") {
 nf=5;	   // nf     number of faces, a high number yields a circular shape.
 c2=2;	   // c2     height of foot cone below rim
 kk=tan(180-beta);
+clr=1.2;     // clearance
 
 //h2=a;      // h2     height of foot cone above rim
 
-module foot0(hole=0, h2=a) {
+module foot0(hole=0, h2=1.2*a) {
   //hole    option for depth of conical borehole
   // h2     height of foot cone above rim
-  
+  c=clr;
   // helper sizes
   rr = a/(2*sin(36)); // inner rim radius
   h=kk*rr;            // dirty trick: override height with height of imagined sidewall pyramid
-  r2 = rr*(h+h2)/h;   // inner upper radius
-  rc = rr*(h-c2)/h;   // inner lower radius
-  rh = rr*(h-hole)/h; // inner lower hole radius
-  phi1=atan(rr/h);    // Winkel zwischen Kante und Lot
-  dh=w/sin(phi1);     // vertikale Verschiebung, um Wandstaerke zu erreichen
-  H=h+dh;             // outer height of full cone
-  Rr=rr+w;            // outer radius
+  r2 = rr*(h+h2)/h+c;   // inner upper radius
+  rc = rr*(h-c2)/h+c;   // inner lower radius
+  rh = rr*(h-hole)/h+c; // inner lower hole radius
+  phi1=atan(rr/h);      // Winkel zwischen Kante und Lot
+  dh=w/sin(phi1);       // vertikale Verschiebung, um Wandstaerke zu erreichen
+  H=h+dh;               // outer height of full cone
+  Rr=rr+w;              // outer radius
   R2=r2+w;
   Rc=rc+w;
   Rh=rh+w;
@@ -164,11 +165,12 @@ module foot0(hole=0, h2=a) {
 
 module foot1() {
   rim=2;
+  c=clr;
   h2=a/4;
   rr = a/(2*sin(36)); // rim radius
   h=kk*rr;
-  rc = rr*(h-c2)/h;   // lower radius
-  r2 = rr*(h+h2)/h;   // inner upper radius
+  rc = rr*(h-c2)/h+c;   // lower radius
+  r2 = rr*(h+h2)/h+c;   // inner upper radius
   
   
   union() {
@@ -177,7 +179,7 @@ module foot1() {
       translate([0, 0, 0])
 	difference() {
           foot0(hole=0);
-          translate([0, 0, -h]) linear_extrude(height=2*h) poly2D(r = rc, n=nf);
+          translate([0, 0, -h]) linear_extrude(height=2*h, scale=0) poly2D(r = 1.99*rr, n=nf);
 	}
       mirror([0, 0, 1]) foot0(hole=c2+1,h2=h2);
     }
@@ -190,10 +192,11 @@ module foot1() {
 
 module foot2() {
   rim=3;
+  c=clr;
   h2=1;
   nc=144;
-  rs=a*co;             // inner sphere radius
-  Rs=a*co+w;           // outer sphere radius
+  rs=a*co+c;           // inner sphere radius
+  Rs=rs+w;             // outer sphere radius
   rc = 0.7*a;          // inner cylinder radius
   Rc=rc+w;             // outer cylinder radius
   
@@ -216,12 +219,12 @@ module foot2() {
 
 //translate([0, 0, 0]) facet12();     // das hat bisher beim Ausdrucken Probleme gemacht.
 
-//facet1();
+facet1();
 //facet6();
 
-//translate([2*a, 0, 0]) capA(txt=str(12));
+translate([2*a, 0, 0]) capA(txt=str(12));
 
-foot1();
+//foot1();
 //difference() {
 //foot2();
 //translate([0, 0, -10]) cube(40, center=false); }
