@@ -39,12 +39,12 @@ module battery_shapeI() {
 	 translate([-(xaa1+cx)/2,0,0+wall]) cube([xaa1+cx, yaa1+cy, 2+c]);
 	 translate([-(xaa2+cx)/2,0,3+wall]) cube([xaa2+cx, yaa1+cy, zaa1]);
 	 // bore holes
-	 translate([-2.5,yaa1/2,4.2+wall]) rotate([90,0,0]) cylinder(d=1.1,h=13, $fn=16, center=true);
-	 translate([-2.5,yaa1/2,1.5+wall]) rotate([90,0,0]) cylinder(d=1.1,h=13, $fn=16, center=true);
-	 translate([ 0.0,yaa1/2,3.0+wall]) rotate([90,0,0]) cylinder(d=1.1,h=13, $fn=16, center=true);
-	 translate([ 0.0,yaa1/2,1.0+wall]) rotate([90,0,0]) cylinder(d=1.1,h=13, $fn=16, center=true);
-	 translate([+2.5,yaa1/2,4.2+wall]) rotate([90,0,0]) cylinder(d=1.1,h=13, $fn=16, center=true);
-	 translate([+2.5,yaa1/2,1.5+wall]) rotate([90,0,0]) cylinder(d=1.1,h=13, $fn=16, center=true);
+	 translate([-2.5,yaa1/2,4.2+wall]) rotate([90,0,0]) cylinder(d=1.2,h=13, $fn=16, center=true);
+	 translate([-2.5,yaa1/2,1.5+wall]) rotate([90,0,0]) cylinder(d=1.2,h=13, $fn=16, center=true);
+	 translate([ 0.0,yaa1/2,3.0+wall]) rotate([90,0,0]) cylinder(d=1.2,h=13, $fn=16, center=true);
+	 translate([ 0.0,yaa1/2,1.0+wall]) rotate([90,0,0]) cylinder(d=1.2,h=13, $fn=16, center=true);
+	 translate([+2.5,yaa1/2,4.2+wall]) rotate([90,0,0]) cylinder(d=1.2,h=13, $fn=16, center=true);
+	 translate([+2.5,yaa1/2,1.5+wall]) rotate([90,0,0]) cylinder(d=1.2,h=13, $fn=16, center=true);
 	 
 	 // experimental: snapper
 	 //translate([-(xaa2+c+2.5)/2,     0+c,12+wall]) rotate([90,0,0]) cylinder(r=3,h=7, $fn=32, center=false);
