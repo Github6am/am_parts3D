@@ -104,22 +104,25 @@ module G1_thread() {
 module adapter_clip_profile() { 
     translate([0   ,4,0])
     polygon([
-    [ 0   ,-4],
-    [ 0   , 0],
+    [-0.5   ,-4.5],
+    [-0.5   , 0],
     [ 0.6 , 0],
-    [ 2   , 2],
-    [ 2   , 0+5.6],
-    [ 1.2 , 0+6.0],
+    [ 2.2 , 2],
+    [ 2.2 , 0+5.6],   // height of flange
+    [ 1.2 , 0+6.1],
+    [ 1.3 , 0+7.0],
     [ 3.0 , 12],
     [ 4.0 , 12],
     [ 4.0 , 1]
     ]);
 }
 
+// if the connecting hose has a flange, we may snap-in here to fix the adapter
+//
 module adapter_clip() {
     c=clr;
     difference() { 
-      rotate_extrude($fn=fn) translate([(30.25-c-0.01)/2,0,0]) adapter_clip_profile();
+      rotate_extrude($fn=fn) translate([(30.25-c/2-0)/2,0,0]) adapter_clip_profile();
       union() {
         translate([+6   ,-20,-1]) cube(40);
         translate([-6-40,-20,-1]) cube(40);
@@ -127,12 +130,31 @@ module adapter_clip() {
     }
 }
 
+// it is hard to remove the snaps without breaking them. 
+// the release ring can help to remove the adapter without breaking the clips
+//
+module release_ring() {
+    w=1.2;     // wall thickness, determined by step height of flange
+    di=32-0.6; // tight fit
+    slot=6;
+    difference() { 
+      union() {
+	    cylinder(h=10, d=di+w, $fn=fn);
+	    cylinder(h=2,  d=di+w+3, $fn=fn);
+      }
+      union() {
+	    translate([0, 0,-1]) cylinder(h=12, d=di, $fn=fn);
+            translate([0,-slot/2,-1]) cube([20,slot,12]);
+      }
+    }
+}
 
 
 // adapt to a Bilge Pump, type Blanko WWB06928 12VDC, 13A
 // WEEE-Reg.-Nr.: DE76956435
 // 3000 GPH
 module adapter_hose() {
+    di=27.4;    // inner diameter of the hose we want to connect to
     c=clr;
     difference() {
       translate([0,0,0])
@@ -141,8 +163,8 @@ module adapter_hose() {
 	translate([0,0,13]) adapter_clip();
 	difference() {
 	  union() {
-	    cylinder(h=35,d=27-c, $fn=fn);
-	    cylinder(h=21,d=27-c/2, $fn=fn);
+	    cylinder(h=35,d=di-c, $fn=fn);
+	    cylinder(h=21,d=di-c/2, $fn=fn);
 	    cylinder(h=17,d=30.25-c, $fn=fn);
 	  }
 	  translate([0,0,-0.5])
@@ -164,6 +186,8 @@ module test_render() {
   }
 }
 
+//---------------- Instances ---------------------
+
 //test_render();
 adapter_hose();
 //G1_thread();
@@ -171,3 +195,8 @@ adapter_hose();
 //polygon( G1_thread_profile());
 
 //adapter_clip();
+
+
+
+//adapter_hose();
+//release_ring();
