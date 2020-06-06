@@ -5,7 +5,7 @@
 //   - Greenhouse clamp - Weinranken am Gewaechshaus befestigen
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
-// Andreas Merz 2019-03-10, v0.2 
+// Andreas Merz 2020-04-19, v0.3 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 
@@ -149,8 +149,146 @@ module clampshape4(clampwidth=3.7, clamplength=17.5, cz=20) {
      }       
 }
 
+
+
+//---------------- Weidenzweige arrangieren ---------------------
+// this is a fixture to arrange 12 or 24 cut branches of a
+// willow tree to form a hyperboloidal structure
+// Ideally, two instances are used to yield a well-defined geometry.
+//
+// of course, it may also be used to create a magnetic loop antenna;
+// if n is choosen to be odd.  :-)
+
+// default globals
+wz_n=24;    // number of segments
+wz_w=4;     // width of structures
+wz_s=16;    // space between rims
+wz_c=0.4;   // clearance
+wz_r1=50;   // nominal inner diameter
+
+module hyperboloid(r1=wz_r1+wz_s/2, h1=50) {
+  w=2;
+  phioff=5;
+  slant=45;
+  for(ii=[0:15:360])
+     rotate([0,0,ii+phioff])
+       translate([r1,0,0]) rotate([slant,0,0]) rotate([0,0,22.5])
+         cylinder(r=w/2, h=h1/cos(slant),center=true, $fn=16);
+}
+
+module starwheel1(r1=wz_r1) {
+  // Nachteil: muss zerstoert werden beim Entfernen.
+  n=wz_n;
+  w=wz_w;
+  s=wz_s;
+  c=wz_c;   // clearance
+  linear_extrude(height=w)
+  union() {
+    difference() {
+      for(ii=[0:360/n:360]) {
+	 rotate([0,0,ii])
+	   union() {
+             //translate([0,0,0]) polygon(points=[ [0,0],[r1+w+s,-w],[r1+w+s,+w]]);
+	     translate([r1,0,0])square([s,w-c/2]);
+	     circle(r=r1+w, $fn=4*n);
+	   }
+      }
+      circle(r=r1+c/2, $fn=4*n);
+    }
+    // outer rim
+    difference() {
+      circle(r=r1+s+w*1.0, $fn=4*n);
+      circle(r=r1+s -c/2,  $fn=4*n);
+    }
+  }
+}
+
+module starwheel2(r1=wz_r1) {
+  n=wz_n;
+  w=wz_w;
+  s=wz_s;
+  c=wz_c;   // clearance
+  difference() {
+    // star
+    linear_extrude(height=w)
+    difference() {
+      for(ii=[0:360/n:360]) {
+	 rotate([0,0,ii])
+	   union() {
+	     translate([r1,0,0]) square([s+1.5*w,w-c]);
+	     circle(r=r1+w, $fn=4*n);
+	   }
+      }
+      circle(r=r1, $fn=4*n);
+    }
+    // outer rim gaps
+    translate([0,0,w/2])
+      linear_extrude(height=w)
+	difference() {
+	  circle(r=r1+s+w+c/2, $fn=4*n);
+	  circle(r=r1+s-c/2,   $fn=4*n);
+	}
+  
+  }
+}
+
+
+module starwheel3(r1=wz_r1) {    // outer rim to click into starwheel2
+  n=wz_n;
+  w=wz_w;
+  s=wz_s;
+  c=wz_c;   // clearance
+  rotate([0,0,0.75*180/n])
+  difference() {
+    // outer rim
+    translate([0,0,0])
+      linear_extrude(height=w)
+	difference() {
+	  circle(r=r1+s+w-c/2, $fn=4*n);
+	  circle(r=r1+s  +c/2, $fn=4*n);
+	}
+    // star gaps
+    translate([0,0,w/2])
+      linear_extrude(height=w)
+	for(ii=[0:360/n:360]) {
+	   rotate([0,0,ii])
+	     union() {
+	       translate([r1,0,0]) square([s+1.5*w,w+c]);
+	       circle(r=r1+w, $fn=4*n);
+	     }
+	}
+  }
+}
+
+
+module starwheel4(r1=wz_r1) {     // outer rim segments to click into starwheel2
+  n=wz_n;
+  w=wz_w;
+  s=wz_s;
+  c=wz_c;   // clearance
+  difference() {
+    translate([0,0,0]) starwheel3();
+    union() {
+      rotate([0,0, asin(2/2*w/(r1+w+s))]) translate([0,0,-0.1])         cube([(r1+w+s), r1+w+s, w+0.2]);
+      rotate([0,0,-asin(2/2*w/(r1+w+s))]) translate([-(r1+w+s),0,-0.1]) cube([(r1+w+s), r1+w+s, w+0.2]);
+      // Endverschluss rechts
+      rotate([0,0,-asin(1/2*w/(r1+w+s))]) translate([(r1+s+w/2)/2,0,0]) cube([(r1+s+w/2), w+c,   w+0.2], center=true);
+      rotate([0,0,-asin(1/2*w/(r1+w+s))]) translate([(r1+s+w/2)/2,0,w]) cube([(r1+s+w*2), w+c,   w+0.2], center=true);
+      rotate([0,0, asin(1/2*w/(r1+w+s))]) translate([(r1+s+w/2)/2,0,w]) cube([(r1+s+w/2), w+c,   w+0.2], center=true);
+      // Endverschluss links
+      rotate([0,0, asin(1/2*w/(r1+w+s))]) translate([-3*(r1+s+w/2)/2,0,w]) cube([(r1+s+w/2), w+c, w+0.2], center=true);
+      rotate([0,0, asin(1/2*w/(r1+w+s))]) translate([-3*(r1+s+w/2)/2,0,0]) cube([(r1+s+w*2), w+c, w+0.2], center=true);
+      rotate([0,0,-asin(1/2*w/(r1+w+s))]) translate([-3*(r1+s+w/2)/2,0,0]) cube([(r1+s+w/2), w+c, w+0.2], center=true);
+    }
+  }  
+}
+
 //---------------- Instances ---------------------
 
-clampshape3();
+//clampshape3();
 
 //schwalbenschwanz_hollow(h=2);
+
+//translate([0,0,20]) hyperboloid();
+starwheel2();
+
