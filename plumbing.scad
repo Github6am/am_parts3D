@@ -3,10 +3,11 @@
 // Background:
 //   - https://de.wikipedia.org/wiki/Whitworth-Gewinde
 //   - https://hackaday.io/page/5252-generating-nice-threads-in-openscad
-//   - When rendering, this may happen:
+//   - When rendering thread profiles, this may happen:
 //     UI-WARNING: Object may not be a valid 2-manifold and may need repair
 //     avoid this by making sure, that the thread generating polygons do 
 //     not overlap after one turn of the thread
+//   - my printer settings: layer height 0.15mm, infill 33%
 //
 //   - https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Libraries
 //     clone the following libs to your $HOME/.local/share/OpenSCAD/libraries directory:
@@ -22,6 +23,10 @@ fn=120;      // default face number
 clr=0.4;     // default clearance
 wall=1.0;    // default wall thickness
 
+// -------------- imported code -------------------------------
+// Thank you: the following 2 function are taken from
+// https://github.com/MisterHW/IoP-satellite/tree/master/OpenSCAD%20bottle%20threads
+//
 // radial scaling function for tapered lead-in and lead-out
 function lilo_taper(x,N,tapered_fraction) = 
     min( min( 1, (1.0/tapered_fraction)*(x/N) ), (1/tapered_fraction)*(1-x/N) )
@@ -48,15 +53,8 @@ module straight_thread(section_profile, pitch = 4, turns = 3, r=10, higbee_arc=4
 	skin(thing);
 }
 
-// demo: straight_thread(section_profile=demo_thread_profile());
-function demo_thread_profile() = [
-    [0,0],
-    [1.5,1],
-    [1.5,1.5],
-    [0,3],
-    [-1,3],
-    [-1,0]    
-];
+
+// -------------- my code -------------------------------
 
 G1_pitch = inch/11;             // Steigung 2.309 mm
 function G1_thread_profile() = [
@@ -71,20 +69,6 @@ function G1_thread_profile() = [
 ];
 
 
-
-
-
-// PCO-1881 soda bottle neck thread
-// function bottle_pco1881_neck_clear_dia()      = 21.74;
-// function bottle_pco1881_neck_thread_dia()     = 24.94;
-// function bottle_pco1881_neck_thread_pitch()   = 2.7;
-// function bottle_pco1881_neck_thread_height()  = 1.15;
-// function bottle_pco1881_neck_thread_profile() = [
-//     [0,0],
-//     [0,1.42],
-//     [bottle_pco1881_neck_thread_height(),1.22],
-// 	[bottle_pco1881_neck_thread_height(),0.22] 
-// ];
 
 
 
@@ -110,7 +94,7 @@ module adapter_clip_profile() {
     [ 2.2 , 2],
     [ 2.2 , 0+5.6],   // height of flange
     [ 1.2 , 0+6.1],
-    [ 1.3 , 0+7.0],
+    [ 1.2 , 0+7.0],
     [ 3.0 , 12],
     [ 4.0 , 12],
     [ 4.0 , 1]
@@ -122,7 +106,7 @@ module adapter_clip_profile() {
 module adapter_clip() {
     c=clr;
     difference() { 
-      rotate_extrude($fn=fn) translate([(30.25-c/2-0)/2,0,0]) adapter_clip_profile();
+      rotate_extrude($fn=fn) translate([(30.25)/2,0,0]) adapter_clip_profile();
       union() {
         translate([+6   ,-20,-1]) cube(40);
         translate([-6-40,-20,-1]) cube(40);
@@ -131,16 +115,16 @@ module adapter_clip() {
 }
 
 // it is hard to remove the snaps without breaking them. 
-// the release ring can help to remove the adapter without breaking the clips
+// The release ring may help to lift the snaps without breaking them
 //
 module release_ring() {
-    w=1.2;     // wall thickness, determined by step height of flange
-    di=32-0.6; // tight fit
-    slot=6;
+    w=1.0;     // wall thickness, determined by step height of flange
+    di=32-1.0; // tight fit
+    slot=20;
     difference() { 
       union() {
-	    cylinder(h=10, d=di+w, $fn=fn);
-	    cylinder(h=2,  d=di+w+3, $fn=fn);
+	    cylinder(h=10, d=di+2*w  , $fn=fn);
+	    cylinder(h=2,  d=di+2*w+3, $fn=fn);
       }
       union() {
 	    translate([0, 0,-1]) cylinder(h=12, d=di, $fn=fn);
@@ -153,8 +137,8 @@ module release_ring() {
 // adapt to a Bilge Pump, type Blanko WWB06928 12VDC, 13A
 // WEEE-Reg.-Nr.: DE76956435
 // 3000 GPH
-module adapter_hose() {
-    di=27.4;    // inner diameter of the hose we want to connect to
+module adapterA_G1() {
+    di=27.2;    // inner diameter of the hose we want to connect to
     c=clr;
     difference() {
       translate([0,0,0])
@@ -164,7 +148,7 @@ module adapter_hose() {
 	difference() {
 	  union() {
 	    cylinder(h=35,d=di-c, $fn=fn);
-	    cylinder(h=21,d=di-c/2, $fn=fn);
+	    cylinder(h=20,d=di-c/2, $fn=fn);  // tighter fit at pipe end
 	    cylinder(h=17,d=30.25-c, $fn=fn);
 	  }
 	  translate([0,0,-0.5])
@@ -178,25 +162,18 @@ module adapter_hose() {
     }
 }
 
-module test_render() {
-  union() {
-    G1_thread();
-    //cylinder(h=35,d=27, $fn=fn);
-    cylinder(h=14,d=20, $fn=fn);
-  }
-}
 
 //---------------- Instances ---------------------
 
-//test_render();
-adapter_hose();
-//G1_thread();
+
+// --- test components
 
 //polygon( G1_thread_profile());
-
+//G1_thread();
 //adapter_clip();
 
 
+// --- target items
 
-//adapter_hose();
+adapterA_G1();
 //release_ring();
