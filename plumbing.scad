@@ -1,6 +1,7 @@
-// plumbing stuff for garden water
+// plumbing stuff for garden water or boat bilge pumps
 // 
 // Background:
+//   - currently, there is only the 1" pipe thread (G1)
 //   - https://de.wikipedia.org/wiki/Whitworth-Gewinde
 //   - https://hackaday.io/page/5252-generating-nice-threads-in-openscad
 //   - When rendering thread profiles, this may happen:
@@ -24,7 +25,7 @@ clr=0.4;     // default clearance
 wall=1.0;    // default wall thickness
 
 // -------------- imported code -------------------------------
-// Thank you: the following 2 function are taken from
+// Thank you: the following 2 functions are taken from
 // https://github.com/MisterHW/IoP-satellite/tree/master/OpenSCAD%20bottle%20threads
 //
 // radial scaling function for tapered lead-in and lead-out
@@ -91,10 +92,12 @@ module adapter_clip_profile() {
     [-0.5   ,-4.5],
     [-0.5   , 0],
     [ 0.6 , 0],
-    [ 2.2 , 2],
+    [ 1.8 , 1.6],
+    [ 2.1 , 2.5],
+    [ 2.2 , 3.4],
     [ 2.2 , 0+5.6],   // height of flange
-    [ 1.2 , 0+6.1],
-    [ 1.2 , 0+7.0],
+    [ 1.4 , 0+6.0],
+    [ 1.4 , 0+7.0],
     [ 3.0 , 12],
     [ 4.0 , 12],
     [ 4.0 , 1]
@@ -134,34 +137,98 @@ module release_ring() {
 }
 
 
-// adapt to a Bilge Pump, type Blanko WWB06928 12VDC, 13A
-// WEEE-Reg.-Nr.: DE76956435
-// 3000 GPH
-module adapterA_G1() {
-    di=27.2;    // inner diameter of the hose we want to connect to
-    c=clr;
-    difference() {
-      translate([0,0,0])
-      union() {
-	G1_thread();
-	translate([0,0,13]) adapter_clip();
-	difference() {
-	  union() {
-	    cylinder(h=35,d=di-c, $fn=fn);
-	    cylinder(h=20,d=di-c/2, $fn=fn);  // tighter fit at pipe end
-	    cylinder(h=17,d=30.25-c, $fn=fn);
-	  }
-	  translate([0,0,-0.5])
-	  union() {
-	    cylinder(h=36, d=27-c-2*wall, $fn=fn);
-	    cylinder(h=17, d1=27, d2=27-c-2*wall, $fn=fn);
-	  }
-	}
+
+
+// adapt to a pipe with an optional flange
+
+module pipe_adapter(
+    di=27.2,    // inner diameter of the hose we want to connect to
+    do=30.25,   // outer diameter of outgoing pipe
+    ha=20,      // height of whole adapter section
+    c=clr ) {
+    union() {
+      translate([0,0,0]) adapter_clip();
+      difference() {
+        union() {
+          cylinder(h=ha,d=di-c, $fn=fn);
+          cylinder(h=7,d=di-c/2, $fn=fn);  // tighter fit at pipe rim
+          cylinder(h=4,d=do-c  , $fn=fn);
+        }
+        translate([0,0,-0.01])
+        union() {
+          cylinder(h=ha+0.02, d=di-c-2*wall, $fn=fn);
+          cylinder(h=5, d1=do-c-2*wall, d2=di-c-2*wall, $fn=fn);
+        }
       }
-      //translate([0,0,-1.1]) cylinder(h=1.1, d=35, $fn=fn);
     }
 }
 
+module pipe_bend(
+      do=30.25,
+      ang=60,      // hope, we can still print without support structures
+      bend=18,
+      c=clr ) {
+      
+      translate([-bend,0,0])
+      rotate([90,0,0])
+      rotate_extrude(angle=ang,$fn=fn) 
+      translate([bend,0,0])
+      difference() {
+        circle(d=do-c);
+        circle(d=do-c-2*wall);
+      }
+}
+
+module pipe_thread_G1(
+    dd=30.25,   // outer diameter of outgoing pipe, core diameter of G1 thread
+    hh=14,      // height of whole thread section
+    c=clr ) {
+      union() {
+	G1_thread();
+	difference() {
+	  union() {
+	    cylinder(h=hh, d=dd-c, $fn=fn);
+	  }
+	  translate([0,0,-0.01])
+	  union() {
+	    cylinder(h=hh+0.02, d1=dd-c-4*wall, d2=dd-c-2*wall, $fn=fn);
+	  }
+	}
+      }
+}
+
+
+// adapt to a Bilge Pump, type Blanko WWB06928 12VDC, 13A
+// WEEE-Reg.-Nr.: DE76956435
+// 3000 GPH
+
+module adapterA_G1(
+    di=27.2,    // inner diameter of the hose we want to connect to
+    do=30.25,   // outer diameter of outgoing pipe
+    hh=13,      // height of whole thread section
+    bend=18,
+    c=clr ) {
+    
+    union() {
+       pipe_thread_G1(dd=do, hh=hh);  
+       translate([0,0,hh]) pipe_adapter();
+    }
+}
+
+module adapterB_G1(
+    di=27.2,    // inner diameter of the hose we want to connect to
+    do=30.25,   // outer diameter of outgoing pipe
+    hh=14,      // height of whole thread section
+    bend=18,    // bend radius
+    ang=60,     // higher bend angles may require support structures
+    c=clr ) {
+    
+    union() {
+       pipe_thread_G1(dd=do, hh=hh);  
+       translate([0,0,hh]) pipe_bend();
+       translate([-bend/2,0,hh+bend*sin(60)]) rotate([0,-60,0]) pipe_adapter();
+    }
+}
 
 //---------------- Instances ---------------------
 
@@ -172,8 +239,13 @@ module adapterA_G1() {
 //G1_thread();
 //adapter_clip();
 
+//pipe_bend();
+//pipe_thread_G1();
+//pipe_adapter();
+
 
 // --- target items
 
-adapterA_G1();
+//adapterA_G1();
+adapterB_G1();
 //release_ring();
