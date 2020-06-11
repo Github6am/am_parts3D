@@ -152,6 +152,7 @@ module clampshape4(clampwidth=3.7, clamplength=17.5, cz=20) {
 
 
 //---------------- Weidenzweige arrangieren ---------------------
+// https://www.thingiverse.com/thing:4432806
 // this is a fixture to arrange 12 or 24 cut branches of a
 // willow tree to form a hyperboloidal structure
 // Ideally, two instances are used to yield a well-defined geometry.
