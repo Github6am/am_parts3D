@@ -9,6 +9,7 @@
 //     avoid this by making sure, that the thread generating polygons do 
 //     not overlap after one turn of the thread
 //   - my printer settings: layer height 0.15mm, infill 33%
+//   - https://www.thingiverse.com/thing:4438912
 //
 //   - https://en.wikibooks.org/wiki/OpenSCAD_User_Manual/Libraries
 //     clone the following libs to your $HOME/.local/share/OpenSCAD/libraries directory:
@@ -58,15 +59,15 @@ module straight_thread(section_profile, pitch = 4, turns = 3, r=10, higbee_arc=4
 // -------------- my code -------------------------------
 
 G1_pitch = inch/11;             // Steigung 2.309 mm
-function G1_thread_profile() = [
-    [ 0,0],
-    [ 0,0.12],
-    [ 1.4,  G1_pitch/2-0.12],
-    [ 1.4,  G1_pitch/2+0.12],
-    [ 0,    G1_pitch -0.12-0.01],   // avoid render error if overlap after 1 turn
-    [ 0,    G1_pitch      -0.01],
-    [-0.3,  G1_pitch      -0.01],
-    [-0.3,  0]    
+function G1_thread_profile(mx=1) = [
+    [ 0   *mx, 0],
+    [ 0   *mx, 0.12],
+    [ 1.4 *mx, G1_pitch/2-0.12],
+    [ 1.4 *mx, G1_pitch/2+0.12],
+    [ 0   *mx, G1_pitch -0.12-0.01],   // avoid render error if overlap after 1 turn
+    [ 0   *mx, G1_pitch      -0.01],
+    [-0.3 *mx, G1_pitch      -0.01],
+    [-0.3 *mx, 0]    
 ];
 
 
@@ -74,13 +75,30 @@ function G1_thread_profile() = [
 
 
 
-module G1_thread() {
-     c=clr;
+module G1_thread(
+     di=30.25,     // inner diameter
+     c=clr
+     ) {
      straight_thread(
         section_profile = G1_thread_profile(),
         pitch = G1_pitch,
         turns = 4.25,
-        r = (30.25-c)/2,
+        r = (di-c)/2,
+        higbee_arc = 45,
+        fn = fn
+        );
+}
+
+module G1_thread_nut(
+     do=33.75,     // outer diameter
+     c=clr
+     ) {
+     rotate([0,0,180])
+     straight_thread(
+        section_profile = G1_thread_profile(mx=-1),
+        pitch = G1_pitch,
+        turns = 3.25,
+        r = (do+c)/2,
         higbee_arc = 45,
         fn = fn
         );
@@ -198,6 +216,49 @@ module pipe_thread_G1(
 }
 
 
+// ------------- Nut modules ---------------------
+
+module pipe_thread_nut_cone(
+    d1=33.75,   // inner diameter of outgoing pipe, outer diameter of G1 thread
+    d2=27,      // hole diameter
+    c=clr ) {
+      hh=(d1-d2)/2;   // 45 deg angle
+      union() {
+	difference() {
+	  union() {
+	    translate([0,0,wall])
+	    cylinder(h=hh, d1=d1+c+2*wall, d2=d2+c+2*wall, $fn=fn);
+	    cylinder(h=wall, d=d1+c+2*wall, $fn=fn);
+	  }
+	  union() {
+	    translate([0,0,-0.01])
+	    cylinder(h=hh+0.02, d1=d1+c, d2=d2+c, $fn=fn);
+	    translate([0,0,hh])
+	    cylinder(h=hh+wall, d=d2+c, $fn=fn);
+	  }
+	}
+      }
+}
+
+module pipe_thread_nut_G1(
+    dd=33.75,   // inner diameter of outgoing pipe, outer diameter of G1 thread
+    hh=12,      // height of whole thread section
+    c=clr ) {
+      union() {
+	translate([0,0,hh]) pipe_thread_nut_cone(d1=dd);
+	G1_thread_nut();
+	difference() {
+	  union() {
+	    cylinder(h=hh, d=dd+c+2*wall, $fn=fn);
+	  }
+	  translate([0,0,-0.01])
+	  union() {
+	    cylinder(h=hh+0.02, d=dd+c, $fn=fn);
+	  }
+	}
+      }
+}
+
 // adapt to a Bilge Pump, type Blanko WWB06928 12VDC, 13A
 // WEEE-Reg.-Nr.: DE76956435
 // 3000 GPH
@@ -235,17 +296,20 @@ module adapterB_G1(
 
 // --- test components
 
-//polygon( G1_thread_profile());
+//polygon(  G1_thread_profile());
 //G1_thread();
+//G1_thread_nut();
 //adapter_clip();
 
 //pipe_bend();
 //pipe_thread_G1();
 //pipe_adapter();
 
+pipe_thread_nut_G1();
+
 
 // --- target items
 
 //adapterA_G1();
-adapterB_G1();
+//adapterB_G1();
 //release_ring();
