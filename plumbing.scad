@@ -97,7 +97,7 @@ module G1_thread_nut(
      straight_thread(
         section_profile = G1_thread_profile(mx=-1),
         pitch = G1_pitch,
-        turns = 4.25,
+        turns = 3.25,
         r = (do+c)/2,
         higbee_arc = 45,
         fn = fn
@@ -242,7 +242,7 @@ module pipe_thread_nut_cone(
 
 module pipe_thread_nut_G1(
     dd=33.75,   // inner diameter of outgoing pipe, outer diameter of G1 thread
-    hh=14,      // height of whole thread section
+    hh=12,      // height of whole thread section
     c=clr ) {
       union() {
 	translate([0,0,hh]) pipe_thread_nut_cone(d1=dd);
