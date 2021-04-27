@@ -13,18 +13,16 @@
      https://www.thingiverse.com/thing:4592424
      https://www.thingiverse.com/thing:2388924
 
-
  *------------------------------------------------------------*/
-
-//import("/home/amerz/download/thingiverse/Festool_RO_150_E_Vacuum_Adapter/files/Festool_RO150E.stl");
+//translate([-20,0,0]) import("/home/amerz/download/thingiverse/Festool_RO_150_E_Vacuum_Adapter/files/Festool_RO150E.stl");
 
 w=2.0;      // wall thickness
 c=0.15;     // clearance
 dox=36;     // outer diameter greater axis of ellipse
 doy=18;     // outer diameter smaller axis of ellipse
-h1=18;      // elliptic section heigth
-h2=10;      // taper section heigth
-h3=50;      // cylindrical section heigth
+h1=18;      // elliptic section height
+h2=10;      // taper section height
+h3=50;      // cylindrical section height
 divac=34.5; // outer diameter of vacuum cleaner hose at end
 
 

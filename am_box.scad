@@ -188,7 +188,7 @@ module am_boxD(x=50, y=100, z=20) {
 //
 module am_boxlabelA( txt="1", lx=25, ly=15, align=2/3 ) {
   // lx:    label width, actually it will be 1 mm more to fit between dovetails
-  // ly:    label heigth
+  // ly:    label height
   w=0.8;               // thickness
   fontname = "Liberation Sans";
   fontsize = 5;
