@@ -7,8 +7,9 @@
 //     optional am Boden gebohrt werden.
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
+//   - v02: bottom hole for cork plug, drain to avoid freezing
 //
-// Andreas Merz 2019-12-15, v0.1
+// Andreas Merz 2021-04-21, v0.2
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 // https://www.thingiverse.com/thing:2405122
@@ -42,10 +43,11 @@ module gardena_half() {
 
 module hose_branch(hh=120, d=50) {
     //d:  outer diameter of hose
-    c=0.2;    // clearance
+    c=0.15;    // clearance
     ro=d/2+w;
     rn=d/2;
     ri=d/2-w;
+    rb=19.2/2;       // Bodenlochradius, da soll ein Korken reinpassen.
     hm=24;           // Hoehe Mittelteil
     h2=(hh-hm)/2;    // Einstecktiefe Anschlussrohr
     
@@ -69,8 +71,13 @@ module hose_branch(hh=120, d=50) {
 	  }
 	}
         translate([0,-12,-hm+w]) rotate( [30,0,0]) translate([0,0,hm/2+0.5]) cylinder(r=rbo, h=h2+hm/4,$fn=nf);
+        translate([0, 0, -h2-hm/2]) cylinder(r1=rb+w+0.4, r2=rb+w, h=5, $fn=nf);      // bottom hole rim
       }
-      translate([0,-12,-hm+w]) rotate( [30,0,0]) translate([0,0,hm/2+0.5-1]) cylinder(r=rbi, h=h2+hm/2+2,$fn=nf);
+      union() {
+        translate([0,-12,-hm+w]) rotate( [30,0,0]) translate([0,0,hm/2+0.5-1]) cylinder(r=rbi, h=h2+hm/2+2,$fn=nf);
+        translate([0, 0, -h2-hm/2-0.01]) cylinder(r=rb, h=5+1, $fn=nf);      // bottom hole
+        translate([0, 0, -h2-hm/2-0.01]) cylinder(r1=rb+0.4,r2=rb, h=0.8, $fn=nf);    // bottom hole chamfer
+      }
     }
 }
 
