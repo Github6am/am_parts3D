@@ -2,9 +2,11 @@
 // 
 // Background:
 //   - Einbau in ein Carport-Regenfallrohr, um Wasser ueber
-//     einen Gartenschlauch zu entnehmen. Schmutz soll sich 
-//     an Boden absetzen. Ein kleines Entwaesserungsloch kann
-//     optional am Boden gebohrt werden.
+//     einen Gartenschlauch abzuleiten. Schmutz soll sich 
+//     an Boden absetzen. Ein Entwaesserungsloch am Boden
+//     kann mit einem Korken verschlossen werden.
+//     Wenn man eine kleine Kerbe am Stopfen einschneidet, kann
+//     eine regulierbare Menge Wasser nach unten abtropfen.
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //   - v02: bottom hole for cork plug, drain to avoid freezing

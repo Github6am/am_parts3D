@@ -292,4 +292,5 @@ module starwheel4(r1=wz_r1) {     // outer rim segments to click into starwheel2
 
 //translate([0,0,20]) hyperboloid();
 starwheel2();
+//starwheel4();
 

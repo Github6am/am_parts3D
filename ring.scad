@@ -28,16 +28,9 @@ module ringC(di=16) {
 
 // --------------------- Instances ------------------------------
 
+color("blue")  translate([0,   0, 0])  ringA();
 
-color("blue")
-translate([0, 0, 0])
-  ringA();
+color("red")   translate([30,  0, 0])  ringB();
 
-color("red")
-translate([30, 0, 0])
-  ringB();
-
-color("green")
-translate([15, 26, 0])
-  ringC();
+color("green") translate([15, 26, 0])  ringC();
 
