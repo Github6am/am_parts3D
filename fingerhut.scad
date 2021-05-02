@@ -5,8 +5,8 @@
 
 
 // Main dimensions
-rin=18.5/2;      // inner width
-zin=12;          // inner height
+rin=18.0/2;      // inner width
+zin=16;          // inner height
 wall=0.8;        // wall thickness of printed part
 //clr=0.4;       // clearance
 
