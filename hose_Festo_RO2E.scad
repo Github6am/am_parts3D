@@ -10,8 +10,8 @@
      https://github.com/Github6am/am_parts3D
    - CAD manual: http://www.openscad.org/documentation.html
    - comparable designs
-     https://www.thingiverse.com/thing:4592424
-     https://www.thingiverse.com/thing:2388924
+ *   https://www.thingiverse.com/thing:4592424
+ *   https://www.thingiverse.com/thing:2388924
 
  *------------------------------------------------------------*/
 //translate([-20,0,0]) import("/home/amerz/download/thingiverse/Festool_RO_150_E_Vacuum_Adapter/files/Festool_RO150E.stl");

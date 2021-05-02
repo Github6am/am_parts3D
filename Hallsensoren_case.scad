@@ -78,7 +78,7 @@ module sensorcase2Dhalf() {
 module sensorcase2D() {
           union() {
              sensorcase2Dhalf();
-             mirror() sensorcase2Dhalf();
+             mirror([1,0,0]) sensorcase2Dhalf();
           }
 }
 
@@ -125,7 +125,6 @@ module sensorcap() {
 
 
 //------------- Instances --------------------
-
 translate([-15,0,0]) connectionH(h=40, l=30, holes=false);
 translate([0,2.5,0]) sensorcase();
 translate([0,yout+4,0]) sensorcap();

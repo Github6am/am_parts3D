@@ -343,6 +343,7 @@ module am_gauge( fontname = "FreeSans:Bold" ) {
 //trapezrot(r=10);
 
 am_boxhandleA();
+//am_boxhandleB();
 
 //translate([0,0,0]) am_boxD();
 //translate([0,106,0]) am_boxC();
