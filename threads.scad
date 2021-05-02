@@ -2,7 +2,7 @@
  * ISO-standard metric threads, following this specification:
  *          http://en.wikipedia.org/wiki/ISO_metric_screw_thread
  *
- * Copyright 2017 Dan Kirshner - dan_kirshner@yahoo.com
+ * Copyright 2020 Dan Kirshner - dan_kirshner@yahoo.com
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,6 +15,8 @@
  *
  * See <http://www.gnu.org/licenses/>.
  *
+ * Version 2.5.  2020-04-11  Leadin option works for internal threads.
+ * Version 2.4.  2019-07-14  Add test option - do not render threads.
  * Version 2.3.  2017-08-31  Default for leadin: 0 (best for internal threads).
  * Version 2.2.  2017-01-01  Correction for angle; leadfac option.  (Thanks to
  *                           Andrew Allen <a2intl@gmail.com>.)
@@ -63,7 +65,7 @@
 
 
 // ----------------------------------------------------------------------------
-function segments (diameter) = min (50, ceil (diameter*6));
+function segments (diameter) = min (50, max (ceil (diameter*6), 25));
 
 
 // ----------------------------------------------------------------------------
@@ -73,28 +75,31 @@ function segments (diameter) = min (50, ceil (diameter*6));
 // internal -    true = clearances for internal thread (e.g., a nut).
 //               false = clearances for external thread (e.g., a bolt).
 //               (Internal threads should be "cut out" from a solid using
-//               difference ()).
+//               difference ()).  Default: false.
 // n_starts -    Number of thread starts (e.g., DNA, a "double helix," has
-//               n_starts=2).  See wikipedia Screw_thread.
+//               n_starts=2).  See wikipedia Screw_thread.  Default: 1.
 // thread_size - (non-standard) axial width of a single thread "V" - independent
 //               of pitch.  Default: same as pitch.
-// groove      - (non-standard) subtract inverted "V" from cylinder (rather than
-//               add protruding "V" to cylinder).
-// square      - Square threads (per
-//               https://en.wikipedia.org/wiki/Square_thread_form).
+// groove      - (non-standard) true = subtract inverted "V" from cylinder
+//                (rather thanadd protruding "V" to cylinder).  Default: false.
+// square      - true = square threads (per
+//               https://en.wikipedia.org/wiki/Square_thread_form).  Default:
+//               false.
 // rectangle   - (non-standard) "Rectangular" thread - ratio depth/(axial) width
-//               Default: 1 (square).
+//               Default: 0 (standard "v" thread).
 // angle       - (non-standard) angle (deg) of thread side from perpendicular to
 //               axis (default = standard = 30 degrees).
 // taper       - diameter change per length (National Pipe Thread/ANSI B1.20.1
 //               is 1" diameter per 16" length). Taper decreases from 'diameter'
-//               as z increases.
+//               as z increases.  Default: 0 (no taper).
 // leadin      - 0 (default): no chamfer; 1: chamfer (45 degree) at max-z end;
 //               2: chamfer at both ends, 3: chamfer at z=0 end.
-// leadfac     - scale of leadin chamfer (default: 1.0 = 1/2 thread).
+// leadfac     - scale of leadin chamfer length (default: 1.0 = 1/2 thread).
+// test        - true = do not render threads (just draw "blank" cylinder).
+//               Default: false (draw threads).
 module metric_thread (diameter=8, pitch=1, length=1, internal=false, n_starts=1,
                       thread_size=-1, groove=false, square=false, rectangle=0,
-                      angle=30, taper=0, leadin=0, leadfac=1.0)
+                      angle=30, taper=0, leadin=0, leadfac=1.0, test=false)
 {
    // thread_size: size of thread "V" different than travel per turn (pitch).
    // Default: same as pitch.
@@ -102,7 +107,7 @@ module metric_thread (diameter=8, pitch=1, length=1, internal=false, n_starts=1,
    local_rectangle = rectangle ? rectangle : 1;
 
    n_segments = segments (diameter);
-   h = (square || rectangle) ? local_thread_size*local_rectangle/2 : local_thread_size / (2 * tan(angle));
+   h = (test && ! internal) ? 0 : (square || rectangle) ? local_thread_size*local_rectangle/2 : local_thread_size / (2 * tan(angle));
 
    h_fac1 = (square || rectangle) ? 0.90 : 0.625;
 
@@ -114,9 +119,11 @@ module metric_thread (diameter=8, pitch=1, length=1, internal=false, n_starts=1,
    difference () {
       union () {
          if (! groove) {
-            metric_thread_turns (diameter, pitch, length, internal, n_starts,
-                                 local_thread_size, groove, square, rectangle, angle,
-                                 taper);
+            if (! test) {
+               metric_thread_turns (diameter, pitch, length, internal, n_starts,
+                                    local_thread_size, groove, square, rectangle, angle,
+                                    taper);
+            }
          }
 
          difference () {
@@ -136,30 +143,55 @@ module metric_thread (diameter=8, pitch=1, length=1, internal=false, n_starts=1,
             }
 
             if (groove) {
-               metric_thread_turns (diameter, pitch, length, internal, n_starts,
-                                    local_thread_size, groove, square, rectangle,
-                                    angle, taper);
+               if (! test) {
+                  metric_thread_turns (diameter, pitch, length, internal, n_starts,
+                                       local_thread_size, groove, square, rectangle,
+                                       angle, taper);
+               }
+            }
+         }
+
+         // Internal thread lead-in: take away from external solid.
+         if (internal) {
+
+            // "Negative chamfer" z=0 end if leadin is 2 or 3.
+            if (leadin == 2 || leadin == 3) {
+               cylinder (r1=diameter/2, r2=diameter/2 - h*h_fac1*leadfac, h=h*h_fac1*leadfac,
+                         $fn=n_segments);
+            }
+
+            // "Negative chamfer" z-max end if leadin is 1 or 2.
+            if (leadin == 1 || leadin == 2) {
+               translate ([0, 0, length + 0.05 - h*h_fac1*leadfac]) {
+                  cylinder (r1=tapered_diameter/2 - h*h_fac1*leadfac, h=h*h_fac1*leadfac,
+                            r2=tapered_diameter/2,
+                            $fn=n_segments);
+               }
             }
          }
       }
 
-      // chamfer z=0 end if leadin is 2 or 3
-      if (leadin == 2 || leadin == 3) {
-         difference () {
-            cylinder (r=diameter/2 + 1, h=h*h_fac1*leadfac, $fn=n_segments);
+      if (! internal) {
 
-            cylinder (r2=diameter/2, r1=diameter/2 - h*h_fac1*leadfac, h=h*h_fac1*leadfac,
-                      $fn=n_segments);
-         }
-      }
-
-      // chamfer z-max end if leadin is 1 or 2.
-      if (leadin == 1 || leadin == 2) {
-         translate ([0, 0, length + 0.05 - h*h_fac1*leadfac]) {
+         // Chamfer z=0 end if leadin is 2 or 3.
+         if (leadin == 2 || leadin == 3) {
             difference () {
                cylinder (r=diameter/2 + 1, h=h*h_fac1*leadfac, $fn=n_segments);
-               cylinder (r1=tapered_diameter/2, r2=tapered_diameter/2 - h*h_fac1*leadfac, h=h*h_fac1*leadfac,
+
+               cylinder (r2=diameter/2, r1=diameter/2 - h*h_fac1*leadfac, h=h*h_fac1*leadfac,
                          $fn=n_segments);
+            }
+         }
+
+         // Chamfer z-max end if leadin is 1 or 2.
+         if (leadin == 1 || leadin == 2) {
+            translate ([0, 0, length + 0.05 - h*h_fac1*leadfac]) {
+               difference () {
+                  cylinder (r=diameter/2 + 1, h=h*h_fac1*leadfac, $fn=n_segments);
+
+                  cylinder (r1=tapered_diameter/2, r2=tapered_diameter/2 - h*h_fac1*leadfac, h=h*h_fac1*leadfac,
+                            $fn=n_segments);
+               }
             }
          }
       }
@@ -173,7 +205,7 @@ module metric_thread (diameter=8, pitch=1, length=1, internal=false, n_starts=1,
 module english_thread (diameter=0.25, threads_per_inch=20, length=1,
                       internal=false, n_starts=1, thread_size=-1, groove=false,
                       square=false, rectangle=0, angle=30, taper=0, leadin=0,
-                      leadfac=1.0)
+                      leadfac=1.0, test=false)
 {
    // Convert to mm.
    mm_diameter = diameter*25.4;
@@ -185,7 +217,7 @@ module english_thread (diameter=0.25, threads_per_inch=20, length=1,
    echo (str ("mm_length: ", mm_length));
    metric_thread (mm_diameter, mm_pitch, mm_length, internal, n_starts,
                   thread_size, groove, square, rectangle, angle, taper, leadin,
-                  leadfac);
+                  leadfac, test);
 }
 
 // ----------------------------------------------------------------------------
@@ -370,5 +402,6 @@ module thread_polyhedron (radius, pitch, internal, n_starts, thread_size,
       }
    }
 }
+
 
 

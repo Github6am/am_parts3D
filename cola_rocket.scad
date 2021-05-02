@@ -24,7 +24,7 @@ function fnoz(r1, r2, num=32, l=20, inslope=1) =
   [for (i=[0:num-1], x=i*l/num) [ x, 30/sqrt(x+0.2) ]];
 
 module nozzle( d1=20, d2=20, l=30, n=10) {
-     //rotate_extrude($fn = 80) polygon(fnoz(r1=d1/2,r2=d2/2,l=l));
+     rotate_extrude($fn = 80) polygon(fnoz(r1=d1/2,r2=d2/2,l=l));
 }
 
 module nozzle2(lcyl=20,lcon=15) {
