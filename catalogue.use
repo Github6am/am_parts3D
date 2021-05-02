@@ -1,0 +1,175 @@
+# gitscadfile=am_box.scad
+//octaeder(r=10);
+//trapezrot(r=10);
+am_boxhandleA();
+am_boxhandleB();
+translate([0,0,0]) am_boxD();
+translate([0,106,0]) am_boxC();
+//translate([0,106,0]) am_boxC(z=20);  // double height
+if ( 0 ) {
+if ( 1 ) {
+translate([-7,-9,0]) am_gauge();
+
+# gitscadfile=am_dovetail.scad
+//translate([dt_grid/2+0.2, dt_h, 0]) mirror([0,1,0]) dt_shapeNominal(c=-dt_c);   dt_shapeNominal(c=dt_c);
+//translate([0, 0, 1.1]) mirror([0,0,0]) dt_shapeNominal(c=-dt_c);  color("red") dt_shapeNominal(c=dt_c);
+//mirror([0,0,1]) am_dovetailCap(c=+0.01);  translate([0,0,0])  am_dovetailCap(c=-0.01);
+//am_dovetailAdd(h=5,t=0.1);  translate([dt_grid/2+0.2, dt_h+dt_c, 0]) mirror([0,1,0]) am_dovetailSub(h=5,t=0.1);
+dovetail3D();
+am_dovetailAdd();
+am_dovetailAddN();
+am_dovetailPlateA();
+am_dovetailNeg(h=10);
+am_dovetailPlateB(n=4);
+
+# scadfile=AnkerkettenDeckel_02.scad
+accap();
+
+# scadfile=AnkerkettenGehaeuse_01.scad
+accase();
+
+# gitscadfile=battery_holder.scad
+//battery_shapeI();
+battery_holder1();
+
+
+# gitscadfile=clamps.scad
+clampshape3();
+//schwalbenschwanz_hollow(h=2);
+//translate([0,0,20]) hyperboloid();
+starwheel2();
+starwheel4();
+
+# gitscadfile=coil_cone.scad
+cone();
+spokewheelB();
+//spokewheelB(dia=53);
+translate([12,12,0]) inset();
+//translate([12,-12,0]) inset(h=21, hrim=14);  // extended inset
+translate([-12,-12,0]) axeB();
+//translate([12,0,0]) inset(h=9.3);
+rolle();
+translate([-0*12,0,0]) filamentclip();
+//translate([-1*12,0,0]) filamentclip();
+//translate([-2*12,0,0]) filamentclip();
+
+# gitscadfile=cola_rocket.scad
+translate([12,0,0]) cola_nozzle2();
+translate([-12,0,0]) cola_launcher2();
+//nozzle();
+polygon(fnoz(r1=20,r2=10));
+nozzle2();
+
+# gitscadfile=daypower-2596-2.scad
+boardfixture();
+
+# gitscadfile=dodekaeder.scad
+translate([0, 0, 0]) facet12();     // das hat bisher beim Ausdrucken Probleme gemacht.
+facet1();
+//facet6();
+translate([2*a, 0, 0]) capA(txt=str(12));
+foot1();
+//difference() {
+foot2();
+//translate([0, 0, -10]) cube(40, center=false); }
+if(false) {
+
+# scadfile=ersatzteil_umwaelzpumpe.scad
+umwaelzpumpe_ersatzteil();
+
+# gitscadfile=fingerhut.scad
+fingerhutA();
+
+# gitscadfile=galeb.scad
+//translate([0,-40,0]) ccyl();
+//galeb_plateB();
+//galeb_plateC();
+//cslots();
+//galeb_plateD();
+galeb_plateE();
+
+
+# scadfile=geardemo.scad
+translate([-3,-21,0]) rack(2, 100, 8, 10, 20, -22.5);
+spur_gear(2, 20, 8, 10, 20, 22.5);
+
+# gitscadfile=Hallsensoren_case.scad
+translate([-15,0,0]) connectionH(h=40, l=30, holes=false);
+translate([0,2.5,0]) sensorcase();
+translate([0,yout+4,0]) sensorcap();
+
+# gitscadfile=hose_branch.scad
+gardena_half();
+hose_branch();
+
+# gitscadfile=hose_Festo_RO2E.scad
+//elliptic_shape( a=divac, b=divac, delta=c);
+//elliptic_pipeA();
+//taper_pipeA();
+//vacuum_pipeA();
+rotate([0,180,0]) hose_Festo_RO2E();
+
+# gitscadfile=hose_vacuum.scad
+shape_3D();
+
+# scadfile=import.scad
+
+# gitscadfile=KFZ_Buchse.scad
+translate([0,0,0]) KFZstecker();
+
+# gitscadfile=microwave_MD12801_spacer.scad
+microwave_MD12801_spacer(h=5);   // make it a bit higher than the original part
+
+# scadfile=offset_demo.scad
+
+# gitscadfile=plumbing.scad
+//polygon(  G1_thread_profile());
+//G1_thread();
+//G1_thread_nut();
+//adapter_clip();
+//pipe_bend();
+pipe_thread_G1();
+//pipe_adapter();
+pipe_thread_nut_G1();
+adapterA_G1();
+adapterB_G1();
+release_ring();
+
+
+# gitscadfile=raspi_RJ45fix.scad
+translate([0,0,0]) connectionDIN();
+translate([-26,0,0]) rj45case(PiVersion=3);
+translate([-82,0,0]) wallmount2();
+wallmount();
+translate([60,0,0]) connection();
+translate([  0,-36,0]) uBloxcase();
+translate([-10,-36,0]) cableClipA();
+translate([30, 40,0]) connectionH(h=60, l=30);
+if(true) {
+translate([ 30, -60, 0]) connectionDIN();
+clipB(shape=9);
+
+# scadfile=razorgrip.scad
+razorgrip1();
+
+# gitscadfile=ring.scad
+color("blue")  translate([0,   0, 0])  ringA();
+color("red")   translate([30,  0, 0])  ringB();
+color("green") translate([15, 26, 0])  ringC();
+
+
+# scadfile=spreader.scad
+//fins();
+cone_i();
+cone_o();
+
+
+# gitscadfile=TP-Link_MR3020_fix.scad
+MR3020fixture();
+
+# gitscadfile=Wandhalterung.scad
+//rotate([90,0,0]) ccyl(r1=20, h1=10, h2=5, ang=30, h3=0);
+Wandhalterung_A();
+Lampenfusshalterung();
+Lampenfusshalterung_A();
+
