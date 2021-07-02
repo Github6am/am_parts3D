@@ -2,7 +2,8 @@
 // 
 // 
 // Background:
-//   - Lueftungsgitter mit Einsatz fuer novopal NPL-01 Remote control
+//   - galeb_plateE:
+//     Lueftungsgitter mit Einsatz fuer novopal NPL-01 Remote control
 //     https://www.novopal.com fuer 3000W Sinus-Wechselrichter
 //   - see also - a simple case: https://www.thingiverse.com/thing:4544627
 //   - see also Hallsensoren_case.scad
@@ -10,7 +11,7 @@
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
 //
-// Andreas Merz 2020-09-27, v0.3 
+// Andreas Merz 2021-07-02, v1.0 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 
@@ -18,12 +19,12 @@
 use <am_dovetail.scad>
 
 // Main dimensions
-xin=170;       // cut-out width
-yin=70;        // cut-out height
+xin=173.6;     // cut-out width, xin + 2*wrim < 200mm for my printer. 
+yin=74;        // cut-out height
 zin=3;         // cut-out thickness
 wall=1.5;      // wall thickness of printed part
-wrim=12;       // rim width
-rrim=wrim/2;   // radius of corners
+wrim=12.5;     // rim width
+rrim=5;        // radius of corners
 clr=0.4;       // clearance
 
 //-------------------------------------------
@@ -61,7 +62,7 @@ module galeb_plateA(x=xin, y=yin, z=wall) {
 // same but with mounting holes
 
 module galeb_plateB() {
-    xb=0.5*(182);
+    xb=0.5*(183);
     yb=0.5*(82);
     difference() {
         galeb_plateA();
@@ -81,11 +82,12 @@ module galeb_plateC(x=xin, y=yin, z=zin) {
       mirror([0,0,1])
 	 minkowski() {
            translate([0,0,(z-wall)/2])
-             cube( [x-rrim-2*clr, y-rrim-2*clr, z-wall], center=true);
-	   ccyl();
+             cube( [x-2*rrim-clr, y-2*rrim-clr, z-wall], center=true);
+	   ccyl(ang=0);
 	 }
     }
 }
+
 
 // slots to be cut
 
@@ -93,7 +95,8 @@ module cslots(xs=44, ys=10, ang=52) {
     d=1.8;
     xshift=-20.5;
     yshift= -1.5;
-    NPLshift=-20;    // so, dass die Schraubenloecher nicht ueberdeckt werden.
+    NPLshift=0.5;     // so, dass die Schraubenloecher nicht ueberdeckt werden.
+    NPLsize=86;       // outer dimension of NPL-01
     union() {
       for(ix = [-1:0 ])  {
       for(iy = [-3:3 ])  {
@@ -102,14 +105,18 @@ module cslots(xs=44, ys=10, ang=52) {
 	    cube([xs-d, ys*cos(ang)-d, 20], center=true);
       }
       }
-      // cut for the NPL-01 Remote control, outer dim = 86mm
-      translate([(xin-48)/2+NPLshift,0, 0]) cube([48,yin,20], center=true);
-      
-      // bore holes
-      translate([xin/2+7+NPLshift   ,  0, 0]) cylinder(d=2.5, h=25, center=true, $fn=24);
-      translate([xin/2+7+NPLshift-60,  0, 0]) cylinder(d=2.5, h=25, center=true, $fn=24);
+      translate([(xin-NPLsize)/2+NPLshift,0, 0]) union() {
+	// cut for the NPL-01 Remote control, outer dim = 86mm
+	cube([52,71,20], center=true);
+	//cube([NPLsize,NPLsize,20], center=true);   // debug to see the coverage of the outer contour
+
+	// bore holes
+	translate([ 30,  0, 0]) cylinder(d=2.5, h=25, center=true, $fn=24);
+	translate([-30,  0, 0]) cylinder(d=2.5, h=25, center=true, $fn=24);
+      }
     }
 }
+
 
 // the final part
 
@@ -124,13 +131,29 @@ module galeb_plateD() {
       }
 }
 
+
 // the final part with dovetail extension
 
 module galeb_plateE() {
 	union() {
           galeb_plateD();
-          translate([1,  0, wall+zin]) rotate([90,0,90]) am_dovetailAddN(n=6);
+          translate([1,  0, wall+zin]) rotate([90,0,90]) am_dovetailAddN(n=8);
 	}
+}
+
+
+// part may be used to lock the plate from behind
+
+module galeb_lockE() {
+        d=2;
+	difference() {
+	  union() {
+            translate([0, -12, 0]) cube([10,24, d], center=false);;
+            translate([0,  0, d]) rotate([90,0,90]) am_dovetailAddN(n=3);
+	  }
+	  // thickness of surrounding material is 3.5, but zin is only 3
+	  translate([0, 5, d+2-(3.5-zin)]) cube([10,10, 10], center=false);;
+        }
 }
 
 
@@ -143,3 +166,4 @@ module galeb_plateE() {
 //cslots();
 //galeb_plateD();
 galeb_plateE();
+//galeb_lockE();
