@@ -19,6 +19,20 @@ aa=150;      // plate length
 bb=100;      // plate width
 
 
+// cone+cylinder, useful for countersunk screws
+
+module ccyl(h1=10*2/3, h2=10*1/3, r1=2, ang=-45) {
+    ss=(r1-h2*tan(ang))/r1;
+    union() {
+      linear_extrude(height=h1, scale=1)  circle(r=r1,$fn=24);
+      translate([0,0,h1-0.01])
+        linear_extrude(height=h2, scale=ss) circle(r=r1, $fn=24);
+      translate([0,0,h1+h2-0.02])
+        linear_extrude(height=h1, scale=1) circle(r=r1*ss, $fn=24);
+    }
+}
+
+
 module bearingflange_contour_2D(aa=70, rr=10, c=0) {
       // aa  Kantenlaenge 
       // rr  Eckenradius
@@ -135,12 +149,12 @@ module turntable_botC() {
 
 
 // mounting part, allow to tilt the attached structure along horizontal axis
-module mountA() {
-      x=20;          // bottom length
-      y=10;          // thickness
-      z=10;          // height
-      sx=0.5;        // ratio top/bottom length
-      bore=4;        // nominal bore hole diameter
+module mountA(x=20, y=10, z=10, sx=0.5, bore=4) {
+      //x=20;          // bottom length
+      //y=10;          // thickness
+      //z=10;          // height
+      //sx=0.5;        // ratio top/bottom length
+      //bore=4;        // nominal bore hole diameter
       translate([0,-y/2,0])
       difference() {
 	union() {
@@ -150,6 +164,42 @@ module mountA() {
         translate([x*sx/2,-1,z]) rotate([-90,0,0]) cylinder(d=bore+clr, h=y+2, $fn=24);
       }
 }
+
+module mountB(dbore1=2.2, dbore2=4) {
+      x1=10;       // top length
+      x2=20;       // bottom length
+      x3=12;       // foot length
+      z3=7;        // foot height
+      y2=15;       // thickness
+
+      sx12=x1/x2;
+      
+      h2=3;        // 45deg transition socket height
+      xh2=x2+h2*2;
+      yh2=y2+h2;
+      shx=x2/xh2;
+      shy=y2/yh2;
+      
+      rotate([90,0,0])
+      difference() {
+	union() {
+	  translate([0,y2/2,z3+h2]) mountA(x=x2, y=y2, z=25, sx=sx12, bore=dbore1);
+	  // transition avoiding sharp edges
+	  translate([x2/2,0,z3]) linear_extrude(height=h2, scale=[shx, shy]) translate([-xh2/2,0,0]) square([xh2,yh2]);
+	  // mounting foot
+	  translate([-x3,0,0])  cube([x2+2*x3,y2+x3,10-h2]);
+	}
+	union() {
+	  // spare hole
+          translate([x1/2,y2-5,20]) rotate([-90,0,0]) cylinder(d=dbore1+clr, h=100, $fn=24);
+          // countersunk screw holes
+          translate([  -x3/2,    y2/2,-1]) ccyl(h1=z3-3+1, h2=3, r1=dbore2/2 );
+          translate([x2+x3/2,    y2/2,-1]) ccyl(h1=z3-3+1, h2=3, r1=dbore2/2 );
+          translate([   x2/2, y2+x3/2,-1]) ccyl(h1=z3-3+1, h2=3, r1=dbore2/2 );
+        }
+      }
+}
+
 
 // attach tilting possibility
 module turntable_botD() {
@@ -185,10 +235,12 @@ module drive_gear(nt=9) {
 //bearingflange_contour_2D();
 //bearingflange_holes_2D();
 //mountA();
+//mountB();
+mirror([1,0,0]) mountB();
 
 //drive_gear();
 //turntable_topA();
 
 //turntable_botB();
 //turntable_botC();
-turntable_botD();
+//turntable_botD();
