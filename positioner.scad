@@ -8,6 +8,7 @@
 //   - CAD manual: http://www.openscad.org/documentation.html
 //   - using simple axial bearing, source: Pollin electronic
 //     https://www.pollin.de/p/drehteller-drehlager-70x70-mm-490467
+//   - TODO: Libelle einpressen?
 //
 // Andreas Merz 2021-06-20, v0.1 
 // GPLv3 or later, see http://www.gnu.org/licenses
@@ -42,11 +43,11 @@ module bearingflange_contour_2D(aa=70, rr=10, c=0) {
       }
 }
 
-module bearingflange_holes_2D(d1=3.5, dcenter=45, db=56, nf=8) {
+module bearingflange_holes_2D(d1=3.5, dcenter=45, db=56, nf=8, centerhole=true) {
       // db    // borehole distance
       // nf    // number of faces for screwholes
       union() {
-        circle(d=dcenter, $fn=36);
+        if(centerhole) circle(d=dcenter, $fn=36);
         translate([  db/2,  db/2]) circle(d=d1, $fn=nf);
         translate([ -db/2,  db/2]) circle(d=d1, $fn=nf);
         translate([  db/2, -db/2]) circle(d=d1, $fn=nf);
@@ -61,6 +62,9 @@ module motorflange_holes_2D() {
 
 module turntable_topA() {
       gw=9;   // gearwidth
+      dm=65;  // distance of square-aligned mounting holes
+      dm1=dm*sqrt(1-1/sqrt(2));  // 35.2mm distance of octagon-aligned mounting holes
+      dm3=dm*sqrt(1+1/sqrt(2));  // 84.9mm distance of octagon-aligned mounting holes
       difference() {
         herringbone_gear(modul=2, tooth_number=58, width=gw, bore=55, helix_angle=22.5, optimized=false);
         union() {
@@ -68,8 +72,8 @@ module turntable_topA() {
           translate([ 0, 0,gw/2]) linear_extrude(height = 12) rotate([0,0, 0]) bearingflange_contour_2D(c=clr);
           translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0,45]) bearingflange_holes_2D(d1=10, nf=24);
           translate([ 0, 0,gw/2]) linear_extrude(height = 12) rotate([0,0,45]) bearingflange_contour_2D(c=clr);
-          translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0, 22.5]) bearingflange_holes_2D(db=65, d1=3.5);
-          translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0,-22.5]) bearingflange_holes_2D(db=65, d1=3.5);
+          translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0, 22.5]) bearingflange_holes_2D(db=dm, d1=3.5);
+          translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0,-22.5]) bearingflange_holes_2D(db=dm, d1=3.5);
         }
       }
 }
@@ -129,6 +133,9 @@ module turntable_botC() {
 	union() {   // all holes
           translate([    0, 0,  -1]) linear_extrude(height = 12) rotate([0,0, 0]) bearingflange_holes_2D();
           translate([    0, 0,  -1]) linear_extrude(height = 12) rotate([0,0,45]) bearingflange_holes_2D(d1=10, nf=24);
+          // additional mounting holes
+	  translate([1/2*56+100-30, 0,  -1]) linear_extrude(height = 12) rotate([0,0, 0]) bearingflange_holes_2D(centerhole=false);
+	  translate([1/2*56+100-15, 0,  -1]) linear_extrude(height = 12) rotate([0,0, 0]) bearingflange_holes_2D(centerhole=false);
           // Langloch, um den Zahnradeingriff zu justieren
 	  minkowski() {
 	    cube([6,0.01,0.01], center=true);     
@@ -200,6 +207,54 @@ module mountB(dbore1=2.2, dbore2=4) {
       }
 }
 
+module mountC(dbore1=2.2, dbore2=4) {
+      ao=9;        // axis offset between screw holes on vertical an horizontal branch
+      x1=10;       // top length
+      x2=20;       // bottom length
+      x3=ao;       // foot width
+      x4=25;       // foot length
+      z3=7;        // foot height
+      y2=10;       // thickness of vertical part
+
+      sx12=x1/x2;
+      
+      h2=3;        // 45deg transition socket height
+      xh2=x2+h2*1.4;
+      yh2=y2+h2;
+      shx=x2/xh2;
+      shy=y2/yh2;
+      
+      rotate([90,0,0])
+      difference() {
+	union() {
+	  translate([0,y2/2,z3+h2]) mountA(x=x2, y=y2, z=30, sx=sx12, bore=dbore1);
+	  // transition avoiding sharp edges
+	  translate([0,0,z3]) linear_extrude(height=h2, scale=[shx, shy]) translate([0,0,0]) square([xh2,yh2]);
+	  // mounting foot
+	  translate([0,0,0])  cube([x2+x4,y2+x3,10-h2]);
+	}
+	union() {
+	  // spare hole
+          translate([x1/2,-1,25]) rotate([-90,0,0]) cylinder(d=dbore1+clr, h=100, $fn=24);
+          //  screw holes
+          translate([x1+20,y2/2,20]) rotate([-90,0,90]) cylinder(d=dbore1+clr, h=100, $fn=24);
+          translate([x1+20,y2/2,35]) rotate([-90,0,90]) cylinder(d=dbore1+clr, h=100, $fn=24);
+          // Langloch, um die Elevationsachse zu justieren
+	  minkowski() {
+	    cube([12,0.01,0.01], center=true);     
+            union() {
+	      for( i=[0:2] ) {
+        	translate([11+i*23, y2/2+ao, -1]) cylinder(d=3+clr,h=z3+2, $fn=24 );
+        	translate([11+i*23, y2/2+ao,  3]) cylinder(d=8.5,h=z3, $fn=24 );
+	      }
+	    }
+	  }
+          // countersunk screw hole
+          translate([  x2+5,   y2/2,-1]) ccyl(h1=z3-3+1, h2=2, r1=dbore2/2 );
+          translate([  x2+20,   y2/2,-1]) ccyl(h1=z3-3+1, h2=2, r1=dbore2/2 );
+        }
+      }
+}
 
 // attach tilting possibility
 module turntable_botD() {
@@ -236,11 +291,12 @@ module drive_gear(nt=9) {
 //bearingflange_holes_2D();
 //mountA();
 //mountB();
-mirror([1,0,0]) mountB();
+//mountC();
+//mirror([1,0,0]) mountB();
 
 //drive_gear();
 //turntable_topA();
 
 //turntable_botB();
 //turntable_botC();
-//turntable_botD();
+turntable_botD();
