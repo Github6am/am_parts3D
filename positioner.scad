@@ -8,7 +8,7 @@
 //   - CAD manual: http://www.openscad.org/documentation.html
 //   - using simple axial bearing, source: Pollin electronic
 //     https://www.pollin.de/p/drehteller-drehlager-70x70-mm-490467
-//   - TODO: Libelle einpressen?
+//   - TODO: Libelle d=15 einpressen?
 //
 // Andreas Merz 2021-06-20, v0.1 
 // GPLv3 or later, see http://www.gnu.org/licenses
@@ -34,7 +34,7 @@ module ccyl(h1=10*2/3, h2=10*1/3, r1=2, ang=-45) {
 }
 
 
-module bearingflange_contour_2D(aa=70, rr=10, c=0) {
+module bearingflange_contour_2D(aa=70, rr=9, c=0) {
       // aa  Kantenlaenge 
       // rr  Eckenradius
       minkowski() {        // outer contour, chamfered
@@ -208,12 +208,12 @@ module mountB(dbore1=2.2, dbore2=4) {
 }
 
 module mountC(dbore1=2.2, dbore2=4) {
-      ao=9;        // axis offset between screw holes on vertical an horizontal branch
+      ao=14.8;        // axis offset between screw holes on vertical an horizontal branch
       x1=10;       // top length
-      x2=20;       // bottom length
+      x2=30;       // bottom length
       x3=ao;       // foot width
-      x4=25;       // foot length
-      z3=7;        // foot height
+      x4=60;       // foot length
+      z3=8;        // foot height
       y2=10;       // thickness of vertical part
 
       sx12=x1/x2;
@@ -231,7 +231,7 @@ module mountC(dbore1=2.2, dbore2=4) {
 	  // transition avoiding sharp edges
 	  translate([0,0,z3]) linear_extrude(height=h2, scale=[shx, shy]) translate([0,0,0]) square([xh2,yh2]);
 	  // mounting foot
-	  translate([0,0,0])  cube([x2+x4,y2+x3,10-h2]);
+	  translate([0,0,0])  cube([x4,y2+x3,z3]);
 	}
 	union() {
 	  // spare hole
@@ -241,11 +241,11 @@ module mountC(dbore1=2.2, dbore2=4) {
           translate([x1+20,y2/2,35]) rotate([-90,0,90]) cylinder(d=dbore1+clr, h=100, $fn=24);
           // Langloch, um die Elevationsachse zu justieren
 	  minkowski() {
-	    cube([12,0.01,0.01], center=true);     
+	    cube([15,0.01,0.01], center=true);     
             union() {
 	      for( i=[0:2] ) {
-        	translate([11+i*23, y2/2+ao, -1]) cylinder(d=3+clr,h=z3+2, $fn=24 );
-        	translate([11+i*23, y2/2+ao,  3]) cylinder(d=8.5,h=z3, $fn=24 );
+        	translate([12.5+i*35, y2/2+ao, -1]) cylinder(d=3.3+clr,h=z3+2, $fn=24 );
+        	translate([12.5+i*35, y2/2+ao,  4]) cylinder(d=8.0,h=z3, $fn=24 );
 	      }
 	    }
 	  }
@@ -291,12 +291,14 @@ module drive_gear(nt=9) {
 //bearingflange_holes_2D();
 //mountA();
 //mountB();
-//mountC();
 //mirror([1,0,0]) mountB();
+mountC();
+//rotate([-90,0,0]) mountC();
+//mirror([1,0,0]) mountC();
 
 //drive_gear();
 //turntable_topA();
 
 //turntable_botB();
 //turntable_botC();
-turntable_botD();
+//turntable_botD();
