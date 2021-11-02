@@ -135,6 +135,22 @@ adapterA_G1();
 adapterB_G1();
 release_ring();
 
+# gitscadfile=positioner.scad
+//bearingflange_contour_2D();
+//bearingflange_holes_2D();
+mountA();
+mountB();
+mountC();
+//mirror([1,0,0]) mountB();
+drive_gear();
+turntable_topA();
+turntable_botB();
+turntable_botC();
+turntable_botD();
+fixtureB();
+fixtureD();
+fixtureH();
+
 
 # gitscadfile=raspi_RJ45fix.scad
 translate([0,0,0]) connectionDIN();

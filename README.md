@@ -178,50 +178,66 @@ https://github.com/Github6am/am_parts3D/blob/master/plumbing.scad
 ![obj51](img/plumbing.adapterB_G1.png "adapterB_G1" ) adapterB_G1
 ![obj52](img/plumbing.release_ring.png "release_ring" ) release_ring
 
+## positioner.scad
+https://github.com/Github6am/am_parts3D/blob/master/positioner.scad
+https://cloud3.franken.de/s/pexdxf5qCWB3ZEj
+
+
+![obj53](img/positioner.mountA.png "mountA" ) mountA
+![obj54](img/positioner.mountB.png "mountB" ) mountB
+![obj55](img/positioner.mountC.png "mountC" ) mountC
+![obj56](img/positioner.drive_gear.png "drive_gear" ) drive_gear
+![obj57](img/positioner.turntable_topA.png "turntable_topA" ) turntable_topA
+![obj58](img/positioner.turntable_botB.png "turntable_botB" ) turntable_botB
+![obj59](img/positioner.turntable_botC.png "turntable_botC" ) turntable_botC
+![obj60](img/positioner.turntable_botD.png "turntable_botD" ) turntable_botD
+![obj61](img/positioner.fixtureB.png "fixtureB" ) fixtureB
+![obj62](img/positioner.fixtureD.png "fixtureD" ) fixtureD
+![obj63](img/positioner.fixtureH.png "fixtureH" ) fixtureH
+
 ## raspi_RJ45fix.scad
 https://github.com/Github6am/am_parts3D/blob/master/raspi_RJ45fix.scad
 
 // thanks to Robert Hunt https://www.thingiverse.com/thing:101024
 
-![obj53](img/raspi_RJ45fix.connectionDIN.png "connectionDIN" ) connectionDIN
-![obj54](img/raspi_RJ45fix.rj45case.png "rj45case" ) rj45case
-![obj55](img/raspi_RJ45fix.wallmount2.png "wallmount2" ) wallmount2
-![obj56](img/raspi_RJ45fix.wallmount.png "wallmount" ) wallmount
-![obj57](img/raspi_RJ45fix.connection.png "connection" ) connection
-![obj58](img/raspi_RJ45fix.uBloxcase.png "uBloxcase" ) uBloxcase
-![obj59](img/raspi_RJ45fix.cableClipA.png "cableClipA" ) cableClipA
-![obj60](img/raspi_RJ45fix.connectionH.png "connectionH" ) connectionH
-![obj61](img/raspi_RJ45fix.connectionDIN.png "connectionDIN" ) connectionDIN
-![obj62](img/raspi_RJ45fix.clipB.png "clipB" ) clipB
+![obj64](img/raspi_RJ45fix.connectionDIN.png "connectionDIN" ) connectionDIN
+![obj65](img/raspi_RJ45fix.rj45case.png "rj45case" ) rj45case
+![obj66](img/raspi_RJ45fix.wallmount2.png "wallmount2" ) wallmount2
+![obj67](img/raspi_RJ45fix.wallmount.png "wallmount" ) wallmount
+![obj68](img/raspi_RJ45fix.connection.png "connection" ) connection
+![obj69](img/raspi_RJ45fix.uBloxcase.png "uBloxcase" ) uBloxcase
+![obj70](img/raspi_RJ45fix.cableClipA.png "cableClipA" ) cableClipA
+![obj71](img/raspi_RJ45fix.connectionH.png "connectionH" ) connectionH
+![obj72](img/raspi_RJ45fix.connectionDIN.png "connectionDIN" ) connectionDIN
+![obj73](img/raspi_RJ45fix.clipB.png "clipB" ) clipB
 
 ## razorgrip.scad
 
-![obj63](img/razorgrip.razorgrip1.png "razorgrip1" ) razorgrip1
+![obj74](img/razorgrip.razorgrip1.png "razorgrip1" ) razorgrip1
 
 ## ring.scad
 https://github.com/Github6am/am_parts3D/blob/master/ring.scad
 
 
-![obj64](img/ring.ringA.png "ringA" ) ringA
-![obj65](img/ring.ringB.png "ringB" ) ringB
-![obj66](img/ring.ringC.png "ringC" ) ringC
+![obj75](img/ring.ringA.png "ringA" ) ringA
+![obj76](img/ring.ringB.png "ringB" ) ringB
+![obj77](img/ring.ringC.png "ringC" ) ringC
 
 ## spreader.scad
 
-![obj67](img/spreader.cone_i.png "cone_i" ) cone_i
-![obj68](img/spreader.cone_o.png "cone_o" ) cone_o
+![obj78](img/spreader.cone_i.png "cone_i" ) cone_i
+![obj79](img/spreader.cone_o.png "cone_o" ) cone_o
 
 ## TP-Link_MR3020_fix.scad
 https://github.com/Github6am/am_parts3D/blob/master/TP-Link_MR3020_fix.scad
 
 
-![obj69](img/TP-Link_MR3020_fix.MR3020fixture.png "MR3020fixture" ) MR3020fixture
+![obj80](img/TP-Link_MR3020_fix.MR3020fixture.png "MR3020fixture" ) MR3020fixture
 
 ## Wandhalterung.scad
 https://github.com/Github6am/am_parts3D/blob/master/Wandhalterung.scad
 
 
-![obj70](img/Wandhalterung.Wandhalterung_A.png "Wandhalterung_A" ) Wandhalterung_A
-![obj71](img/Wandhalterung.Lampenfusshalterung.png "Lampenfusshalterung" ) Lampenfusshalterung
-![obj72](img/Wandhalterung.Lampenfusshalterung_A.png "Lampenfusshalterung_A" ) Lampenfusshalterung_A
-
+![obj81](img/Wandhalterung.Wandhalterung_A.png "Wandhalterung_A" ) Wandhalterung_A
+![obj82](img/Wandhalterung.Lampenfusshalterung.png "Lampenfusshalterung" ) Lampenfusshalterung
+![obj83](img/Wandhalterung.Lampenfusshalterung_A.png "Lampenfusshalterung_A" ) Lampenfusshalterung_A

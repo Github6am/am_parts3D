@@ -6,9 +6,9 @@
 #   create a gallery of my scad-designs in markdown and html
 #
 # Usage examples:
-#   ./am_catalogue.sh                 # make all
+#   ./am_catalogue.sh                       # make all
 #   ./am_catalogue.sh filter="am_box"
-#   ./am_catalogue.sh action="makemd,html"
+#   ./am_catalogue.sh action="makemd,html"  # just markdown and html
 #   ./am_catalogue.sh action="makepng,makemd,html" filter="ring\|Festo"
 #
 # Background:
@@ -21,8 +21,8 @@
 #  	2. manual merge of: catalogue.raw  with git controlled catalogue.use
 #  	3. extract enabled objects from catalogue.use to a amtmp.scad
 #  	4. call openscad to create a png picture for the enabled objects
-#  	5. create a catalogue.md which lists scad-sorce, object and png
-#  	6. converts catalogue.md to catalogue.html
+#  	5. create a catalogue.md which lists scad-source, object and png
+#  	6. convert catalogue.md to catalogue.html
 #
 #   - Github markdown:
 #     https://github.github.com/gfm/#images
@@ -33,7 +33,7 @@
 #     pandoc -f gfm -o catalogue.html catalogue.md  # create local HTML file
 #     dillo readme.html &			    # view with any web browser
 
-# $Header: gcp.sh, v0.2, Andreas Merz, 2019-01-27 $
+# $Header: am_catalogue.sh, v0.1, Andreas Merz, 2021-05-02 $
 # GPLv3 or later, see http://www.gnu.org/licenses
 
 hc=cat

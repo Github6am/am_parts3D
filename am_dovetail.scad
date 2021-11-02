@@ -1,11 +1,12 @@
-// some simple but versatile thin-walled storage boxes
+// am_dovetail.scad
+// a library providing dovetail interconnections
 //
 //
 // Background:
 //   - CAD manual: http://www.openscad.org/documentation.html
 //   - possibility to attach to parts from raspi_RJ45fix.scad
 //
-// Andreas Merz 2020-01-04, v0.1 
+// Andreas Merz 2020-01-04, v0.2 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 
