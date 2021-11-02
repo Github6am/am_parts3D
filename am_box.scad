@@ -342,11 +342,11 @@ module am_gauge( fontname = "FreeSans:Bold" ) {
 //octaeder(r=10);
 //trapezrot(r=10);
 
-am_boxhandleA();
+//am_boxhandleA();
 //am_boxhandleB();
 
 //translate([0,0,0]) am_boxD();
-//translate([0,106,0]) am_boxC();
+translate([0,106,0]) am_boxC();
 //translate([0,106,0]) am_boxC(z=20);  // double height
 
 /*
@@ -357,7 +357,7 @@ if ( 0 ) {
   translate([0, 0*17,0]) am_boxlabel(      txt="Beads");
   translate([0,-1*17,0]) am_boxlabel(      txt="Rings");
 }
-if ( 1 ) {
+if ( 0 ) {
   // do not forget to change color in slicer before the text layers
   translate([0, 3*17,0]) am_boxlabel(txt="M 8");
   translate([0, 2*17,0]) am_boxlabel(txt="M 6");

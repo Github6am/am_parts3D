@@ -19,6 +19,7 @@ clr=0.6;     // default clearance
 aa=150;      // plate length
 bb=100;      // plate width
 
+// ------------------- helper modules ----------------------
 
 // cone+cylinder, useful for countersunk screws
 
@@ -60,6 +61,9 @@ module motorflange_holes_2D() {
 }
 
 
+// ------------------- the main parts ---------------------------------
+
+// the main herringbone gear which is also the top mounting platform
 module turntable_topA() {
       gw=9;   // gearwidth
       dm=65;  // distance of square-aligned mounting holes
@@ -78,6 +82,7 @@ module turntable_topA() {
       }
 }
 
+// the bottom mounting plate with siffening ribs
 module turntable_botB() {
       gw=9;   // gearwidth
       dd=2;   // plate thickness
@@ -154,6 +159,13 @@ module turntable_botC() {
       }
 }
 
+// the small gear
+module drive_gear(nt=9) {
+  herringbone_gear(modul=2, tooth_number=nt, width=8, bore=8.6, helix_angle=22.5);
+}
+
+
+// ----------------------------  mounting feet ---------------------------------
 
 // mounting part, allow to tilt the attached structure along horizontal axis
 module mountA(x=20, y=10, z=10, sx=0.5, bore=4) {
@@ -271,9 +283,130 @@ module turntable_botD() {
     }
 }
 
-module drive_gear(nt=9) {
-  herringbone_gear(modul=2, tooth_number=nt, width=8, bore=8.6, helix_angle=22.5);
+
+
+//---------------- Auxiliary parts ---------------------
+use <am_dovetail.scad>
+
+// a laserpointer fixture also providing electrical contact
+module fixtureA() {
+    w=1;       // wall thickness
+    d0=3.2;    // center hole diameter
+    d1=11.8;   // inner thread diameter
+    d2=14.8;   // outer pipe diameter
+    d3=17.4;   // outer pipe diameter with button pressed
+    d4=0.6;    // difference between button released and pressed
+    h1=7;      // inset height
+    h2=15;     // height to button
+    h3=22;     // overall height
+    
+    difference() {
+      union() {
+	// outer vessel
+	difference() {
+          union() {
+            cylinder(d=d2+2*w, h=h3, $fn=48);
+            translate([ 0,0, h2-3]  ) cylinder(d1=d2+2*w, d2=d3+2*w, h=3, $fn=48);
+            translate([ 0,0, h2]) cylinder(d=d3+2*w, h=h3-h2, $fn=48);
+          }
+          union() {
+	    translate([ 0,0, w])    cylinder(d=d2, h=h3, $fn=48);
+            translate([ 0,0, h2+w]) cylinder(d=d3, h=h3-h2, $fn=48);
+	    // button release notch
+            translate([ d3/2-5/2+d4,0, h2+w]) cylinder(d=9, h=h3-h2, $fn=48);
+          }
+	}
+	// inset
+	cylinder(d=d1, h=h1+w, $fn=48);
+      }
+      union() {
+        // center hole to contact -pole
+        translate([ 0,0, -1])    cylinder(d=d0, h=h3, $fn=48);
+        // offset hole to contact +pole/metal case
+        translate([ d1/2-2/3,0, -1]) cylinder(d=2, h=h3, $fn=48);
+      }
+    }
 }
+
+// dito, with dovetails at circumference
+module fixtureB() {
+    w=1;       // wall thickness
+    d2=14.8;   // outer pipe diameter
+    h2=15;     // height to button
+    union() {
+      fixtureA();
+      rotate([0,0,  0]) translate([0,  d2/2+w-0.3, 0]) am_dovetailAddN(n=1, h=h2);
+      rotate([0,0, 90]) translate([0,  d2/2+w-0.3, 0]) am_dovetailAddN(n=1, h=h2);
+      rotate([0,0,180]) translate([0,  d2/2+w-0.3, 0]) am_dovetailAddN(n=1, h=h2);
+      rotate([0,0,-90]) translate([0,  d2/2+w-0.3, 0]) am_dovetailAddN(n=1, h=h2);
+    }
+}
+
+// a fixture to hold the Robotale RepRapDiscount Display board in a tilted position
+module fixtureD() {
+    w=4;         // wall thickness
+    x0=88;       // PCB board width
+    w0=2.5;      // PCB thickness / slot width
+    x1=x0+2*w;   // hypothenuse
+    y1=12;       // base height
+    z1=w+w;      // foot width
+    mt=8;        // mount foot height, depends max screw length
+    dbore=4;     // screw bore hole diameter
+    y2=20;       // wedge shape
+    x2=sqrt( x1*x1 - y2*y2);     // kathete
+    ang=atan(y2/x2);             // slope angle
+    
+    difference() {
+      union() {
+	cube([x2, y2+y1, w]);   // main contour
+	translate([ x2/2, w/2, w]) linear_extrude(height=z1-w, scale=[0.82,1]) square([x2, w], center=true);      // foot, reduce warping
+	//translate([ x2/2, w/2, w]) linear_extrude(height=z1-w, scale=[(x2-2*w)/x2,1]) square([x2, w], center=true);      // foot
+	// screw mount outer contour
+	translate([   30, 0, w+4.5]) rotate([-90,0,0]) cylinder(d=12, h=mt, $fn=32);
+	translate([   80, 0, w+4.5]) rotate([-90,0,0]) cylinder(d=12, h=mt, $fn=32);
+      }
+      union() {
+        // cut the top
+	rotate([0,0,ang]) translate([    0,  y1, -0.1]) cube([x1+10, y2+y1, w+1]);
+	// SD card slot
+	rotate([0,0,ang]) translate([   38,  y1-12, -0.1]) cube([32, 12+1, w+1]);
+	// grooves on front
+	rotate([0,0,ang]) translate([    w,  y1-w0*1.5,     w-1]) cube([x0, w0, 2]);
+	rotate([0,0,ang]) translate([    w,  y1-w0*1.5-4.6, w-1]) cube([x0, w0, 2]);
+	// grooves on back - make them 1mm deeper than on front
+	rotate([0,0,ang]) translate([    w,  y1-w0*1.5,     1-1]) cube([x0, w0, 2]);
+	rotate([0,0,ang]) translate([    w,  y1-w0*1.5-5,   1-1]) cube([x0, w0, 2]);
+	// countersunk screw holes
+	translate([   30, -0.1, w+4.5]) rotate([-90,0,0]) ccyl(h1=mt-3+1, h2=2, r1=dbore/2 );
+	translate([   80, -0.1, w+4.5]) rotate([-90,0,0]) ccyl(h1=mt-3+1, h2=2, r1=dbore/2 );
+	// anti-warping slot
+	translate([    x2-2*w,  w,     w-3]) cube([5, y1+w, w]);
+      } 
+    }
+}
+
+// dovetail mounting plate to attach on gear.  See also connectionH in raspi_RJ45fix.scad
+module fixtureH() {
+    w=2;      // bottom wall thickness
+    x1=55;    // part width
+    y1=20;    // part length
+    x2=35.2;  // mounting hole distance on gear
+    y2=3;     // mounting hole offset from centerline
+    difference() {
+      union() {
+	translate([0, 0,  w/2]) cube([x1, y1, w], center=true);
+	translate([0, y1/2, w]) rotate([90, 0,  0])  am_dovetailAddN(n=6, h=y1);
+      }
+      union() {
+        translate([    0,  0, -0.1]) cylinder(d=3,   h=10, $fn=16);  // center hole
+        translate([ x2/2, y2, -0.1]) cylinder(d=3.5, h=10, $fn=16);
+        translate([ x2/2, y2,  w])   cylinder(d=8,   h=10, $fn=16);
+        translate([-x2/2, y2, -0.1]) cylinder(d=3.5, h=10, $fn=16);
+        translate([-x2/2, y2,  w])   cylinder(d=8,   h=10, $fn=16);
+      } 
+    }
+}
+
 
 
 //---------------- Test ---------------------
@@ -292,13 +425,17 @@ module drive_gear(nt=9) {
 //mountA();
 //mountB();
 //mirror([1,0,0]) mountB();
-mountC();
+//mountC();
 //rotate([-90,0,0]) mountC();
 //mirror([1,0,0]) mountC();
 
 //drive_gear();
-//turntable_topA();
+turntable_topA();
 
 //turntable_botB();
 //turntable_botC();
 //turntable_botD();
+
+//fixtureB();
+//fixtureD();
+//fixtureH();
