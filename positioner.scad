@@ -1,16 +1,16 @@
 // single axis positioner using stepper motor
 //
-// 
 // Background:
 //   - assume that the cool gear library by Dr J. Janssen is here: 
 //     ~/.local/share/OpenSCAD/libraries/gears/gears.scad
+//     git clone https://github.com/chrisspen/gears.git
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //   - using simple axial bearing, source: Pollin electronic
 //     https://www.pollin.de/p/drehteller-drehlager-70x70-mm-490467
 //   - TODO: Libelle d=15 einpressen?
 //
-// Andreas Merz 2021-06-20, v0.1 
+// Andreas Merz 2021-10-31, v0.2 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 use <gears/gears.scad>
