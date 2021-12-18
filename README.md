@@ -1,9 +1,13 @@
-# am_parts3D   -  https://github.com/Github6am/am_parts3D
+# am_parts3D  
+
+https://github.com/Github6am/am_parts3D
 
 A collection of my tools and 3D printable part designs I want to share with the public
 
-For some stl files and some pictures, see https://www.thingiverse.com/thing:3354609
-
+For some stl files and some pictures, see for example 
+  - Raspberry Pi fixture https://www.thingiverse.com/thing:3354609
+  - Willow Wheel:  https://www.thingiverse.com/thing:4432806 in clamps.scad
+  -
 
 # Gallery
 
@@ -179,7 +183,8 @@ https://github.com/Github6am/am_parts3D/blob/master/plumbing.scad
 ![obj52](img/plumbing.release_ring.png "release_ring" ) release_ring
 
 ## positioner.scad
-https://github.com/Github6am/am_parts3D/blob/master/positioner.scad
+https://github.com/Github6am/am_parts3D/blob/master/positioner.scad  
+a video: 
 https://cloud3.franken.de/s/pexdxf5qCWB3ZEj
 
 

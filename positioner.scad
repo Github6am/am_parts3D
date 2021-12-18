@@ -1,16 +1,32 @@
 // single axis positioner using stepper motor
 //
 // Background:
+//   - more axes can be othogonally mounted to create a simple antenna positioner
+//   - the platform may be mounted with a tilt to make the axis parallel to the earth axis.
 //   - assume that the cool gear library by Dr J. Janssen is here: 
 //     ~/.local/share/OpenSCAD/libraries/gears/gears.scad
 //     git clone https://github.com/chrisspen/gears.git
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
-//   - using simple axial bearing, source: Pollin electronic
-//     https://www.pollin.de/p/drehteller-drehlager-70x70-mm-490467
+//   - external parts:
+//     - simple axial bearing, source: Pollin electronic
+//       https://www.pollin.de/p/drehteller-drehlager-70x70-mm-490467
+//       cheap, accuracy is limited
+//     - Arduino Mega 2560 board, e.g
+//       https://www.pollin.de/p/joy-it-mega2560r3-entwicklungsboard-810668
+//     - RAMPS motor driver and display, e.g
+//       https://www.pollin.de/p/joy-it-ramps-1-4-mit-display-5x-a4988-motortreiber-810875
+//     - Stepper motor, e.g
+//       https://www.pollin.de/p/schrittmotor-minebea-17pm-k077bp01cn-1-80-310689
+//     - screws  M3.5 x 8,  3.5 x 8,  3.5 x 25, ...
+//     - Marlin Firmware
+//       https://github.com/MarlinFirmware/Marlin.git
+//       with my adapted configuration, see Positioner_Marlin_Configuration.patch
+//       this will allow to use G-codes for control. https://reprap.org/wiki/G-code
+//     - arduino IDE, 1.8.15, https://www.arduino.cc/en/software
 //   - TODO: Libelle d=15 einpressen?
 //
-// Andreas Merz 2021-10-31, v0.2 
+// Andreas Merz 2021-10-31, v0.3 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 use <gears/gears.scad>
