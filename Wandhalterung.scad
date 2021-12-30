@@ -1,5 +1,5 @@
 // Wandhalterung fuer Licht-Fernbedienung - wall mount for RC
-// Lampenhalterung fuer Deckenlampe
+// Lampenhalterung fuer Deckenlampe und Stehlampe
 // 
 // 
 // Background:
@@ -13,7 +13,7 @@
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
-// Andreas Merz 2019-11-08, v0.3 
+// Andreas Merz 2019-11-08, v0.4 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 
@@ -155,12 +155,51 @@ module Lampenfusshalterung_A(
       }
     }
 }
-   
+
+
+// zwei Verkleidungen fuer die Lampensockel der Wohnzimmerlampe
+
+// erstere sollte ohne infill gedruckt werden, da die Waende so duenn sind.
+module Lampenfusshalterung_B( 
+    dd=42,   // inner diameter
+    hh=42,   // height
+    dx=0,    // excess,  for conical shape
+    w=0.8    // wall thickness
+    ) {
+	difference() {
+            cylinder(d1=dd+2*w, d2=dd+dx+2*w, h=hh,     $fn=180);
+	  union() {
+            translate([0,0,  w  ]) cylinder(d1=dd,     d2=dd+dx,   h=hh+0.2, $fn=180);
+            translate([0,0, -0.1  ]) cylinder(d1=dd-2, d2=dd-2,    h=w +0.2, $fn=180);
+	  }
+	}
+}
+
+module Lampenfusshalterung_C( 
+    dd0=28.4,  // inner diameter
+    dd1=36,    // inner diameter of cone at beginning
+    dd3=42,    // inner diameter of cone at end
+    hh1=16,    // height
+    hh3=36,    // height
+    w=0.8      // wall thickness
+    ) {
+	dx=hh1/hh3*(dd3-dd1);
+	difference() {
+            cylinder(d1=dd1+2*w, d2=dd3+2*w, h=hh3,     $fn=180);
+	  union() {
+            translate([0,0,  hh1  ]) cylinder(d1=dd1+dx,  d2=dd3,   h=hh3+0.2-hh1, $fn=180);
+            translate([0,0, -0.1  ]) cylinder(d1=dd0,     d2=dd0,   h=hh1+0.2,     $fn=180);
+	  }
+	}
+}
+
 
 //------------- Instances --------------------
 // test
 //rotate([90,0,0]) ccyl(r1=20, h1=10, h2=5, ang=30, h3=0);
 
-Wandhalterung_A();
+//Wandhalterung_A();
 //Lampenfusshalterung();
 //Lampenfusshalterung_A();
+//Lampenfusshalterung_B();
+Lampenfusshalterung_C();
