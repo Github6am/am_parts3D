@@ -149,6 +149,65 @@ module clampshape4(clampwidth=3.7, clamplength=17.5, cz=20) {
      }       
 }
 
+//---------------- Book stand, Standfuss fuer Leitz-Order ---------------------
+
+module pedestalshape2D(
+     clampwidth=3.4,   // thickness of the book cover incl. tolerance
+     clamplength=25,
+     bookheight=330,   // just needed to calculate the angle to keep center of gravity
+     xp=100,           // length of pedestal foot
+     yp=100,           // heigth of pedestal
+     yw=3              // bottom thickness
+     ) {
+     scale=0.6;        // scale factor of cut out triangle
+     cr=1.5;           // chamfer / radius
+     y=sqrt(bookheight*bookheight -xp*xp);
+     x1=xp*yp/y;
+     p1=[0,0];
+     p2=[xp,0];    // left point
+     p3=[x1,yp];   // top point
+
+     mr=[[0,-1],[1,0]];
+     v13 = p3-p1;
+     e13 = v13/norm(v13); // unit direction vector of book contact side
+     n13 = mr*e13;        // normal vector of book contact side
+     p4= p1+yw*e13;
+     p5= p4 + n13*(clampwidth+2*cr);
+     p6= p5 + e13*clamplength-0.15*n13*clampwidth;  // slight cone, narrowing 15%
+     p7= p6 + n13*cr/2;
+     t = -p6[2]/n13[2];
+     p8= p1 +[-9,0];
+     pcenter=(p1+p2+p3)/3;
+     difference() {
+       offset(r=cr,$fn=12) polygon(points=[ p1,p2,p3,p4,p5,p6,p7,p8 ]*1.0);
+       union() {
+         translate(pcenter*((1-scale))) offset(r=6) polygon(points=[ p1,p2,p3 ]*scale );
+         // radius at the notch bottom
+	 translate((p4+p5)/2 + cr*e13) circle(d=clampwidth, $fn=24);
+	 // dirty, fixme: hole position at the top
+	 translate(p3-0.13*yp*[-0.1,1]) circle(d=5.2, $fn=24);
+       }
+     }       
+}
+
+// Book stand, Musical Stand, Notenstaender
+module pedestalA(
+     xp=100,           // length of pedestal foot
+     z=3,              // z thickness
+     foot=20,          // foot width
+     ) {
+     // dirty: may not fit anymore, if parameters of pedestalshape2D are changed
+     difference() {
+       linear_extrude(height=foot) pedestalshape2D(xp=xp);
+       
+       // cut away excess material
+       union() {
+         translate([  -xp, 5, z+0.01])  cube([2*xp,500,20-z], center=false);
+         translate([  (2*foot+10)/4, -30, z+0.01])  cube([xp-2*foot+10,500,foot-z], center=false);
+       }
+     }
+}
+
 
 
 //---------------- Weidenzweige arrangieren ---------------------
@@ -291,6 +350,7 @@ module starwheel4(r1=wz_r1) {     // outer rim segments to click into starwheel2
 //schwalbenschwanz_hollow(h=2);
 
 //translate([0,0,20]) hyperboloid();
-starwheel2();
+//starwheel2();
 //starwheel4();
 
+pedestalA();
