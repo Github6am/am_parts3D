@@ -3,6 +3,8 @@
 //
 // Background:
 //   - Greenhouse clamp - Weinranken am Gewaechshaus befestigen
+//   - Willow Wheel: https://www.thingiverse.com/thing:4432806
+//   - Folder Stand: https://www.thingiverse.com/thing:5187030
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
 // Andreas Merz 2020-04-19, v0.3 
@@ -167,16 +169,16 @@ module pedestalshape2D(
      p2=[xp,0];    // left point
      p3=[x1,yp];   // top point
 
-     mr=[[0,-1],[1,0]];
+     mr  = [[0,-1],[1,0]];
      v13 = p3-p1;
      e13 = v13/norm(v13); // unit direction vector of book contact side
      n13 = mr*e13;        // normal vector of book contact side
-     p4= p1+yw*e13;
-     p5= p4 + n13*(clampwidth+2*cr);
-     p6= p5 + e13*clamplength-0.15*n13*clampwidth;  // slight cone, narrowing 15%
-     p7= p6 + n13*cr/2;
-     t = -p6[2]/n13[2];
-     p8= p1 +[-9,0];
+     p4  = p1+yw*e13;
+     p5  = p4 + n13*(clampwidth+2*cr);
+     p6  = p5 + e13*clamplength-0.15*n13*clampwidth;  // slight cone, narrowing 15%
+     p7  = p6 + n13*cr/2;
+     t   = (-p7*[0,1])/(v13*[0,1]);  // factor for intersection with y=0
+     p8= p7 + t*v13 +[-2,0];        // increase thickness at the base by ~2mm
      pcenter=(p1+p2+p3)/3;
      difference() {
        offset(r=cr,$fn=12) polygon(points=[ p1,p2,p3,p4,p5,p6,p7,p8 ]*1.0);
@@ -191,14 +193,16 @@ module pedestalshape2D(
 }
 
 // Book stand, Musical Stand, Notenstaender
+// https://www.thingiverse.com/thing:5187030
 module pedestalA(
+     clampwidth=3.4,   // thickness of the book cover incl. tolerance
      xp=100,           // length of pedestal foot
      z=3,              // z thickness
      foot=20,          // foot width
      ) {
      // dirty: may not fit anymore, if parameters of pedestalshape2D are changed
      difference() {
-       linear_extrude(height=foot) pedestalshape2D(xp=xp);
+       linear_extrude(height=foot) pedestalshape2D( clampwidth=clampwidth, xp=xp);
        
        // cut away excess material
        union() {
