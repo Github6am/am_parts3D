@@ -93,6 +93,7 @@ cd $cwd
 # new raw catalogue
 if echo $action | grep newcatalogue > /dev/null ; then
   rm -f amtmp.scad
+  # check, which files are in the repository, mark as gitscadfile
   for scadfile in *.scad ; do
     if ! git ls-files | grep "^$scadfile" > /dev/null ; then
        gg=""
@@ -126,7 +127,7 @@ if echo $action | grep make > /dev/null ; then
                          else 
                             select=0;
 			 instcnt=0;            # reset scad-file instance-counter
-                         split($2, scf, "=", seps);
+                         split($2, scf, "=", seps);  # search for (git)scadfile=xxx.scad
                          scadfile=scf[2];
                          split(scadfile, basenam, ".", seps);
                          scadbase=basenam[1];

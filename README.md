@@ -52,6 +52,8 @@ https://github.com/Github6am/am_parts3D/blob/master/battery_holder.scad
 ![obj14](img/battery_holder.battery_holder1.png "battery_holder1" ) battery_holder1
 
 ## brillenetui.scad
+https://github.com/Github6am/am_parts3D/blob/master/brillenetui.scad
+
 
 ![obj15](img/brillenetui.scharnierA.png "scharnierA" ) scharnierA
 
@@ -247,6 +249,8 @@ https://github.com/Github6am/am_parts3D/blob/master/ring.scad
 ![obj81](img/ring.ringC.png "ringC" ) ringC
 
 ## spreader.scad
+https://github.com/Github6am/am_parts3D/blob/master/spreader.scad
+
 
 ![obj82](img/spreader.cone_i.png "cone_i" ) cone_i
 ![obj83](img/spreader.cone_o.png "cone_o" ) cone_o

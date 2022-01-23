@@ -2,7 +2,7 @@
 //   X-mas related stuff, stars for decoration
 //
 // Background:
-//   - the starts can be parameterized to create
+//   - the stars can be parameterized to create
 //     a wealth of various shapes
 //   - printed with a layer step of 0.2 mm
 //   - CAD manual: http://www.openscad.org/documentation.html
