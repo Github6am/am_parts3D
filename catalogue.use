@@ -35,6 +35,9 @@ battery_holder1();
 # scadfile=brillenetui.scad
 scharnierA();
 
+# gitscadfile=CamelCup.scad
+pyramid_slider();
+
 # gitscadfile=clamps.scad
 clampshape3();
 //schwalbenschwanz_hollow(h=2);
@@ -137,6 +140,7 @@ pipe_thread_nut_G1();
 adapterA_G1();
 adapterB_G1();
 release_ring();
+plugA();
 
 # gitscadfile=positioner.scad
 //bearingflange_contour_2D();
