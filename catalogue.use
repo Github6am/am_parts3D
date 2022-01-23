@@ -32,7 +32,7 @@ accase();
 //battery_shapeI();
 battery_holder1();
 
-# scadfile=brillenetui.scad
+# gitscadfile=brillenetui.scad
 scharnierA();
 
 # gitscadfile=CamelCup.scad
@@ -181,7 +181,7 @@ color("red")   translate([30,  0, 0])  ringB();
 color("green") translate([15, 26, 0])  ringC();
 
 
-# scadfile=spreader.scad
+# gitscadfile=spreader.scad
 //fins();
 cone_i();
 cone_o();
