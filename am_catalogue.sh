@@ -134,9 +134,9 @@ if echo $action | grep make > /dev/null ; then
                            printf("\n#%s %s\n", $1, scadfile);  # md chapter output
 			   if( $0 ~ /gitscadfile/)
                              printf("https://github.com/Github6am/am_parts3D/blob/master/%s\n\n", scadfile);
-                           cmd0=sprintf("grep https://www.thingiverse %s\necho\n", scadfile);
-			   system(cmd0);    # output hyperlinks to thingiverse, if present
-			   
+                           # output hyperlinks to thingiverse, if present. Enforce MD linebreak by two trailing blanks:
+                           cmd0=sprintf("grep https://www.thingiverse %s | sed \"s/$/  /\"\n\necho\n", scadfile);
+			   system(cmd0);    			   
 			 }
 			 
                        }
@@ -200,5 +200,10 @@ if echo $action | grep html > /dev/null ; then
   echo
   echo "# created html file:"
   echo "file:$(pwd)/$catalogue.html"
-fi
 
+  echo "# new or changed images in img/:"
+  git status | grep img/ | grep png
+  echo "# update doc:"
+  echo "meld README.md catalogue.md"
+  echo
+fi
