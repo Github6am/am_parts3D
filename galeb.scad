@@ -156,6 +156,59 @@ module galeb_lockE() {
         }
 }
 
+//-------------------------------------------------------------------------
+// electrical cover for M8 12V power supply contacts with 4mm jack  holes
+//-------------------------------------------------------------------------
+
+// cover for a M8 screw, inner cavity
+
+module galeb_M8cover_i(
+    L=30,   // Length of the screw
+    bz=0    // borehole
+    ) {
+    dm=8.0;   // diameter M8
+    dn=14.0;  // diameter Nut
+    db=4.0;   // diameter Bananenstecker
+    zn=6;     // height of nut
+    w=1;      // wall thickness
+    c=0.2;    // clearance
+    fn=48;    // face number for cylinders, affects rendering time and smoothness
+    
+    union() {
+        // M8 bore hole
+	translate([   0,            0, 0 ]) cylinder( d=dm+c,   h=L,    center=false, $fn=fn);
+	// 4 mm jack holes
+        translate([  (db+dm-c)/2,   0, 0 ]) cylinder( d=db+c,   h=L+bz, center=false, $fn=fn);
+	translate([-((db+dm-c)/2),  0, 0 ]) cylinder( d=db+c,   h=L+bz, center=false, $fn=fn);
+        translate([  (db+dm-c)/2,   0, L ]) cylinder( d=db+0.8, h=bz,   center=false, $fn=fn);
+	translate([-((db+dm-c)/2),  0, L ]) cylinder( d=db+0.8, h=bz,   center=false, $fn=fn);
+	// Nut cover
+        translate([   0,            0, 0 ]) cylinder( d=dn+c,   h=zn,   center=false, $fn=fn);
+        translate([   0,            0, zn]) cylinder( d1=dn+c, d2=dm+c, h=3, center=false, $fn=fn);
+    }
+}
+
+// cover for a M8 screw, outer hull
+
+module galeb_M8cover_o() {
+	minkowski() {
+          hull() galeb_M8cover_i();
+          ccyl(h1=0.75, h2=0.75, r1=1.0, ang=30);
+        }
+}
+
+// cover for a M8 screw, final part
+
+module galeb_M8cover() {
+  rotate([180, 0, 0])      // better stick to the build plate
+  difference() {
+    galeb_M8cover_o();
+    union() {
+      translate([ 0, 0, -0.1]) galeb_M8cover_i(bz=4);
+      //cube( [ 40, 40, 40 ] );  // debug: cross-section view
+    }
+  }
+}
 
 
 //------------- Instances --------------------
@@ -165,5 +218,9 @@ module galeb_lockE() {
 //galeb_plateC();
 //cslots();
 //galeb_plateD();
-galeb_plateE();
+//galeb_plateE();
 //galeb_lockE();
+
+//galeb_M8cover_i();
+//galeb_M8cover_o();
+galeb_M8cover();
