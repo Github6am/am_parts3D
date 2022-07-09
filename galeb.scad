@@ -7,6 +7,9 @@
 //     https://www.novopal.com fuer 3000W Sinus-Wechselrichter
 //   - see also - a simple case: https://www.thingiverse.com/thing:4544627
 //   - see also Hallsensoren_case.scad
+//   - galeb_M8cover:
+//     cover to be printed in red(+) and black(-) covering M8 
+//     high-current battery connections.
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
@@ -157,7 +160,7 @@ module galeb_lockE() {
 }
 
 //-------------------------------------------------------------------------
-// electrical cover for M8 12V power supply contacts with 4mm jack  holes
+// electrical cover for M8 12V power supply contacts with 4mm jack holes
 //-------------------------------------------------------------------------
 
 // cover for a M8 screw, inner cavity
@@ -210,6 +213,57 @@ module galeb_M8cover() {
   }
 }
 
+//-----------------------------------------------------------------------------------
+// adapter for a Jabsco 3'' in-line blower (Model 30480-0000, 12V 2.9A) to 70mm hose
+//-----------------------------------------------------------------------------------
+// see also pipe_adapter() in plumbing.scad
+
+module galeb_fan_adapter(
+    do1=70,  // outer diameter bottom
+    di2=72,  // inner diameter at fan outlet
+    di3=76,
+    di4=77,
+    di5=75.6,
+    di6=78,
+    h1=30,   // length of section 1, partly covered by hose
+    h2=0,    // length of section 2  
+    h3=9.5,  // length of section 3  
+    h6=1.5,  // length of the 4 teeth
+    w=0.8    // wall thickness
+    ) {
+    c=0.4;    // clearance
+    e=0.01;   // epsilon
+    ss=0.6;   // snap slope
+    ww=2*w;   // double wall thickness
+    fn=96;    // face number for cylinders, affects rendering time and smoothness
+
+    difference() {   
+      // outer contour
+      union() {
+	  translate([ 0, 0, 0        ]) cylinder( d1=do1-0,   d2=di2+ww,  h=h1,     center=false, $fn=fn);
+	  translate([ 0, 0, h1-4     ]) cylinder( d1=di2+w,   d2=di3+ww,  h=h2+4-w, center=false, $fn=fn);
+	  translate([ 0, 0, h1+h2-w  ]) cylinder( d1=di3+ww,  d2=di4+ww,  h=h3+w,   center=false, $fn=fn);
+	  translate([ 0, 0, h1+h2+h3 ]) cylinder( d1=di4+ww,  d2=di4+ww,  h=2.6,    center=false, $fn=fn);
+      }
+      // inner contour
+      union() {
+          //cube([80,80,80],center=false);   // debug cross-section
+	  translate([ 0, 0, -e/2         ]) cylinder( d1=do1-2*w, d2=di2+c,   h=h1+e,   center=false, $fn=fn);
+	  translate([ 0, 0, h1           ]) cylinder( d1=di2+c,   d2=di3+c,   h=h2+e,   center=false, $fn=fn);
+	  translate([ 0, 0, h1+h2        ]) cylinder( d1=di3+c,   d2=di4+c,   h=h3+e,   center=false, $fn=fn);
+	  translate([ 0, 0, h1+h2+h3     ]) cylinder( d1=di4+c,   d2=di5+c,   h=ss+e,   center=false, $fn=fn);
+	  translate([ 0, 0, h1+h2+h3+ss  ]) cylinder( d1=di5+c,   d2=di4+c,   h=2+e,    center=false, $fn=fn);
+          // slots
+          rotate([0,0,  0]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
+          rotate([0,0, 90]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
+          rotate([0,0, 45]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
+          rotate([0,0,135]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
+      }
+    }
+}
+
+
+
 
 //------------- Instances --------------------
 
@@ -221,6 +275,7 @@ module galeb_M8cover() {
 //galeb_plateE();
 //galeb_lockE();
 
-//galeb_M8cover_i();
-//galeb_M8cover_o();
-galeb_M8cover();
+//galeb_M8cover();
+
+galeb_fan_adapter();
+
