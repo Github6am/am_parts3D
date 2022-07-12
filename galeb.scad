@@ -216,7 +216,11 @@ module galeb_M8cover() {
 //-----------------------------------------------------------------------------------
 // adapter for a Jabsco 3'' in-line blower (Model 30480-0000, 12V 2.9A) to 70mm hose
 //-----------------------------------------------------------------------------------
-// see also pipe_adapter() in plumbing.scad
+// see also hose_branch.scad and pipe_adapter() in plumbing.scad
+
+// Nennmasse: 
+//   Schlauchinnendurchmesser  -> do1
+//   Geblaeseaussendurchmesser -> di4, ..
 
 module galeb_fan_adapter(
     do1=70,  // outer diameter bottom
@@ -225,44 +229,86 @@ module galeb_fan_adapter(
     di4=77,
     di5=75.6,
     di6=78,
-    h1=30,   // length of section 1, partly covered by hose
+    h0=5,    // length of section 0, covered by hose
+    h1=40,   // length of section 1, partly covered by hose
     h2=0,    // length of section 2  
-    h3=9.5,  // length of section 3  
+    h3=9.7,  // length of section 3  
     h6=1.5,  // length of the 4 teeth
-    w=0.8    // wall thickness
+    rr=10,   // ridge
+    w=1.5    // wall thickness
     ) {
     c=0.4;    // clearance
     e=0.01;   // epsilon
     ss=0.6;   // snap slope
     ww=2*w;   // double wall thickness
+    sw=8;     // slot width
     fn=96;    // face number for cylinders, affects rendering time and smoothness
 
-    difference() {   
-      // outer contour
-      union() {
-	  translate([ 0, 0, 0        ]) cylinder( d1=do1-0,   d2=di2+ww,  h=h1,     center=false, $fn=fn);
-	  translate([ 0, 0, h1-4     ]) cylinder( d1=di2+w,   d2=di3+ww,  h=h2+4-w, center=false, $fn=fn);
-	  translate([ 0, 0, h1+h2-w  ]) cylinder( d1=di3+ww,  d2=di4+ww,  h=h3+w,   center=false, $fn=fn);
-	  translate([ 0, 0, h1+h2+h3 ]) cylinder( d1=di4+ww,  d2=di4+ww,  h=2.6,    center=false, $fn=fn);
+    union() {
+      difference() {   
+        // outer contour
+        union() {
+	    translate([ 0, 0, 0        ]) cylinder( d1=do1-2,     d2=do1-0,     h=h0,     center=false, $fn=fn);
+	    translate([ 0, 0, 0        ]) cylinder( d1=do1-2,     d2=di2+ww+c,  h=h1,     center=false, $fn=fn);
+	    translate([ 0, 0, h1-4     ]) cylinder( d1=di2+w+c,   d2=di3+ww+c,  h=h2+4-w, center=false, $fn=fn);
+	    translate([ 0, 0, h1+h2-w  ]) cylinder( d1=di3+ww+c,  d2=di4+ww+c,  h=h3+w,   center=false, $fn=fn);
+	    translate([ 0, 0, h1+h2+h3 ]) cylinder( d1=di4+ww+c,  d2=di4+ww+c,  h=2.6,    center=false, $fn=fn);
+        }
+        // inner contour
+        union() {
+            //cube([80,80,80],center=false);   // debug cross-section
+	    translate([ 0, 0, -e/2         ]) cylinder( d1=do1-2-ww,  d2=di2+c,   h=h1+e,     center=false, $fn=fn);
+	    translate([ 0, 0, h1           ]) cylinder( d1=di2+c,     d2=di3+c,   h=h2+e,     center=false, $fn=fn);
+	    translate([ 0, 0, h1+h2        ]) cylinder( d1=di3+c,     d2=di4+c,   h=h3+e,     center=false, $fn=fn);
+	    translate([ 0, 0, h1+h2+h3     ]) cylinder( d1=di4+c,     d2=di5+c,   h=ss+e,     center=false, $fn=fn);
+	    translate([ 0, 0, h1+h2+h3+ss  ]) cylinder( d1=di5+c,     d2=di4+c,   h=2.6-ss+e, center=false, $fn=fn);
+
+            // 8 slots
+            // rotate([0,0,  0]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
+            // rotate([0,0, 90]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
+            // rotate([0,0, 45]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
+            // rotate([0,0,135]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
+            for (i = [0 : 3]) {
+              rotate([0,0, i*45]) translate([ -(di4+4)/2 , 0, h1+h2+w+20/2  ]) 
+                rotate([0, 90, 0]) linear_extrude(height=di4+2*ww) 
+                  offset(r = 1, chamfer=false, $fn=24) square([20-2,sw-2], center = true);
+            }
+        }
       }
-      // inner contour
-      union() {
-          //cube([80,80,80],center=false);   // debug cross-section
-	  translate([ 0, 0, -e/2         ]) cylinder( d1=do1-2*w, d2=di2+c,   h=h1+e,   center=false, $fn=fn);
-	  translate([ 0, 0, h1           ]) cylinder( d1=di2+c,   d2=di3+c,   h=h2+e,   center=false, $fn=fn);
-	  translate([ 0, 0, h1+h2        ]) cylinder( d1=di3+c,   d2=di4+c,   h=h3+e,   center=false, $fn=fn);
-	  translate([ 0, 0, h1+h2+h3     ]) cylinder( d1=di4+c,   d2=di5+c,   h=ss+e,   center=false, $fn=fn);
-	  translate([ 0, 0, h1+h2+h3+ss  ]) cylinder( d1=di5+c,   d2=di4+c,   h=2+e,    center=false, $fn=fn);
-          // slots
-          rotate([0,0,  0]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
-          rotate([0,0, 90]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
-          rotate([0,0, 45]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
-          rotate([0,0,135]) translate([ 0, 0, h1+h2+w+20/2  ]) cube([di4+10, 6, 20], center=true);
+      
+      // add 3 ridges inside
+      for (i = [0 : 2]) {
+        rotate( [90, 0, i*120] ) translate([ 0, 0, -w/2  ]) linear_extrude(height=w) 
+          polygon( points=[ [(do1-2-ww-rr)/2, 0], [(do1-2-ww)/2, 0],
+                            [(di2+c)/2,h1],       [(do1-ww-rr)/2, h1-10] ]);
       }
-    }
+   }   
 }
 
 
+// a protective grid cover for the inlet
+
+module galeb_fan_inlet(
+    di0=90    // inlet diameter
+    ) {
+    q=1.5;   // wall thickness of grid
+    union() {
+      galeb_fan_adapter(do1=di0, h0=0, h1=10, rr=16);
+
+      // ring grid
+      rotate_extrude($fn=96)
+        union() { 
+          translate([ di0/2-10, 0, 0]) square([q, 2*q], center = false);
+          translate([ di0/2-20, 0, 0]) square([q, 2*q], center = false);
+          translate([ di0/2-30, 0, 0]) square([q, 2*q], center = false);
+        }
+
+      // radial grid
+      for (i = [0 : 2]) {
+        rotate( [0, 0, i*120] ) translate([ di0/2-30, -q/2, 0]) cube([20, q, 2*q], center=false); 
+      }
+    }    
+}
 
 
 //------------- Instances --------------------
@@ -278,4 +324,4 @@ module galeb_fan_adapter(
 //galeb_M8cover();
 
 galeb_fan_adapter();
-
+//galeb_fan_inlet();
