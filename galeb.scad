@@ -10,6 +10,10 @@
 //   - galeb_M8cover:
 //     cover to be printed in red(+) and black(-) covering M8 
 //     high-current battery connections.
+//   - galeb_fan_adapter, galeb_fan_inlet:
+//     snap them on a Jabsco axial blower to adapt to a 70mm hose.
+//   - galeb_rod_polisher:
+//     intended to clean and polish stainless steel rods, print 4 instances.
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
@@ -311,6 +315,129 @@ module galeb_fan_inlet(
 }
 
 
+//-----------------------------------------------------------------------------------
+// tool for cleaning or polishing stainless steel rods
+//-----------------------------------------------------------------------------------
+
+module galeb_rod_polisher_contour1(L=50, w=4) {
+          e=0.4;
+          polygon( points=[ [5,   0], [15,  0],
+                            [15,  1], [7+w, 5 ],
+                            [5+w, 9], [5+w, L],
+                            [5,   L], [5,   6.5], [4.5, 6],
+                            [0,   9], [e,   8],
+                            [5,   4], [5.7, 2.4], [5, 2],
+                            [0,   6], [e,   5]
+                            ] );
+}
+
+// Punktsymmetrische Kontur die als Schnappverbinder gedacht ist
+module galeb_rod_connector_contour2(
+     L=10,    // length of overlap
+     w=4,     // wall thickness
+     c=0.4,   // clearance
+     outer=0  // mirror contour
+     ) {
+     s=0.4;    // slope at interlocking point
+     l=0.8;      // lock length
+          rotate([180,180*outer])
+          translate([-(w)/2, -L])
+          polygon( points=[ [0,   0], [0+(w-c)/4,  0], [0+(w+l-c)/2,  L/4],
+                            [0+(w+l-c)/2,  (L-c)/2-s], [0+(w-l-c)/2, (L-c)/2],
+                            [0+(w-l-c)/2,  L], [0, L]
+                            ] );
+}
+
+module galeb_rod_connector( d=27, L=10, w=4, circ=1) {
+     n=3;
+     c=0.5;
+     debug=0;
+     union() {
+       // inner teeth
+       for (i = [0 : (2*n-1)*circ]) {
+         rotate( [0, 0, (i)*180/n +0.5] )  // add 2*0.5 degree gap
+           rotate_extrude(angle=90/n -1, $fn=96) translate([ d/2+c, 0, 0 ]) 
+             galeb_rod_connector_contour2(L=L, w=w, c=c);
+       }
+       // outer teeth
+         for (i = [0 : (2*n-1)*circ]) {
+           rotate( [0, 0, (i+0.5)*180/n +0.5] )
+             rotate_extrude(angle=90/n -1, $fn=96) translate([ d/2+c, 0, 0 ]) 
+               galeb_rod_connector_contour2(L=L, w=w, c=c, outer=1);
+         }
+       // debugging: add ring, small printout part to test the interlocking
+       if(debug)
+         difference() { 
+           translate([0, 0,  0  -3]) cylinder(d=d+w, h=3, center=false, $fn=192); 
+           translate([0, 0, -0.1-3]) cylinder(d=d-w, h=3.2, center=false, $fn=192);
+         }
+
+     }        
+}
+
+
+module galeb_rod_polisher1(d=27, L=100, w=4) {
+        r0= d/2;
+        r1= r0 +15;
+        r2= r0 +5;
+        
+        // outer case
+        rotate([0,0,0 ])
+          rotate_extrude(angle=180+10,$fn=96) translate([ d/2, 0, 0 ]) 
+            galeb_rod_polisher_contour1();
+        
+        // spiral inlay in 
+        difference() {
+          translate([ 0, 0, 10])  
+            linear_extrude(height=L/2-10, twist=90,$fn=96) 
+               for (i = [0 : 1]) {
+                  rotate([0,0,(i+1)*90 ]) translate([ d/2, 0, 0])
+                     rotate([0,0,-45 ]) square([7,1.6], center=false);
+               }
+             translate([ 0, -d, 0])
+               cube([4*d,2*d,2*L], center=true);   // cut away one half
+        }
+}
+
+module galeb_rod_polisher(d=27, L=100) {
+     w=4;    // wall thickness
+     c=0.45; // clearance
+     p=w/3;  // with of ridge connecting two halves
+     q=(w-p-c)/2;
+     difference() {
+       union() {
+         galeb_rod_polisher1(d=d, L=L, w=w);
+         translate([ 0, 0, L/2 ]) 
+           galeb_rod_connector(d=d+5+2*w, w=w, circ=0.5);
+       }  
+       // cut such, that two halves can be attached to each other to surround a rod
+       union() {
+         // groove
+         rotate([0,0,-10 ])
+           rotate_extrude(angle=20,$fn=96) translate([ d/2+5+(w-p-c)/2, 0, 0 ]) 
+              union() {
+                square([p+c,   L/2+c]);
+                translate([ (p+c)/2, 0, 0 ]) square([p+3*c, 2*c], center=true);
+              }
+         
+         // ridge
+         rotate([0,0,180 ])
+           difference() {
+             rotate_extrude(angle= 20,$fn=96) translate([ d/4, 0, -0.1 ]) 
+                square([d, L]);
+             rotate_extrude(angle= 30,$fn=96) translate([ d/2+5+(w-p)/2, 0, 0 ]) 
+                  square([p, L]);
+         }
+         
+         // screwdriver slot to simplify reopening
+         translate([ -(d/2+w+5+1.8-p-0.4), -0.01, L/4 ]) cube([1.8,2,8]);
+         //translate([ +(d/2+w/2+5), 0, 0]) cube([2,8,2], center=true);
+       }
+     }
+}
+        
+
+
 //------------- Instances --------------------
 
 //translate([0,-40,0]) ccyl();
@@ -323,5 +450,10 @@ module galeb_fan_inlet(
 
 //galeb_M8cover();
 
-galeb_fan_adapter();
+//galeb_fan_adapter();
 //galeb_fan_inlet();
+
+//galeb_rod_polisher_contour1();
+//galeb_rod_connector_contour2();
+//galeb_rod_connector();
+galeb_rod_polisher();
