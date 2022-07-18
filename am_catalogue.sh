@@ -10,6 +10,7 @@
 #   ./am_catalogue.sh filter="am_box"
 #   ./am_catalogue.sh action="makemd,html"  # just markdown and html
 #   ./am_catalogue.sh action="makepng,makemd,html" filter="ring\|Festo"
+#   ./am_catalogue.sh action="makestl"      # create stl files in ./img
 #
 # Background:
 #   - prerequisites: the following packages need to be installed:
@@ -33,7 +34,7 @@
 #     pandoc -f gfm -o catalogue.html catalogue.md  # create local HTML file
 #     dillo readme.html &			    # view with any web browser
 
-# $Header: am_catalogue.sh, v0.1, Andreas Merz, 2021-05-02 $
+# $Header: am_catalogue.sh, v0.2, Andreas Merz, 2021-05-02 $
 # GPLv3 or later, see http://www.gnu.org/licenses
 
 hc=cat
@@ -92,6 +93,7 @@ cd $cwd
 # new raw catalogue
 if echo $action | grep newcatalogue > /dev/null ; then
   rm -f amtmp.scad
+  # check, which files are in the repository, mark as gitscadfile
   for scadfile in *.scad ; do
     if ! git ls-files | grep "^$scadfile" > /dev/null ; then
        gg=""
@@ -119,12 +121,13 @@ if [ ! -d img ] ; then
 fi
 
 if echo $action | grep make > /dev/null ; then
-cat $catalogue.use | awk -v filter="$filter" -v action="$action" '
+  cat $catalogue.use | awk -v filter="$filter" -v action="$action" '
    /#.*scadfile=/      { if( $0 ~ filter ) 
                             select=1;       # process new scad file
                          else 
                             select=0;
-                         split($2, scf, "=", seps);
+			 instcnt=0;            # reset scad-file instance-counter
+                         split($2, scf, "=", seps);  # search for (git)scadfile=xxx.scad
                          scadfile=scf[2];
                          split(scadfile, basenam, ".", seps);
                          scadbase=basenam[1];
@@ -132,38 +135,55 @@ cat $catalogue.use | awk -v filter="$filter" -v action="$action" '
                            printf("\n#%s %s\n", $1, scadfile);  # md chapter output
 			   if( $0 ~ /gitscadfile/)
                              printf("https://github.com/Github6am/am_parts3D/blob/master/%s\n\n", scadfile);
-                           cmd0=sprintf("grep https://www.thingiverse %s\necho\n", scadfile);
-			   system(cmd0);    # output hyperlinks to thingiverse, if present
-			   
+                           # output hyperlinks to thingiverse, if present. Enforce MD linebreak by two trailing blanks:
+                           cmd0=sprintf("grep https://www.thingiverse %s | sed \"s/$/  /\"\n\necho\n", scadfile);
+			   system(cmd0);    			   
 			 }
 			 
                        }
 
    /^ *[A-Za-z].*);/   { select*=2;  # new object
                        }
+		       
                        { q=0x27;     # single quote
                          d="  ";
                          if(select>1 ) {
                            # select instance object: e.g translate(..) mypart();
-                           object=$0; 
+			   # and create suitable filenames out of it
+                           oldobjname=objname;
+			   object=$0;
                            objname=object;
                            gsub(/.*\) +/, "", objname);  # strip transformation
                            gsub(/\(.*/,  "", objname);   # strip brackets
-                           #print d object d objname
+                           # print d object d objname d oldobjname
                            pngname=sprintf("img/%s.%s.png",scadbase, objname);
-                           
-                           # generate a openscad tmp file and a command to create png file
+			   if( objname == oldobjname)
+                             pngname=sprintf("img/%s.%s.%02d.png",scadbase, objname, ++instcnt);
+			   
+			   stlname=pngname;
+			   gsub(/\.png$/, ".stl", stlname);
+			   
+                           # generate a openscad tmp file and a command to create png or stl file
                            cmd1=sprintf("sed -n %c1,/Instances --/ p%c %s > amtmp.scad", q, q, scadfile);
                            cmd2=sprintf("echo %c%s%c >> amtmp.scad", q, object, q);
                            cmd3=sprintf("openscad  -o %s --render --imgsize 320,240  --view \"axes,scales\" amtmp.scad\n", pngname);
+                           cmd4=sprintf("openscad  -o %s amtmp.scad\n", stlname);   # generate stl output
                            #print d cmd1
                            #print d cmd2
                            #print d cmd3
+                           #print d cmd4
 			   if( action ~ "makepng" ) {
                              system(cmd1);
                              system(cmd2);
                              system(cmd3);
+                             #system(cmd4);
                            }
+			   if( action ~ "makestl" ) {
+                             system(cmd1);
+                             system(cmd2);
+                             system(cmd4);
+                           }
+			   
                            # print a markdown link
                            cnt++;
                            #printf("  %s: ", objname);
@@ -181,5 +201,10 @@ if echo $action | grep html > /dev/null ; then
   echo
   echo "# created html file:"
   echo "file:$(pwd)/$catalogue.html"
-fi
 
+  echo "# new or changed images in img/:"
+  git status | grep img/ | grep png
+  echo "# update doc:"
+  echo "meld README.md catalogue.md"
+  echo
+fi

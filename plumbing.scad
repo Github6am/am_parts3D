@@ -291,6 +291,31 @@ module adapterB_G1(
     }
 }
 
+// ------------- Plugs ---------------------
+
+// simple cylindrical plug
+module plugA(
+    w=1.0,       // wall thickness
+    b=1.2,       // bottom thickness
+    do=25    ,   // outer diameter - clearance
+    rr=4,        // additional rim radius
+    hh=10        // height of whole plug
+    ) {
+    di=do-2*w;   // inner diameter
+    difference() { 
+      union() {
+	    translate([0, 0, 0])    cylinder(h=hh-w, d=do  , $fn=fn);
+	    translate([0, 0, hh-w]) cylinder(h=w,   d1=do, d2=do-w/2, $fn=fn);
+            // chamfered cap
+	    translate([0, 0, b/2]) cylinder(h=b/2,  d=do+2*rr, $fn=fn);
+	    translate([0, 0, 0])   cylinder(h=b/2,  d1=do+2*rr-b, d2=do+2*rr, $fn=fn);
+      }
+      union() {
+	    translate([0, 0,1]) cylinder(h=hh, d=di, $fn=fn);
+      }
+    }
+}
+
 //---------------- Instances ---------------------
 
 
@@ -305,7 +330,7 @@ module adapterB_G1(
 //pipe_thread_G1();
 //pipe_adapter();
 
-pipe_thread_nut_G1();
+//pipe_thread_nut_G1();
 
 
 // --- target items
@@ -313,3 +338,6 @@ pipe_thread_nut_G1();
 //adapterA_G1();
 //adapterB_G1();
 //release_ring();
+
+//plugA();
+plugA(do=23.2, rr=6.4);

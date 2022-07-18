@@ -6,6 +6,8 @@
 //     hiermit kann im Abfluss der Ueberlauf verschlossen werden, um
 //     die unzugaenglichen Hohlraeume im Waschbecken mit 
 //     Reinigungsmitteln zu fluten.
+//   - hosted on:
+//     git@github.com:Github6am/am_parts3D.git
 //
 // Author: Andreas Merz, 2021-05-01
 //   GPLv3 or later, see http://www.gnu.org/licenses 

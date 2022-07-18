@@ -2,7 +2,7 @@
  * ISO-standard metric threads, following this specification:
  *          http://en.wikipedia.org/wiki/ISO_metric_screw_thread
  *
- * Copyright 2020 Dan Kirshner - dan_kirshner@yahoo.com
+ * Copyright 2021 Dan Kirshner - dan_kirshner@yahoo.com
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -15,6 +15,10 @@
  *
  * See <http://www.gnu.org/licenses/>.
  *
+ * Version 2.6.  2021-05-16  Contributed patches for leadin (thanks,
+                             jeffery.spirko@tamucc.edu) and aligning thread
+                             "facets" (triangulation) with base cylinder
+                             (thanks, rambetter@protonmail.com).
  * Version 2.5.  2020-04-11  Leadin option works for internal threads.
  * Version 2.4.  2019-07-14  Add test option - do not render threads.
  * Version 2.3.  2017-08-31  Default for leadin: 0 (best for internal threads).
@@ -156,16 +160,32 @@ module metric_thread (diameter=8, pitch=1, length=1, internal=false, n_starts=1,
 
             // "Negative chamfer" z=0 end if leadin is 2 or 3.
             if (leadin == 2 || leadin == 3) {
-               cylinder (r1=diameter/2, r2=diameter/2 - h*h_fac1*leadfac, h=h*h_fac1*leadfac,
-                         $fn=n_segments);
+
+               // Fixes by jeffery.spirko@tamucc.edu.
+               cylinder (r1=diameter/2 - h + h*h_fac1*leadfac,
+                         r2=diameter/2 - h,
+                         h=h*h_fac1*leadfac, $fn=n_segments);
+               /*
+               cylinder (r1=diameter/2,
+                         r2=diameter/2 - h*h_fac1*leadfac,
+                         h=h*h_fac1*leadfac, $fn=n_segments);
+               */
             }
 
             // "Negative chamfer" z-max end if leadin is 1 or 2.
             if (leadin == 1 || leadin == 2) {
                translate ([0, 0, length + 0.05 - h*h_fac1*leadfac]) {
-                  cylinder (r1=tapered_diameter/2 - h*h_fac1*leadfac, h=h*h_fac1*leadfac,
+
+                  cylinder (r1=tapered_diameter/2 - h,
+                            h=h*h_fac1*leadfac,
+                            r2=tapered_diameter/2 - h + h*h_fac1*leadfac,
+                            $fn=n_segments);
+                  /*
+                  cylinder (r1=tapered_diameter/2 - h*h_fac1*leadfac,
+                            h=h*h_fac1*leadfac,
                             r2=tapered_diameter/2,
                             $fn=n_segments);
+                  */
                }
             }
          }
@@ -254,7 +274,10 @@ module metric_thread_turn (diameter, pitch, internal, n_starts, thread_size,
    n_segments = segments (diameter);
    fraction_circle = 1.0/n_segments;
    for (i=[0 : n_segments-1]) {
-      rotate ([0, 0, i*360*fraction_circle]) {
+
+      // Keep polyhedron "facets" aligned -- circumferentially -- with base
+      // cylinder facets.  (Patch contributed by rambetter@protonmail.com.)
+      rotate ([0, 0, (i + 0.5)*360*fraction_circle + 90]) {
          translate ([0, 0, i*n_starts*pitch*fraction_circle]) {
             //current_diameter = diameter - taper*(z + i*n_starts*pitch*fraction_circle);
             thread_polyhedron ((diameter - taper*(z + i*n_starts*pitch*fraction_circle))/2,

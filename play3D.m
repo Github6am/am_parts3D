@@ -87,10 +87,20 @@ function Gcode = play3D( com, song, preamble, key)
 	notes=[ 5 5 8 5 5 8  5 8 13 12 10 10  8  3 5 6 3 3 5 6  3 6 12 10  8 12 13   1 1 13 10 6 8 5 1 6 8 10 8  1 1 13 10 6 8  5 1 6   8    6     5 3 1  ]+36;
 	durat=[ 1 1 2 2 2 4  1 1 2  3  1  2   2  1 1 2 2 1 1 4  1 1  1  1  2 2  4    1 1 4  1  1 4 1 1 2 2 2  4  1 1 4  1  1 4  1 1 1.2 0.4 0.4  2 2 4  ]/4;   % Viertel
       
-      otherwise
+      case 6
         Gcode=sprintf('%s; Happy Birthday\n', Gcode);
         notes=[ 1   1   3 1 6 5 1   1   3 1 8 6  1   1   13 10 6   6   5 3  11  11   10 6  8 6 ]+36;
         durat=[ 1.5 0.5 2 2 2 4 1.5 0.5 2 2 2 4  1.5 0.5 2  2  1.5 0.5 2 2  1.5 0.5  2  2  2 2 4 ]/4;   % Viertel
+
+      case 7
+        Gcode=sprintf('%s; Oh Tannenbaum\n', Gcode);
+	notes=[ 1    6   6  6  8    10  10  10  10   8 10 11 5   8  6  13   13 10 15 13   13 11 11 11  11 8 13 11   11 10 10 1   6    6  6 8   10  10  10 10   8 10 11 5   8  6  ]+24;
+	durat=[ 1  1.5 0.5  3  1   1.5 0.5   3   1   1 1  2  2   2  3  1    1  1  3  1     1 1  3  1   1  1 3  1    1  1  3  1   1.5 0.5 3 1   1.5 0.5 2  1    1 1  2  2   2  3  ]/8*2.7;   % 6/8
+      
+      otherwise
+        Gcode=sprintf('%s; Tusch\n', Gcode);
+	notes=[ 1  5  8  13   ]+24;
+	durat=[ 1  1  1  3    ]/4;
 
     end
   end
