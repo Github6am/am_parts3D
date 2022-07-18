@@ -93,11 +93,24 @@ fingerhutA();
 //cslots();
 //galeb_plateD();
 galeb_plateE();
+//galeb_lockE();
+galeb_M8cover();
+galeb_fan_adapter();
+galeb_fan_inlet();
+//galeb_rod_polisher_contour1();
+//galeb_rod_connector_contour2();
+//galeb_rod_connector();
+galeb_rod_polisher();
 
 
 # scadfile=geardemo.scad
 translate([-3,-21,0]) rack(2, 100, 8, 10, 20, -22.5);
 spur_gear(2, 20, 8, 10, 20, 22.5);
+
+# scadfile=grundig.scad
+//spikesA();
+//clutch_diskA();
+clutch_diskB();
 
 # gitscadfile=Hallsensoren_case.scad
 translate([-15,0,0]) connectionH(h=40, l=30, holes=false);
@@ -185,6 +198,9 @@ color("green") translate([15, 26, 0])  ringC();
 //fins();
 cone_i();
 cone_o();
+
+# gitscadfile=ssdframe.scad
+ssdframe1();
 
 
 # gitscadfile=TP-Link_MR3020_fix.scad
