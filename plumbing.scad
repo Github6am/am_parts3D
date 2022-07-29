@@ -226,7 +226,7 @@ module pipe_thread_nut_cone(
       union() {
 	difference() {
 	  union() {
-	    translate([0,0,wall])
+	    translate([0,0,wall])    // make cone wall 40% (tan(22.5)) stronger.
 	    cylinder(h=hh, d1=d1+c+2*wall, d2=d2+c+2*wall, $fn=fn);
 	    cylinder(h=wall, d=d1+c+2*wall, $fn=fn);
 	  }
@@ -317,9 +317,38 @@ module plugA(
 }
 
 
+// fit hose to a G1 nut
+module hose_cone(
+    d1=30.25,   // inner diameter of outgoing pipe, outer diameter of G1 thread
+    d2=27,      // hole diameter
+    d3=17,      // max stub outer diameter, hose inner diameter
+    d4=12,      // min stub outer diameter, hose inner diameter
+    hh=20,
+    w=wall,
+    c=clr 
+    ) {
+      df=d4+3;    // diameter to fit hose tightly, alt: d4*1.15 ?
+      h1=(d1-d2)/2;
+      difference() {
+        union() {
+	      translate([0, 0, 0])       cylinder(h=w,   d1=d1, d2=d1, $fn=fn);
+	      translate([0, 0, w])       cylinder(h=h1,  d1=d1, d2=d2, $fn=fn);
+	      translate([0, 0, w+h1])    cylinder(h=w,   d1=d2, d2=d2, $fn=fn);
+	      translate([0, 0, 2*w+h1 ]) cylinder(h=hh-h1-2*w,  d1=d3, d2=d4, $fn=fn);
+	      translate([0, 0, hh-6 ])   cylinder(h=1,  d1=d4, d2=df, $fn=fn);
+	      translate([0, 0, hh-5 ])   cylinder(h=5,  d1=df, d2=d4, $fn=fn);
+        }
+        union() {
+	      translate([0, 0, -0.1])      cylinder(h=h1+1.4*w,  d1=d1-2*w, d2=d3-3*w, $fn=fn);
+	      translate([0, 0, h1-0.1])  cylinder(h=hh-h1+1, d1=d3-2*w, d2=d4-w, $fn=fn);
+        }
+      }
+}
+
 // ------------- Pump ---------------------
 
-// hose pump, does not work very well. Attach floating material around the waist.
+// hose pump, does not work very well; valve() works much better. 
+// Attach floating material around the waist.
 
 module pumpA(
     w=1.6,       // wall thickness
@@ -488,7 +517,12 @@ module valve(
 //pipe_thread_G1();
 //pipe_adapter();
 
+// view cross-section
+//difference(){
 //pipe_thread_nut_G1();
+//hose_cone();
+//cube([20,20,20], center=false); }
+
 
 // --- target items
 
@@ -499,6 +533,9 @@ module valve(
 //plugA();
 //plugA(do=23.2, rr=6.4);
 
-//pumpC(debug=1);     // Fehlkonstruktion
+//pumpC(debug=1);     // Fehlkonstruktion :-(
 
-valve();
+//valve();
+
+//pipe_thread_nut_G1();
+hose_cone();
