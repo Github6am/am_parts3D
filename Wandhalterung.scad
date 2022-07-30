@@ -10,6 +10,7 @@
 //   - Lampenfusshalterung: erlaubt, eine "Glocke" ueber die
 //     Kabelanschluesse der Lampe zu schieben, die fest auf
 //     dem Konus der Halterung klemmt. 
+//   - Abdeckkappe fuer eine Verteilerdose, die zu nahe an der Wand ist.
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
@@ -193,13 +194,60 @@ module Lampenfusshalterung_C(
 	}
 }
 
+//-------------------------------------------
+// Abdeckkappe fuer elektrische Verteilerdose
+//-------------------------------------------
+
+module cut_circle_2D(
+    r0=50,   // outer radius of circle
+    r1=43,   // cut away, if r1<r0
+    ) {
+    difference() {
+      circle(r=r0, $fn=180); 
+      translate([r1,-r0,0]) square(2*r0);
+    }
+}
+
+// TODO: Fase oder Aussenwand des Kreises kegelig machen?  
+module distribution_box_cover(
+    r0=45,   // outer radius of cover
+    r1=18,   // cut away, if r1<r0
+    di=9,    // inner diameter of inner rim
+    hi=7,    // height of inner rim
+    ho=4,    // height of outer rim
+    w=1.6    // wall thickness
+    ) {
+    difference() {
+      union() {
+        // bottom and outer rim
+        difference() {
+          translate([0,0,0]) linear_extrude(height=ho) cut_circle_2D( r0=r0,   r1=r1);
+          translate([0,0,w]) linear_extrude(height=ho) cut_circle_2D( r0=r0-w, r1=r1-w);
+        }
+        // inner rim
+        difference() {
+          translate([0,0,   0])   linear_extrude(height=w+hi) cut_circle_2D( r0=di/2+w, r1=r0);
+          // set 1mm lower at inner for a tight fit at the outer rim
+          translate([0,0,w+ho-1]) linear_extrude(height=hi  ) cut_circle_2D( r0=di/2,   r1=r0-w);
+        }
+      }
+      // center bore hole for countersunk Spax screw
+      translate([0,0,20]) rotate([-90,0,0])  ccyl(r1=2, h1=16, h2=4, ang=-30, h3=1);
+    }
+}
+ 
+
+
+
 
 //------------- Instances --------------------
 // test
 //rotate([90,0,0]) ccyl(r1=20, h1=10, h2=5, ang=30, h3=0);
 
+
 //Wandhalterung_A();
 //Lampenfusshalterung();
 //Lampenfusshalterung_A();
 //Lampenfusshalterung_B();
-Lampenfusshalterung_C();
+//Lampenfusshalterung_C();
+distribution_box_cover();
