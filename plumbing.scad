@@ -226,7 +226,7 @@ module pipe_thread_nut_cone(
       union() {
 	difference() {
 	  union() {
-	    translate([0,0,wall])
+	    translate([0,0,wall])    // make cone wall 40% (tan(22.5)) stronger.
 	    cylinder(h=hh, d1=d1+c+2*wall, d2=d2+c+2*wall, $fn=fn);
 	    cylinder(h=wall, d=d1+c+2*wall, $fn=fn);
 	  }
@@ -316,6 +316,193 @@ module plugA(
     }
 }
 
+
+// fit hose to a G1 nut
+module hose_cone(
+    d1=30.25,   // inner diameter of outgoing pipe, outer diameter of G1 thread
+    d2=27,      // hole diameter
+    d3=17,      // max stub outer diameter, hose inner diameter
+    d4=12,      // min stub outer diameter, hose inner diameter
+    hh=20,
+    w=wall,
+    c=clr 
+    ) {
+      df=d4+3;    // diameter to fit hose tightly, alt: d4*1.15 ?
+      h1=(d1-d2)/2;
+      difference() {
+        union() {
+	      translate([0, 0, 0])       cylinder(h=w,   d1=d1, d2=d1, $fn=fn);
+	      translate([0, 0, w])       cylinder(h=h1,  d1=d1, d2=d2, $fn=fn);
+	      translate([0, 0, w+h1])    cylinder(h=w,   d1=d2, d2=d2, $fn=fn);
+	      translate([0, 0, 2*w+h1 ]) cylinder(h=hh-h1-2*w,  d1=d3, d2=d4, $fn=fn);
+	      translate([0, 0, hh-6 ])   cylinder(h=1,  d1=d4, d2=df, $fn=fn);
+	      translate([0, 0, hh-5 ])   cylinder(h=5,  d1=df, d2=d4, $fn=fn);
+        }
+        union() {
+	      translate([0, 0, -0.1])      cylinder(h=h1+1.4*w,  d1=d1-2*w, d2=d3-3*w, $fn=fn);
+	      translate([0, 0, h1-0.1])  cylinder(h=hh-h1+1, d1=d3-2*w, d2=d4-w, $fn=fn);
+        }
+      }
+}
+
+// ------------- Pump ---------------------
+
+// hose pump, does not work very well; valve() works much better. 
+// Attach floating material around the waist.
+
+module pumpA(
+    w=1.6,       // wall thickness
+    b=1.2,       // bottom thickness
+    do=25,       // outer diameter
+    rr=4,        // additional rim radius
+    hh=30,       // height of cylindrical section
+    sm=2.4,      // slot margin
+    dit=30,      // inner diameter at top
+    dot=32,       // outer diameter at top
+    c=0.2        // clearance, reduces clearance at bottom 
+    ) {
+    di=do-2*w;   // inner diameter
+    sw=di/3;       // slot width
+    sh=hh/2-2*sm;  // slot height
+    difference() { 
+      union() {
+	translate([0, 0,  0])    cylinder(h=rr, d1=do+2*rr, d2=do+2*c,      $fn=fn);
+	translate([0, 0, rr])    cylinder(h=sm, d1=do+2*c,  d2=do,      $fn=fn);
+	translate([0, 0, rr])    cylinder(h=hh, d1=do,      d2=do,      $fn=fn);
+	translate([0, 0, hh])    cylinder(h=rr, d1=do,      d2=do+2*rr, $fn=fn);
+	translate([0, 0, hh+rr]) cylinder(h=rr, d1=do+2*rr, d2=dot,     $fn=fn);
+      }
+      union() {
+	translate([0, 0,b]) cylinder(h=hh+2*rr, d=di,        $fn=fn);
+	translate([0, 0, hh+rr]) cylinder(h=rr+0.01, d1=di,    d2=dit,     $fn=fn);
+        // slots
+        for (i = [0 : 2]) {
+          rotate( [0, 0, i*120] ) translate([ 0, 0, sh/2+rr+sm]) cube([do+2, sw, sh], center=true); 
+        }
+      }
+    }
+}
+
+module pumpB(
+    w=1.6,       // wall thickness of cylindrical section
+    dd=25,       // design diameter
+    rr=4,        // additional rim radius
+    hh=15,       // height of cylindrical section
+    c=0.6        // clearance
+    ) {
+    di=dd+2*c;      // inner diameter
+    do=dd+2*c+2*w;  // outer diameter
+    rf=2*rr;        // radius of funnel
+    e=0.1;          // 
+    difference() {
+      union() {
+	translate([0, 0,  0])    cylinder(h=rf, d1=do+2*rf, d2=do,      $fn=fn);
+	translate([0, 0, rf])    cylinder(h=hh, d1=do,      d2=do,      $fn=fn);
+	translate([0, 0, rf+hh]) cylinder(h=2*rf, d1=do,      d2=do+4*rf, $fn=fn);
+      }
+      union() {
+	translate([0, 0, -e])    cylinder(h=rf+e,   d1=di+2*rf, d2=di,      $fn=fn);
+	translate([0, 0, rf-e])  cylinder(h=hh+2*e, d1=di,      d2=di,      $fn=fn);
+	translate([0, 0, rf+hh]) cylinder(h=2*rf+e,   d1=di,      d2=di+4*rf, $fn=fn);
+      }
+    }
+}
+
+// print entangled parts  - needs redesign, prototype does not function as intended :-(
+module pumpC(
+    w=1.6,       // wall thickness of cylindrical section
+    dd=25,       // design diameter
+    rr=4,        // additional rim radius
+    hh=30,       // height of cylindrical section
+    debug=0
+    ) {
+    difference() {
+      union() {
+        pumpA(w=w, do=dd, rr=rr, hh=hh, dit=30.25-4*wall-clr, dot=30.25-clr);
+        pumpB(w=w, dd=dd, rr=rr, hh=hh/2);
+        translate([0, 0, hh+2*rr]) pipe_thread_G1();  
+      }
+      if(debug)
+        rotate([0,0,-90]) translate([0, 0, -1]) cube([ 2*dd, 2*dd, 2*hh], center=false);  // debug: cross-section
+    }
+}
+
+// ------------- Valve ---------------------
+
+// valve plug, overall length: hh+3*rr
+
+module valve_plug(
+    dd=16,       // design diameter
+    hh=20,       // height of cylindrical section
+    rr=4,        // rim radius
+    c=0.4        // clearance
+    ) {
+    do=dd+2*c;     // outer diameter
+      union() {
+	translate([0, 0,  0])   cylinder(h=2*rr, d1=do-2*rr, d2=do,      $fn=fn);
+	translate([0, 0, 2*rr])   cylinder(h=hh, d1=do, d2=do,     $fn=fn); 
+	translate([0, 0, 2*rr+hh])   cylinder(h=rr, d1=do, d2=do-rr,     $fn=fn); 
+      }
+}
+
+
+module valve(
+    w=1.6,         // wall thickness
+    b=3,           // bottom thickness
+    do=30.25-clr,  // outer diameter
+    rr=4,          // rim radius
+    hh=32,         // height of cylindrical section
+    hv=25,         // height of valve mechanism
+    mm=9,          // movement of plug
+    debug=0
+    ) {
+    di=do-2*w;   // inner diameter
+    dp=2/3*di;   // plug diameter
+    difference() {
+      union() {
+        difference() {
+          union() {
+            difference() {
+              // outer contour
+              union() {
+	        translate([0, 0,  0])   cylinder(h=hh, d1=do, d2=do,      $fn=fn);
+              }
+              // cavity
+              union() {
+	        translate([0, 0, b]) cylinder(h=hh+2*rr, d=di,        $fn=fn);
+              if(debug==1)
+                rotate([0,0,180]) translate([-do, 0, -1]) cube([ 2*do, 2*do, 2*hh], center=false);  // debug: cross-section
+              }
+            }
+
+            // guidance ridges
+            for (i = [0 : 4]) {
+              rotate( [0, 0, i*72] ) translate([ di/4, 0, hv/2]) cube([di/2, w, hv], center=true); 
+            }
+          }
+
+          // cut cavity for plug
+          union() {
+            translate([0, 0, -rr]) valve_plug(dd=dp, c=0.6, hh=hv-4*rr+mm);
+	    translate([0, 0, b])   cylinder(h=rr, d=dp+2*0.6,      $fn=fn);
+          }
+        }
+
+      // print the valve plug inside the structure
+      valve_plug(dd=dp, c=0.0, hh=hv-3*rr-1);
+
+      // add threads at top and bottom
+      translate([0, 0, hh-14]) G1_thread();  
+      translate([0, 0, 0])       G1_thread();  
+      //translate([0, 0, 40])      pipe_thread_G1();  
+     }
+     if(debug==2)
+       rotate([0,0,180]) translate([-do, 0, -1]) cube([ 2*do, 2*do, 2*hh], center=false);  // debug: cross-section
+   }
+}
+
+
+
 //---------------- Instances ---------------------
 
 
@@ -330,7 +517,11 @@ module plugA(
 //pipe_thread_G1();
 //pipe_adapter();
 
+// view cross-section
+//difference(){
 //pipe_thread_nut_G1();
+//hose_cone();
+//cube([20,20,20], center=false); }
 
 
 // --- target items
@@ -340,4 +531,11 @@ module plugA(
 //release_ring();
 
 //plugA();
-plugA(do=23.2, rr=6.4);
+//plugA(do=23.2, rr=6.4);
+
+//pumpC(debug=1);     // Fehlkonstruktion :-(
+
+//valve();
+
+//pipe_thread_nut_G1();
+hose_cone();
