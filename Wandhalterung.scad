@@ -237,6 +237,39 @@ module distribution_box_cover(
 }
  
 
+//-------------------------------------------
+// Unterputzdose fuer Steckdosen
+//-------------------------------------------
+
+// Dose ohne Boden
+
+module updoseA(
+    da=69,   // standard wall bore hole diameter:68
+    db=62,   // outer diameter
+    dc=60,   // inner diameter
+    dd=71,   // Dosendistanz bei Doppeldosen, typ: 71
+    zz=32,   // height
+    ww=1.2,  // wall thickness
+    nn=4     // number of fin pairs
+    ) {
+    difference() {
+      linear_extrude(height=zz)
+      union() { 
+        circle(r=db/2, $fn=180);
+        for (i = [0 : nn-1]) {
+	  rotate([0, 0, 360.01/nn*i +8]) translate([(db+dc)/4,-ww/2]) square( [da/2 -(db+dc)/4, ww]);
+	  rotate([0, 0, 360.01/nn*i -8]) translate([(db+dc)/4,-ww/2]) square( [da/2 -(db+dc)/4, ww]);
+        }
+        if(dd > da) {
+          xsq=(dd-da)/2;
+          ysq=10.78;      // Augenschein, nicht gerechnet.
+          translate([dd/2-xsq-0.6, -ysq/2]) square( [xsq+0.6, ysq]);
+        }
+      }
+      // Innenraum
+      translate([0,0,-1]) cylinder(d=dc, h=zz+2, $fn=180); 
+    }
+}
 
 
 
@@ -250,4 +283,6 @@ module distribution_box_cover(
 //Lampenfusshalterung_A();
 //Lampenfusshalterung_B();
 //Lampenfusshalterung_C();
-distribution_box_cover();
+//distribution_box_cover();
+
+updoseA();
