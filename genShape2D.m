@@ -79,6 +79,14 @@ switch shape
     y=[  12   12     9.5  9.5  12   12    10  10   9.8  ]/2
     xi=0:0.1:x(end);
     hollow=0;
+
+  case {'7','meander'}       % Halteclip fuer Gabelschluesselsatz
+    [x,y] = meander();
+    x=[x 1.01*x(end-1:-1:2)];
+    y=[y 1.01*y(end-1:-1:2)];
+    xi=x;
+    yi=y;
+    hollow=0;
     
   otherwise
     warning(['unknown shape: ' shape]);
@@ -147,3 +155,23 @@ for ii=1:length(s)
 end
 fprintf(fh, ' ]);\n\n');
 fclose(fh);
+
+
+
+% Gabelschluessel-Halter-Funktion, 
+% TODO: besser als Bezier-Kurve mit Referenzpunkten, statt als parametrische Kurve?
+function [x,y] = meander()
+  f=4;
+  t=(0:0.002:1.02)+0.04;
+  scale=10*exp(t*log(2));   % geometric scaling
+  
+  x= 1.5*t - 0.06*sin(2*2*pi*f*t).*(sqrt(t)+1) + 0.02*sin(4*2*pi*f*t);
+  y= 1.01*sin(2*pi*f*t) + 0.00*sin(5*2*pi*f*t);
+  x=1.5*scale.*x;
+  y=scale.*y;
+  plot(x,y); grid on; ylim=([-1.2 1.2]); 
+
+  hold on
+  y= 1.01*sin(2*pi*f*t) + 0.04*sin(5*2*pi*f*t);
+  y=scale.*y;
+  plot(x,y); grid on; ylim=([-1.2 1.2]); 
