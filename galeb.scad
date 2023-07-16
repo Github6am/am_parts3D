@@ -14,6 +14,10 @@
 //     snap them on a Jabsco axial blower to adapt to a 70mm hose.
 //   - galeb_rod_polisher:
 //     intended to clean and polish stainless steel rods, print 4 instances.
+//   - galeb_vcase: 
+//     housing for three 4-digit Voltmeter modules, Joy-It, EAN: 4250236817873 
+//     https://www.pollin.de/p/joy-it-digital-voltmeter-4-digit-einbauinstrument-830840
+//     intended to be plugged onto the battery power switch control panel.
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
@@ -46,6 +50,15 @@ module ccyl(h1=wall*2/3, h2=wall*1/3, r1=rrim, ang=45) {
       linear_extrude(height=h1, scale=1)  circle(r=r1,$fn=24);
       translate([0,0,h1-0.01])
         linear_extrude(height=h2, scale=ss) circle(r=r1, $fn=24);
+    }
+}
+
+
+// sequence of n conical sections
+module conesN(n=3, hh=[0, 1, 8, 10], dd=[5.5, 5.8, 6.2, 5.0], fn=30) {
+    for (i = [0 : n-1]) {
+      translate([0,0, hh[i]])
+        cylinder(d1=dd[i], d2=dd[i+1], h = hh[i+1]-hh[i], $fn=fn);
     }
 }
 
@@ -435,12 +448,93 @@ module galeb_rod_polisher(d=27, L=100) {
        }
      }
 }
-        
 
+       
+//-----------------------------------------------------------------------------------
+// housing for 3 Voltmeter Displays, Type COM-VM433, available via Pollin electronics
+//-----------------------------------------------------------------------------------
+
+// Zapfen, der in ein 5mm Bohrloch passt
+module peg(h0=0, diameter=6, length=8) {
+  c=0.3;
+  d1=diameter-c;
+  d2=diameter+c;
+  d0=1;
+  difference() {
+    conesN(n=4, hh=[-h0, 0, 1, length-1.5, length], dd=[d0, diameter-2*c, d1, d2, diameter-0.5], fn=10);
+    translate([0,0,1+length/2]) cube([2*diameter, 1.0, length], center=true);
+  }
+}
+
+module vcase_quarter(lx=150, ly=34, lz=25,    // box outer dimensions
+    w=2.4   // wall thickness
+)
+{
+    rd=0.8;   // ridge depth
+    rw=1.4;   // ridge width
+    ix=45.6;  // instrument size x, plus clearance
+    iy=26.8;  // instrument size y, plus clearance
+    // We print bottom walls separately to avoid warping and allow test access.
+    difference() {
+      // a quarter of the whole box
+      union() {
+        translate([0,0,0])       cube([lx/2, ly/2, w], center=false);   // front panel
+        translate([lx/2-w, 0,0]) cube([w, ly/2, lz],   center=false);   // side
+        // add warping protection
+        translate([lx/2, ly/2,0]) cylinder(d=12, h=0.4,   center=false);   // side
+      }
+      union() {
+        // cut ridge to insert bottom wall
+        translate([-w+rd, ly/2-rd-rw,w-rw]) cube([lx/2, rw, lz], center=false);
+        // instrument cut-outs
+        translate([ -ix/2, -iy/2,-0.01])       cube([ix, iy, 2*w], center=false);
+        translate([  -ix/2+ ix + 4, -iy/2,-0.01])       cube([ix, iy, 2*w], center=false);
+      }
+    }
+}
+
+module vcase_half(lx=150, ly=34, lz=25,    // box outer dimensions
+    w=2.4   // wall thickness
+)
+{
+    union() {
+      mirror([0,0,0]) vcase_quarter(lx=lx, ly=ly, lz=lz, w=w);
+      mirror([0,1,0]) vcase_quarter(lx=lx, ly=ly, lz=lz, w=w);
+      translate([lx/2-w/2, 0,lz ]) peg(h0=6);
+    }
+}
+
+
+// the final triple voltmeter case
+module vcase(lx=150, ly=34, lz=25,    // box outer dimensions
+    w=2.4   // wall thickness
+)
+{
+    union() {
+      mirror([0,0,0]) vcase_half(lx=lx, ly=ly, lz=lz, w=w);
+      mirror([1,0,0]) vcase_half(lx=lx, ly=ly, lz=lz, w=w);
+    }
+}
+
+// top and bottom wall sheet as separate inset
+module vcase_bottom( lx=150, ly=34, lz=25,    // box outer dimensions
+    w=2.4   // wall thickness of vcase
+)
+{
+    rw=0.8;   // fit to vcase ridge width including clearance
+    rd=0.4;   // fit to vcase ridge depth including clearance
+    union() {
+        cube([lx-2*w+2*rd, lz-w+rd, rw],   center=true);
+    }
+}
 
 //------------- Instances --------------------
 
 //translate([0,-40,0]) ccyl();
+//conesN();
+//peg();
+
+
 //galeb_plateB();
 //galeb_plateC();
 //cslots();
@@ -456,4 +550,7 @@ module galeb_rod_polisher(d=27, L=100) {
 //galeb_rod_polisher_contour1();
 //galeb_rod_connector_contour2();
 //galeb_rod_connector();
-galeb_rod_polisher();
+//galeb_rod_polisher();
+
+vcase();
+//vcase_bottom();
