@@ -15,7 +15,7 @@
 //   - galeb_rod_polisher:
 //     intended to clean and polish stainless steel rods, print 4 instances.
 //   - galeb_vcase: 
-//     housing for three 4-digit Voltmeter modules, Joy-It, EAN: 4250236817873 
+//     housing for three 4-digit COM-VM433 Voltmeter modules, Joy-It, EAN: 4250236817873 
 //     https://www.pollin.de/p/joy-it-digital-voltmeter-4-digit-einbauinstrument-830840
 //     intended to be plugged onto the battery power switch control panel.
 //   - repository: https://github.com/Github6am/am_parts3D
@@ -454,7 +454,7 @@ module galeb_rod_polisher(d=27, L=100) {
 // housing for 3 Voltmeter Displays, Type COM-VM433, available via Pollin electronics
 //-----------------------------------------------------------------------------------
 
-// Zapfen, der in ein 5mm Bohrloch passt
+// Zapfen, der in ein 6mm Bohrloch passt
 module peg(h0=0, diameter=6, length=8) {
   c=0.3;
   d1=diameter-c;
@@ -462,6 +462,7 @@ module peg(h0=0, diameter=6, length=8) {
   d0=1;
   difference() {
     conesN(n=4, hh=[-h0, 0, 1, length-1.5, length], dd=[d0, diameter-2*c, d1, d2, diameter-0.5], fn=10);
+    // cut a slot
     translate([0,0,1+length/2]) cube([2*diameter, 1.0, length], center=true);
   }
 }
