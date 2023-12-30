@@ -26,7 +26,7 @@
 //     - arduino IDE, 1.8.15, https://www.arduino.cc/en/software
 //   - TODO: Libelle d=15 einpressen?
 //
-// Andreas Merz 2021-10-31, v0.3 
+// Andreas Merz 2021-10-31 ..  2023-12-30,  v0.4 
 // GPLv3 or later, see http://www.gnu.org/licenses
 
 use <gears/gears.scad>
@@ -39,14 +39,14 @@ bb=100;      // plate width
 
 // cone+cylinder, useful for countersunk screws
 
-module ccyl(h1=10*2/3, h2=10*1/3, r1=2, ang=-45) {
+module ccyl(h1=10*2/3, h2=10*1/3, r1=2, ang=-45, fn=24) {
     ss=(r1-h2*tan(ang))/r1;
     union() {
-      linear_extrude(height=h1, scale=1)  circle(r=r1,$fn=24);
+      linear_extrude(height=h1, scale=1)  circle(r=r1,$fn=fn);
       translate([0,0,h1-0.01])
-        linear_extrude(height=h2, scale=ss) circle(r=r1, $fn=24);
+        linear_extrude(height=h2, scale=ss) circle(r=r1, $fn=fn);
       translate([0,0,h1+h2-0.02])
-        linear_extrude(height=h1, scale=1) circle(r=r1*ss, $fn=24);
+        linear_extrude(height=h1, scale=1) circle(r=r1*ss, $fn=fn);
     }
 }
 
@@ -77,6 +77,163 @@ module motorflange_holes_2D() {
 }
 
 
+// ------------------- support for standard ball bearings ----------------------
+
+
+// cylindrical fixture to snap in in a normal ball bearing
+module ballbearing_outer_cage(
+      d1=62,   // outer diameter of bearing
+      h1=16,   // height of bearing
+      h2=8,    // depth of slots
+      c=0.4,   // clearance radius, (depends also on nozzle diameter)
+      p=0.5,   // phase / chamfer at the bearing rim
+      hs=3,    // socket height, depends on excess height of counterpart our other obstacles like screw heads
+      rs=2     // socket radius
+      ) {
+      w=1.2;   // wall thickness
+      fn=192;  // face number
+      difference() {
+        // outer contour
+        union() {
+          // fit to bearing outer diameter
+          cylinder(d=d1+2*w+2*c, h=h1+2*p+hs, $fn=fn);
+        }
+        // inner contour
+        union() {
+          // socket hole
+          translate([0,0,-0.01]) cylinder(d=d1-2*rs+2*c, h=2*hs, $fn=fn);
+          // center hole
+          translate([0,0,hs-0.01]) ccyl(h1=h1-p, r1=d1/2+c, h2=2*p, ang=45, fn=fn); 
+          // slots
+          for (i = [0 : 5]) {
+            rotate( [0, 0, i*30+15] ) 
+            union() {
+              translate([0,0,2*h1+2*p+hs+w-h2]) cube([d1+10, 2*w, 2*h1], center=true);
+              translate([0,0,  h1+2*p+hs+w-h2]) rotate([0,90,0]) cylinder(d=2*w, h=d1+10, center=true, $fn=32);
+            }
+          }
+        }
+      }    
+}
+
+
+module ballbearing_inner_cage(
+      d0=30,   // inner diameter of bearing
+      h1=16,   // height of bearing
+      h2=8,    // depth of slots
+      c=0.4,   // clearance radius
+      p=0.5,   // phase / chamfer at the bearing rim
+      hs=3,    // socket height, depends on excess height of counterpart our other obstacles like screw heads
+      rs=2     // socket radius
+      ) {
+      w=1.2;   // wall thickness
+      fn=192;  // face number
+      difference() {
+        // outer contour
+        union() {
+          // socket
+          cylinder(d=d0+2*rs, h=hs, $fn=fn);
+          // fit to bearing inner diameter
+          translate ([0,0,hs]) ccyl(h1=h1-p, r1=d0/2-c, h2=2*p, ang=-45, fn=fn);
+        }
+        translate ([0,0,hs])
+        union() {
+          // cut on top 
+          translate([0,0, h1+2*p]) cylinder(d=d0+10, h=h1+1, $fn=24);
+          // center hole
+          // translate([0,0,-0.1]) ccyl(h1=h1-p+0.7*w, r1=d0/2-c-w, h2=2*p, ang=-45, fn=fn); 
+          translate([0,0,-hs-1]) cylinder(d=d0-2*c-2*w, h=2*h1, $fn=fn);
+          // slots
+          for (i = [0 : 2]) {
+            rotate( [0, 0, i*120] ) 
+            union() {
+              translate([0,0,2*h1+2*p-h2]) cube([d0+10, 2*w, 2*h1], center=true);
+              translate([0,0,  h1+2*p-h2]) rotate([0,90,0]) cylinder(d=2*w, h=d0+10, center=true, $fn=32);
+            }
+          }
+        }
+      }    
+}
+
+
+// Lagerflansch
+module ballbearing_flange(
+      d1=48,     // inner diameter of flange
+      d2=74,     // circle for mounting holes
+      d3=86,     // outer diameter of flange
+      hf=2,      // height of flange
+      ) {
+      h0=0.4;    // cylindrical socket height
+      difference() {
+        // outer contour
+        union() {
+          translate([0, 0, 0 ]) cylinder(d1=d3, d2=d3,            h=h0,    $fn=96);
+          translate([0, 0, h0]) cylinder(d1=d3, d2=d3-2*(hf-h0), h=hf-h0, $fn=96);
+        }
+        // holes
+        union() {
+          // center hole
+          cylinder(d=d1, h=4*hf, center=true, $fn=96);
+          // 6 mounting holes
+          for (i = [0 : 5]) {
+            rotate( [0, 0, i*60 +30] ) 
+            translate([d2/2,0,-0.01])
+            ccyl(h1=hf-0.2);
+          }
+        }
+      }
+}
+
+// snap in frame
+module ballbearing_outerA(
+      do=62,   // outer diameter of bearing
+      h1=16,   // height of bearing
+      p=0.5,   // phase / chamfer at the bearing rim
+      rf=10,   // radius of flange
+      hf=1.2,   // height of flange  - need to make it quite thin to prevent warping on my printer ...
+      hs=3,    // socket height, depends on excess height of counterpart our other obstacles like screw heads
+      rs=2,    // socket radius
+      dm=74    // diameter of mounting hole positions, recommended: dm=do+rf+rs
+      ) {
+      union() {
+        ballbearing_outer_cage(d1=do, h1=h1-p, hs=hs+hf, p=p);         // make h1 a bit smaller for tight fit
+        ballbearing_flange(d1=do, d2=dm, d3=do+2*rf+2*rs, hf=hf);
+      }
+}
+
+module ballbearing_innerA(
+      di=30,   // inner diameter of bearing
+      h1=16,   // height of bearing
+      p=0.5,   // phase / chamfer at the bearing rim
+      rf=10,   // radius of flange
+      hf=1.2,  // height of flange  - need to make it quite thin to prevent warping on my printer ...
+      hs=3,    // socket height, depends on excess height of counterpart our other obstacles like screw heads
+      rs=2,    // socket radius
+      dm=42    // diameter of mounting hole positions, recommended: dm=di+rf+rs
+      ) {
+      fn=192;  // face number
+      union() {
+        ballbearing_inner_cage(d0=di, h1=h1-p, p=p, hs=hs+hf, rs=rs);  // make h1 a bit smaller for tight fit
+        ballbearing_flange(d1=di, d2=dm, d3=di+2*rf+2*rs, hf=hf);
+      }
+}
+
+
+// Ueberwurfgehaeuse
+module ballbearing_outerB(
+      do=62,   // outer diameter of bearing
+      h1=16,   // height of bearing
+      p=0.5,   // phase / chamfer at the bearing rim
+      hf=1.2,  // height of flange  - need to make it quite thin to prevent warping on my printer ...
+      rf=12,   // radius of flange
+      dm=74    // diameter of mounting hole positions, recommended: dm=do+rf
+      ) {
+      union() {
+        ballbearing_outer_cage(d1=do, h1=h1, h2=-1, p=p, hs=0, rs=0);
+        ballbearing_flange(d1=do+1, d2=dm, d3=do+2*rf, hf=hf);
+      }
+}
+
 // ------------------- the main parts ---------------------------------
 
 // the main herringbone gear which is also the top mounting platform
@@ -98,7 +255,7 @@ module turntable_topA() {
       }
 }
 
-// the bottom mounting plate with siffening ribs
+// the bottom mounting plate with stiffening ribs
 module turntable_botB() {
       gw=9;   // gearwidth
       dd=2;   // plate thickness
@@ -434,10 +591,16 @@ module fixtureH() {
 
 //herringbone_gear(modul=2, tooth_number=47, width=9, bore=45, helix_angle=22.5, optimized=true);
 
+//----------------
 
-//---------------- Instances ---------------------
 //bearingflange_contour_2D();
 //bearingflange_holes_2D();
+
+//ballbearing_outer_cage();
+//ballbearing_flange();
+//ballbearing_inner_cage();
+
+//---------------- Instances ---------------------
 //mountA();
 //mountB();
 //mirror([1,0,0]) mountB();
@@ -446,7 +609,7 @@ module fixtureH() {
 //mirror([1,0,0]) mountC();
 
 //drive_gear();
-turntable_topA();
+//turntable_topA();
 
 //turntable_botB();
 //turntable_botC();
@@ -455,3 +618,8 @@ turntable_topA();
 //fixtureB();
 //fixtureD();
 //fixtureH();
+
+ballbearing_outerA();
+//ballbearing_outerB();
+//ballbearing_innerA();
+
