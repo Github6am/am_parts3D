@@ -64,7 +64,7 @@ module bearingflange_holes_2D(d1=3.5, dcenter=45, db=56, nf=8, centerhole=true) 
       // db    // borehole distance
       // nf    // number of faces for screwholes
       union() {
-        if(centerhole) circle(d=dcenter, $fn=36);
+        if(centerhole) circle(d=dcenter, $fn=192);
         translate([  db/2,  db/2]) circle(d=d1, $fn=nf);
         translate([ -db/2,  db/2]) circle(d=d1, $fn=nf);
         translate([  db/2, -db/2]) circle(d=d1, $fn=nf);
@@ -88,10 +88,10 @@ module ballbearing_outer_cage(
       c=0.4,   // clearance radius, (depends also on nozzle diameter)
       p=0.5,   // phase / chamfer at the bearing rim
       hs=3,    // socket height, depends on excess height of counterpart our other obstacles like screw heads
-      rs=2     // socket radius
+      rs=2,    // socket radius
+      w=1.2,   // wall thickness
+      fn=192,  // face number
       ) {
-      w=1.2;   // wall thickness
-      fn=192;  // face number
       difference() {
         // outer contour
         union() {
@@ -124,9 +124,9 @@ module ballbearing_inner_cage(
       c=0.4,   // clearance radius
       p=0.5,   // phase / chamfer at the bearing rim
       hs=3,    // socket height, depends on excess height of counterpart our other obstacles like screw heads
-      rs=2     // socket radius
+      rs=2,     // socket radius
+      w=1.2,   // wall thickness
       ) {
-      w=1.2;   // wall thickness
       fn=192;  // face number
       difference() {
         // outer contour
@@ -255,6 +255,30 @@ module turntable_topA() {
       }
 }
 
+// the main herringbone gear which is also the top mounting platform, here with ball bearing attachment
+module turntable_topE(
+      di=30,   // inner diameter of bearing
+      h1=16,   // height of bearing
+      ) {
+      gw=9;   // gearwidth
+      dm=65;  // distance of square-aligned mounting holes
+      dm1=dm*sqrt(1-1/sqrt(2));  // 35.2mm distance of octagon-aligned mounting holes
+      dm3=dm*sqrt(1+1/sqrt(2));  // 84.9mm distance of octagon-aligned mounting holes
+      dc=di-3.2;  // center hole
+      difference() {
+        union() {
+          herringbone_gear(modul=2, tooth_number=58, width=gw, bore=dc, helix_angle=22.5, optimized=false);
+          translate([ 0, 0,  gw]) ballbearing_inner_cage(d0=di, h1=h1-0.6, hs=4, w=1.6, c=0.3);  // make h1 a bit smaller for tight fit
+        }
+        union() {
+          translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0,  0.0]) bearingflange_holes_2D(centerhole=false);
+          translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0, 45.0]) bearingflange_holes_2D(d1=10, nf=24, centerhole=false);
+          translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0, 22.5]) bearingflange_holes_2D(db=dm, d1=3.5,centerhole=false);
+          translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0,-22.5]) bearingflange_holes_2D(db=dm, d1=3.5,centerhole=false);
+        }
+      }
+}
+
 // the bottom mounting plate with stiffening ribs
 module turntable_botB() {
       gw=9;   // gearwidth
@@ -298,12 +322,12 @@ module turntable_botB() {
 }
 
 // massive variant, if little infill is used, this may print faster and cheaper
-module turntable_botC() {
-      gw=9;   // gearwidth
-      dd=5;   // plate thickness
-      mw=2;   // wall thickness at motor
-      mm=42;  // motor width
-      
+module turntable_botC(
+      gw=9,   // gearwidth
+      dd=5,   // plate thickness
+      mw=2,   // wall thickness at motor
+      mm=42,  // motor width
+      ) {
       difference() {
         union() {
           translate([ 25, 0,  dd/2]) cube([aa, bb, dd], center=true);
@@ -324,13 +348,61 @@ module turntable_botC() {
 	  translate([ 25 + mm-4, 0, mw+10/2]) cube([mm+16, mm+clr, 10], center=true);
 
 	  // cut corners diagonally to prevent warping
-	  translate([ 25 +(aa)/2, +(bb)/2, mw/2+10/2]) rotate([0,0,-45]) cube([40, 40, 10], center=true);
-	  translate([ 25 -(aa)/2, +(bb)/2, mw/2+10/2]) rotate([0,0,-45]) cube([40, 40, 10], center=true);
-	  translate([ 25 +(aa)/2, -(bb)/2, mw/2+10/2]) rotate([0,0,-45]) cube([40, 40, 10], center=true);
-	  translate([ 25 -(aa)/2, -(bb)/2, mw/2+10/2]) rotate([0,0,-45]) cube([40, 40, 10], center=true);
+	  translate([ 25 +(aa)/2, +(bb)/2, mw/2+15/2]) rotate([0,0,-45]) cube([40, 40, 15], center=true);
+	  translate([ 25 -(aa)/2, +(bb)/2, mw/2+15/2]) rotate([0,0,-45]) cube([40, 40, 15], center=true);
+	  translate([ 25 +(aa)/2, -(bb)/2, mw/2+15/2]) rotate([0,0,-45]) cube([40, 40, 15], center=true);
+	  translate([ 25 -(aa)/2, -(bb)/2, mw/2+15/2]) rotate([0,0,-45]) cube([40, 40, 15], center=true);
+
+          // Koernung an den Stirnseiten
+          translate([25 +(aa)/2+1, 0,  dd/2]) rotate( [  0,-90, 0]) cylinder(d1=8, d2=0, h=4, $fn=24);
+          translate([25 -(aa)/2-1, 0,  dd/2]) rotate( [  0, 90, 0]) cylinder(d1=8, d2=0, h=4, $fn=24);
+          translate([ 0,   +(bb)/2+1,  dd/2]) rotate( [ 90,  0, 0]) cylinder(d1=8, d2=0, h=4, $fn=24);
+          translate([ 0,   -(bb)/2-1,  dd/2]) rotate( [-90,  0, 0]) cylinder(d1=8, d2=0, h=4, $fn=24);
         }
       }
 }
+
+// attach tilting possibility
+module turntable_botD() {
+    dm=80;   // distance of mount points
+    dz=0;    // vertical offset of mount points
+    union() {
+      turntable_botC();
+      // 4 mounts
+      translate([ 25 -dm/2, -bb/2, dz]) rotate([0,0, 90]) mountA();
+      translate([ 25 +dm/2, -bb/2, dz]) rotate([0,0, 90]) mountA();
+      translate([ 25 -dm/2, +bb/2, dz]) rotate([0,0,-90]) mountA();
+      translate([ 25 +dm/2, +bb/2, dz]) rotate([0,0,-90]) mountA();
+      
+    }
+}
+
+// with ball bearing fit, with tilting possibility
+module turntable_botE(
+    d1=62,   // outer diameter of bearing
+    h1=16,   // height of bearing
+    c=0.4,   // clearance radius
+    dp=8,    // plate thickness
+    ) {
+    dm=80;   // distance of mount points
+    dz=dp-5;
+    if( dz < 0) {dz=0;}
+    difference() {
+      union() {
+        turntable_botC(dd=dp);
+        // 4 mounts
+        translate([ 25 -dm/2, -bb/2, dz]) rotate([0,0, 90]) mountA();
+        translate([ 25 +dm/2, -bb/2, dz]) rotate([0,0, 90]) mountA();
+        translate([ 25 -dm/2, +bb/2, dz]) rotate([0,0,-90]) mountA();
+        translate([ 25 +dm/2, +bb/2, dz]) rotate([0,0,-90]) mountA();
+        ballbearing_outer_cage(d1=d1, h1=h1, h2=0, p=1, c=c, w=2.5);
+      }
+      union() {
+        translate([ 0, 0, -1]) cylinder(d=d1+2*c, h=dp+2, $fn=192);
+      }
+    }
+}
+
 
 // the small gear
 module drive_gear(nt=9) {
@@ -439,21 +511,6 @@ module mountC(dbore1=2.2, dbore2=4) {
           translate([  x2+20,   y2/2,-1]) ccyl(h1=z3-3+1, h2=2, r1=dbore2/2 );
         }
       }
-}
-
-// attach tilting possibility
-module turntable_botD() {
-    dd=80;   // distance of mount points
-    
-    union() {
-      turntable_botC();
-      // 4 mounts
-      translate([ 25 -dd/2, -bb/2, 0]) rotate([0,0,90]) mountA();
-      translate([ 25 +dd/2, -bb/2, 0]) rotate([0,0,90]) mountA();
-      translate([ 25 -dd/2, +bb/2, 0]) rotate([0,0,-90]) mountA();
-      translate([ 25 +dd/2, +bb/2, 0]) rotate([0,0,-90]) mountA();
-      
-    }
 }
 
 
@@ -610,16 +667,18 @@ module fixtureH() {
 
 //drive_gear();
 //turntable_topA();
+turntable_topE();
 
 //turntable_botB();
 //turntable_botC();
 //turntable_botD();
+//turntable_botE();
 
 //fixtureB();
 //fixtureD();
 //fixtureH();
 
-ballbearing_outerA();
+//ballbearing_outerA();
 //ballbearing_outerB();
 //ballbearing_innerA();
 
