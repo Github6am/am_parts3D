@@ -73,7 +73,8 @@ module bearingflange_holes_2D(d1=3.5, dcenter=45, db=56, nf=8, centerhole=true) 
 }
 
 module motorflange_holes_2D() {
-      bearingflange_holes_2D(d1=3.5, dcenter=22, db=31, nf=12);
+      c=0.2;  // clearance
+      bearingflange_holes_2D(d1=3.5, dcenter=22+c, db=31, nf=12);
 }
 
 
@@ -85,7 +86,7 @@ module ballbearing_outer_cage(
       d1=62,   // outer diameter of bearing
       h1=16,   // height of bearing
       h2=8,    // depth of slots
-      c=0.4,   // clearance radius, (depends also on nozzle diameter)
+      c=0.2,   // clearance radius, (depends also on nozzle diameter)
       p=0.5,   // phase / chamfer at the bearing rim
       hs=3,    // socket height, depends on excess height of counterpart our other obstacles like screw heads
       rs=2,    // socket radius
@@ -121,7 +122,7 @@ module ballbearing_inner_cage(
       d0=30,   // inner diameter of bearing
       h1=16,   // height of bearing
       h2=8,    // depth of slots
-      c=0.4,   // clearance radius
+      c=0.2,   // clearance radius
       p=0.5,   // phase / chamfer at the bearing rim
       hs=3,    // socket height, depends on excess height of counterpart our other obstacles like screw heads
       rs=2,     // socket radius
@@ -259,6 +260,8 @@ module turntable_topA() {
 module turntable_topE(
       di=30,   // inner diameter of bearing
       h1=16,   // height of bearing
+      hs=4,    // socket height, depends on excess height of counterpart our other obstacles like screw heads
+      c=0.2,   // clearance radius, (depends also on nozzle diameter)
       ) {
       gw=9;   // gearwidth
       dm=65;  // distance of square-aligned mounting holes
@@ -268,7 +271,7 @@ module turntable_topE(
       difference() {
         union() {
           herringbone_gear(modul=2, tooth_number=58, width=gw, bore=dc, helix_angle=22.5, optimized=false);
-          translate([ 0, 0,  gw]) ballbearing_inner_cage(d0=di, h1=h1-0.6, hs=4, w=1.6, c=0.3);  // make h1 a bit smaller for tight fit
+          translate([ 0, 0,  gw]) ballbearing_inner_cage(d0=di, h1=h1-0.6, hs=hs, w=1.6, c=c);  // make h1 a bit smaller for tight fit
         }
         union() {
           translate([ 0, 0,  -1]) linear_extrude(height = 12) rotate([0,0,  0.0]) bearingflange_holes_2D(centerhole=false);
@@ -381,7 +384,7 @@ module turntable_botD() {
 module turntable_botE(
     d1=62,   // outer diameter of bearing
     h1=16,   // height of bearing
-    c=0.4,   // clearance radius
+    c=0.2,   // clearance radius
     dp=8,    // plate thickness
     ) {
     dm=80;   // distance of mount points
@@ -395,7 +398,7 @@ module turntable_botE(
         translate([ 25 +dm/2, -bb/2, dz]) rotate([0,0, 90]) mountA();
         translate([ 25 -dm/2, +bb/2, dz]) rotate([0,0,-90]) mountA();
         translate([ 25 +dm/2, +bb/2, dz]) rotate([0,0,-90]) mountA();
-        ballbearing_outer_cage(d1=d1, h1=h1, h2=0, p=1, c=c, w=2.5);
+        ballbearing_outer_cage(d1=d1, h1=h1, h2=-1, hs=0, p=1, c=c, w=2.5);
       }
       union() {
         translate([ 0, 0, -1]) cylinder(d=d1+2*c, h=dp+2, $fn=192);
@@ -404,7 +407,7 @@ module turntable_botE(
 }
 
 
-// the small gear
+// the small motor gear
 module drive_gear(nt=9) {
   herringbone_gear(modul=2, tooth_number=nt, width=8, bore=8.6, helix_angle=22.5);
 }
@@ -649,7 +652,7 @@ module fixtureH() {
 //herringbone_gear(modul=2, tooth_number=47, width=9, bore=45, helix_angle=22.5, optimized=true);
 
 //----------------
-
+//motorflange_holes_2D();
 //bearingflange_contour_2D();
 //bearingflange_holes_2D();
 
@@ -667,12 +670,12 @@ module fixtureH() {
 
 //drive_gear();
 //turntable_topA();
-turntable_topE();
+//turntable_topE();
 
 //turntable_botB();
 //turntable_botC();
 //turntable_botD();
-//turntable_botE();
+turntable_botE();
 
 //fixtureB();
 //fixtureD();
