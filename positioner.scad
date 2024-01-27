@@ -516,7 +516,33 @@ module mountC(dbore1=2.2, dbore2=4) {
       }
 }
 
-
+// mount for a mirror, https://www.pollin.de/p/lifetime-kosmetikspiegel-oe-140-mm-692095
+module mountD(
+      di=10,       // inner diameter of mirror mount
+      hh=20,       // height of mirror mount
+      ph=22.5,     // tilt angle
+      dbore1=2.2, 
+      dbore2=4
+      ) {
+      x3=20;       // foot length
+      y3=12;       // foot width
+      z3=8;        // foot height
+      y0=2;        // offset of borehole from cylinder 
+      difference() {
+        union() {
+          rotate([ph,0, 0]) 
+          translate ([0, 0, 0]) cylinder(d=di+4, h=2*hh, center=true, $fn=48);
+          translate ([x3/2, y0, 0]) cube( [x3,y3,2*z3], center=true);
+        } 
+        union() {
+          rotate([ph,0, 0]) 
+          translate ([0,0, di/2]) cylinder(d=di,   h=4*hh, center=true, $fn=48);
+          translate ([0, 0, -2*hh]) cube( [4*x3,4*y3,4*hh], center=true);
+          // countersunk screw hole
+          translate([  x3-6,  y0, -1]) ccyl(h1=z3-3+1, h2=2, r1=dbore2/2 );
+        }
+      } 
+}
 
 //---------------- Auxiliary parts ---------------------
 use <am_dovetail.scad>
@@ -665,6 +691,7 @@ module fixtureH() {
 //mountB();
 //mirror([1,0,0]) mountB();
 //mountC();
+mountD();
 //rotate([-90,0,0]) mountC();
 //mirror([1,0,0]) mountC();
 
@@ -675,7 +702,7 @@ module fixtureH() {
 //turntable_botB();
 //turntable_botC();
 //turntable_botD();
-turntable_botE();
+//turntable_botE();
 
 //fixtureB();
 //fixtureD();
