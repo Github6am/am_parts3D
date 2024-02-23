@@ -17,7 +17,7 @@ function genShape2D( outFileName, shape, par )
 
 
 pkg load signal            % need rms function
-close all
+%close all
 
 if ~exist('par','var')
  par='';
@@ -84,6 +84,23 @@ switch shape
     [x,y] = meander();
     x=[x 1.01*x(end-1:-1:2)];
     y=[y 1.01*y(end-1:-1:2)];
+    xi=x;
+    yi=y;
+    hollow=0;
+
+  case {'8','winch'}       % Halb-Kontour fuer eine Seilwinde
+    if(isempty(par))
+      par=[10 10];         % halbe Breite x Tiefe
+    end
+    x=sqrt(0:0.05:1);
+    y=2*(x.^4)./(1 + x.^8) * par(2);
+    y=(0.5*(1-cos(pi*x))).^4 * par(2);
+    if 0
+      t=(0:0.05:1);
+      y=(sin(pi/2*t)).^(3) * par(2);
+      x=[0 0.5+0.5*t]*par(1);
+      y=[0 y];
+    end
     xi=x;
     yi=y;
     hollow=0;
