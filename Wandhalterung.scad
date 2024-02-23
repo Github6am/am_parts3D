@@ -11,6 +11,7 @@
 //     Kabelanschluesse der Lampe zu schieben, die fest auf
 //     dem Konus der Halterung klemmt. 
 //   - Abdeckkappe fuer eine Verteilerdose, die zu nahe an der Wand ist.
+//   - Sicherungshalter fuer einen Detleffs-Wohnwagen
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
@@ -271,7 +272,28 @@ module updoseA(
     }
 }
 
-
+//----------------------------------------------------
+// Sicherungshalter fuer Wohnwagen-Stromanschluss
+//----------------------------------------------------
+module fuseplugA(
+    d1=7.7,   // inner diameter, cut M8 screw
+    d2=12,   // outer diameter
+    h1=25,   // outer height
+    fn=12    // outer face number
+    ) {
+    dnut=d2/cos(180/fn);
+    difference() {
+      cylinder(d=dnut, h=h1, $fn=fn);
+      translate([0,0,-0.01])
+      union() {
+         cylinder(d=5,  h=h1-3, $fn=24);
+         cylinder(d=6,  h=8,    $fn=24);
+         cylinder(d=d1, h=5,    $fn=24);
+         // slot for Screwdriver
+         translate([0,0, h1+2-1.6]) cube([2,2*d2,4], center=true);  
+      }  
+    }
+}
 
 //------------- Instances --------------------
 // test
@@ -285,4 +307,5 @@ module updoseA(
 //Lampenfusshalterung_C();
 //distribution_box_cover();
 
-updoseA();
+//updoseA();
+fuseplugA();
