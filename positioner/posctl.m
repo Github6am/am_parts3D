@@ -84,14 +84,17 @@ if isequal(cmd, 'manual')
   while ~isempty(k=kbhit(1))
     % clear keyboard buffer
   end
+  t=clock;
   k='0';
   scale=1;      % scale can be modified in 1-2-5-10 steps
   s125=10^(1/3);
   sc=scale;
   while k ~= 'q'
     if ~isequal(k, 27 ) && ~isequal(k, '[')
+      t=clock;
+      ts=datestr(t,31);
       msg=sprintf('G1 F%d X%d Y%d\n', v, new_azel(1), new_azel(2));
-      printf("azel = [ %6.2f %6.2f ]; scale = %d;  # %s #  %s", new_azel(1), new_azel(2), scale, k, msg);
+      printf("ts=\'%s\'; azel = [ %6.2f %6.2f ]; scale = %d;  # %s #  %s", ts, new_azel(1), new_azel(2), scale, k, msg);
       n = srl_write( com, msg);
       srl_flush(com);
     end
@@ -101,6 +104,10 @@ if isequal(cmd, 'manual')
       case '-', sc = sc/s125;
       case '0', new_azel = [ 0 0 ];
       case '5', new_azel = azel;
+      case '*', new_azel = [new_azel(1)+90 new_azel(2)];  % az quadrant step
+      case '/', new_azel = [new_azel(1)-90 new_azel(2)];  % az quadrant step
+      case '.', new_azel = [new_azel(1) new_azel(2)+45];  % elevation step
+      case ',', new_azel = [new_azel(1) new_azel(2)-45];  % elevation step
       case '6', new_azel = new_azel + [ 1 0 ]*scale;   % right
       case '4', new_azel = new_azel - [ 1 0 ]*scale;   % left
       case '8', new_azel = new_azel + [ 0 1 ]*scale;   % up
