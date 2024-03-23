@@ -8,14 +8,17 @@
 %
 % GNU octave script.
 %
+% Background:
+%   - naming conventions: 
+%     p,s,m are [az,el] pairs for sun, positioner, mirror direction
+%     P,S,M are associated vectors/matrices in nwu horizontal coordinates
+%     t denotes time
+%
 
   % settings
-  v=1200;                 % positioner speed
   cue=1;                  % cue>1: simulation mode: time step in s between updates
   t0=6*3600 +77*24*3600;  % start time in simulation mode: 6:00 at eqinox
   urs=30;                 % positioner update rate in s
-  abias=90;               % az bias angle to avoid negative positioner angles.
-  ebias=90;               % el bias angle to avoid negative positioner angles.
   tfmt="%Y-%m-%d %T";
   if(~exist('track','var'))
     track=0.5;   % if set to 0.5, the mirror image shall stay at the same position.
@@ -28,20 +31,27 @@
     com = serial('/dev/ttyACM0', 115200, 5);
     pause(10);  % wait for Marlin to reboot
   end
-  n = srl_write( com, sprintf('M84 S2\n'));   % 2s stepper timeout
-  pause(0.5);
-  
-  % move away from 0,0
-  msg=sprintf('G1 F3600 X0 Y0\nG1 F%d X%d Y%d\n', 2*v, abias, ebias);
-  printf(msg);
-  n = srl_write( com, msg);
+
+  posctl( com, 'init');
   printf( 'adjust the positioner manually to the desired pointing direction\n');
-  printf( '.. waiting 20 sec ..\n');
-  pause(20);
+  p0 = posctl(com,[ 0 0 ], 'manual');
+  %p0 = posctl(com,[  88.40  37.40 ], 'manual');
+  printf( '\n');
+  t0 = time();
+  s0 = sun(gmtime(t0));
+
+  % express as cartesian vectors
+  P0 = nwu(p0);  
+  S0 = nwu(s0);
+  
+  Px = P0(:,1);
+  H0 = eye(3) - 2*Px*Px'/norm(Px); % Householder-Matrix,  
+  M0 = -H0 * S0;                   % position of mirror image, M = P <P,S> + (P-S)
+  
+
   if cue<=1
     t0=time();
   end
-  azel0=sun(gmtime(t0));   % remember current start position
   t2=t0;
   for i = 1:1200
     if cue==1   % realtime mode
@@ -54,14 +64,17 @@
       pause(urs);
     end
     gmt=gmtime(t2);
-    azel=sun(gmt);              % current position
-    d=(azel-azel0)*track;
-    x=d(1)+abias;
-    y=d(2)+ebias;
-    x=mod(x,360);
-    msg=sprintf('G1 F%d X%d Y%d\n', v, x, y);
-    printf( '%4d  %s [%6.2f %6.2f] -> [%6.2f %6.2f]   %s', i, strftime(tfmt,gmt), azel(1),azel(2), x, y, msg);
-    n = srl_write( com, msg);
+    s_new = sun(gmt);              % current topocentric sun position
+    S_new = nwu(s_new);
+    P_new = M0 + S_new;             % P is in the middle between M and S
+    p_new = nwu2azel(P_new);
+    
+    [p, msg] = posctl(com, p_new, 'goto');
+    printf( '%4d  %s [%6.2f %6.2f] -> [%6.2f %6.2f]   %s', i, strftime(tfmt,gmt), s_new(1),s_new(2), p(1), p(2), msg);
+    
+    % msg=sprintf('G1 F%d X%d Y%d\n', v, x, y);
+    % printf( '%4d  %s [%6.2f %6.2f] -> [%6.2f %6.2f]   %s', i, strftime(tfmt,gmt), azel(1),azel(2), x, y, msg);
+    % n = srl_write( com, msg);
     pause(urs*0.8/cue);
   end
 

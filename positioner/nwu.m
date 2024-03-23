@@ -1,6 +1,7 @@
 function  R = nwu( azel )
+% function  R = nwu( azel )
 %
-% for a given direction (az, el) in degrees calculate
+% for a given direction [az, el] in degrees calculate
 % the according transformation matrix R
 % in North-West-Up horizontal coordinates
 % 
@@ -9,7 +10,13 @@ function  R = nwu( azel )
 %   R = nwu(azel)
 %
 % Background:
-%   https://de.wikipedia.org/wiki/Eulersche_Winkel  
+%   - The direction is identified with the ex-Vector of the 
+%     associated [ex ; ey ; ez ] coordinate system.
+%   - https://de.wikipedia.org/wiki/Eulersche_Winkel
+%     https://de.wikipedia.org/wiki/Householdertransformation
+%
+% See also:
+%   nwu2azel  
 
   az=azel(1)*pi/180;
   c=cos(az); s=sin(az); 

@@ -1,22 +1,29 @@
-function new_azel = posctl(com, azel, cmd)
+function [new_azel, msg] = posctl(com, azel, cmd)
 %
-% new_azel = posctl(com, azel, cmd)
+% [new_azel, msg] = posctl(com, azel, cmd)
 %   positioner control, move azimut and elevation (in deg)
 %
 % Usage examples:
+%   pkg load instrument-control
 %   com = serial('/dev/ttyACM0', 115200, 5);
 %   posctl(com, 'home')                % adjust homing position
-%   posctl(com, [30   30])
-%   posctl(com, [45   90], 'goto')
+%   posctl(com, [ 30  30])
+%   posctl(com, [ 45  90], 'goto')
 %   posctl(com, [180   0], 'manual')   % control by keyboard
 %
-%
-% azel: 2x1 vector azimuth, elevation in deg
+% Background:
+%   - Arguments:
+%     com  -  a serial object from the instrument-control package
+%     azel -  1x2 vector azimuth, elevation in deg
+%     cmd  - 'goto' (default), 'init', 'home', 'manual'
+%   - manual control by numeric keys or cursor keys. 
+%     '+/-' adjusts step size,  'q' quits.
 
-needinit=0;
-localcom=0;
+localcom=0;  % by default, a global com object is already there
 
 v=3600;      % default positioner speed
+
+flp=[ 1 -1 1 ];  % flip axis direction
 
 if ~exist('cmd','var')  
   cmd='goto';
@@ -55,20 +62,20 @@ end
 
 if isequal(cmd, 'goto')
   if length(azel)==1
-    msg=sprintf('G1 F%d X%d\n', v, azel(1));
+    msg=sprintf('G1 F%d X%d\n', v, azel(1)*flp(1));
   elseif length(azel)==2
-    msg=sprintf('G1 F%d X%d Y%d\n', v, azel(1), azel(2));
+    msg=sprintf('G1 F%d X%d Y%d\n', v, azel(1)*flp(1), azel(2)*flp(2));
   elseif length(azel)==3
-    msg=sprintf('G1 F%d X%d Y%d Z%d\n', v, azel(1), azel(2), azel(3));
+    msg=sprintf('G1 F%d X%d Y%d Z%d\n', v, azel(1)*flp(1), azel(2)*flp(2), azel(3)*flp(3));
   end
-  printf(msg);
+  % printf(msg);
   n = srl_write( com, msg);
   srl_flush(com);
   new_azel=azel;
 end
 
 if isequal(cmd, 'home')
-  msg=sprintf('M84 S2\nG1 F%d X%d Y%d Z0\n', v, azel(1), azel(2));
+  msg=sprintf('M84 S2\nG1 F%d X%d Y%d Z0\n', v, azel(1)*flp(1), azel(2)*flp(2));
   printf(msg);
   n = srl_write( com, msg);
   srl_flush(com);
@@ -93,7 +100,7 @@ if isequal(cmd, 'manual')
     if ~isequal(k, 27 ) && ~isequal(k, '[')
       t=clock;
       ts=datestr(t,31);
-      msg=sprintf('G1 F%d X%d Y%d\n', v, new_azel(1), new_azel(2));
+      msg=sprintf('G1 F%d X%d Y%d\n', v, new_azel(1)*flp(1), new_azel(2)*flp(2));
       printf("ts=\'%s\'; azel = [ %6.2f %6.2f ]; scale = %d;  # %s #  %s", ts, new_azel(1), new_azel(2), scale, k, msg);
       n = srl_write( com, msg);
       srl_flush(com);
