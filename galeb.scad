@@ -57,7 +57,7 @@ module ccyl(h1=wall*2/3, h2=wall*1/3, r1=rrim, ang=45) {
 // sequence of n conical sections
 module conesN(n=3, hh=[0, 1, 8, 10], dd=[5.5, 5.8, 6.2, 5.0], fn=30) {
     for (i = [0 : n-1]) {
-      translate([0,0, hh[i]])
+      translate([0,0, hh[i] -i*0.005])
         cylinder(d1=dd[i], d2=dd[i+1], h = hh[i+1]-hh[i], $fn=fn);
     }
 }
@@ -529,6 +529,36 @@ module vcase_bottom( lx=150, ly=34, lz=25,    // box outer dimensions
     }
 }
 
+//-------------------------------------------------------------------------
+// SUP pump adapter for Capelli Dinghy
+//-------------------------------------------------------------------------
+
+module adapter_sup2dinghy( 
+    dii=21.5,   // inlet inner diameter
+    c=0.3,    // clearance
+    ) {
+    dq=6-c;   // Querstange diameter
+    hq=10-0.1;// Querstange offset from inlet rim
+    h1=20;    // SUP inlet height
+    h2=4;     // center part height
+    h3=16;    // cone  height
+    d2=22;    // dinghy cone max diameter
+    d3=20;    // dinghy cone min diameter
+    ff=1;     // chamfer (de: Fase)
+    w=3;      // wall thickness
+    u=h2/3;   // dirty: Knickpunkt nach oben oder unten verschieben, dass Wandstaerke ~konstant
+    union() {
+      difference() {
+        conesN(n=4, hh=[0,          ff,      h1+u,  h1+h2,     h1+h2+h3 ], 
+                    dd=[dii+2*w-ff, dii+2*w, dii+2*w, 22,        20], fn=96);
+        conesN(n=4, hh=[-0.01,          ff,   h1,      h1+h2-u,  h1+h2+h3+0.1  ], 
+                    dd=[dii+1.4*ff,     dii+c,   dii+c,   22-2*w,    20-1.5*w,     ], fn=96);
+      }
+      translate([0,(dii+w)/2, hq]) rotate([90,0,0]) cylinder(d=dq, h=dii+w, $fn=48);
+    }
+}
+
+
 //------------- Instances --------------------
 
 //translate([0,-40,0]) ccyl();
@@ -553,5 +583,9 @@ module vcase_bottom( lx=150, ly=34, lz=25,    // box outer dimensions
 //galeb_rod_connector();
 //galeb_rod_polisher();
 
-vcase();
+//vcase();
 //vcase_bottom();
+
+//difference() {
+adapter_sup2dinghy();
+//translate([0,0,-0.1]) cube([50,50,50]);}
