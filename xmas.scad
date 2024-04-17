@@ -92,3 +92,6 @@ star( h=1.0, w=1.2, a=50, b=19,   n=5, m=5, rot=0.5,   scl=0.618, zinc=0.2);
 //star( h=1.0, w=1.2, a=50, b=10,   n=6, m=3, rot=0.5,   scl=0.618, zinc=0.2);
 //star( h=1.0, w=2.2, a=50, b=25,   n=3, m=2, rot=0.5,   scl=1.0,   zinc=0.0); // davidstern
 //star( h=1.0, w=1.2, a=50, b=31.7, n=8, m=7, rot=0.18,  scl=0.8,   zinc=0.2);
+
+//star( h=1.0, w=1.2, a=80, b=12,   n=3, m=5, rot=4/12,   scl=0.7, zinc=0.2);
+//star( h=1.0, w=1.2, a=80, b=12,   n=4, m=6, rot=2/5,   scl=0.8, zinc=0.2);

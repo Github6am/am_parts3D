@@ -36,7 +36,10 @@ function Gcode = play3D( com, song, preamble, key)
   % preamble: set stepper release, move axes to 180, 90, 0 deg, dwell 2s
   if exist('preamble','var') && ~isempty(preamble) && preamble>0
     Gcode=sprintf('M84 S5\nG1 F12000 X180 Y0\nG4 S2\nG1 F12000 X90 Y0\nG4 S2\nG1 F12000 X0 Y360\nG1 F11000 X0 Y0\nG4 S4\n');
+    %Gcode=sprintf('M84 S5\nG1 F12000 X180 Y0\nG4 S2\nG1 F12000 X90 Y0\nG4 S2\nG1 F12000 X0 Y360\nG1 F12000 X90 Z360\nG1 F11000 X0 Y0 Z0\nG4 S4\n');
     tx( com, Gcode, 12);
+  else
+    preamble=0;
   end
   
   if ~exist('key','var')
@@ -111,13 +114,22 @@ function Gcode = play3D( com, song, preamble, key)
   sgn=1;   % use for oscillating directions
   
   for n=1:length(notes)
-    i=notes(n) + key-1;
+    i=notes(1,n) + key-1;
     f=720*2^((i)/12);   % das gibt ein C fuer i=1
     t=durat(n);
     x=sgn*f/100*t+x0;   % new positioner position
     v=f;                % velocity of movement creates sound freqency
     
-    msg=sprintf('G1 F%d X%d Y%d\n',v,x,x/1.0);
+    y=x;
+    z=0;   % default: move only 2 axes
+    if( preamble==2)
+      z=x;
+    end
+    if( preamble==3) % test polyphony
+      y=x*1.6818;    % sext higher
+      z=x*0.5;       % octave lower
+    end
+    msg=sprintf('G1 F%d X%d Y%d Z%d\n',v, x, y, z);
     Gcode=sprintf('%s%s', Gcode, msg);   % append to return string
     printf( ['%3d  ' msg], n);   % visual console output
     tx( com, msg, 0.2);
@@ -127,7 +139,7 @@ function Gcode = play3D( com, song, preamble, key)
     sgn =- sgn;
   end
 
-  msg=sprintf('G4 S2\nG1 F10000 X0 Y0\n'); % final move to zero
+  msg=sprintf('G4 S2\nG1 F10000 X0 Y0 Z0\n'); % final move to zero
   Gcode=sprintf('%s%s', Gcode, msg);
   printf( ['%3d  ' msg], n+1);   % visual console output
   tx( com, msg, 0.1);

@@ -10,6 +10,8 @@
 //   - Lampenfusshalterung: erlaubt, eine "Glocke" ueber die
 //     Kabelanschluesse der Lampe zu schieben, die fest auf
 //     dem Konus der Halterung klemmt. 
+//   - Abdeckkappe fuer eine Verteilerdose, die zu nahe an der Wand ist.
+//   - Sicherungshalter fuer einen Detleffs-Wohnwagen
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
@@ -193,13 +195,117 @@ module Lampenfusshalterung_C(
 	}
 }
 
+//-------------------------------------------
+// Abdeckkappe fuer elektrische Verteilerdose
+//-------------------------------------------
+
+module cut_circle_2D(
+    r0=50,   // outer radius of circle
+    r1=43,   // cut away, if r1<r0
+    ) {
+    difference() {
+      circle(r=r0, $fn=180); 
+      translate([r1,-r0,0]) square(2*r0);
+    }
+}
+
+// TODO: Fase oder Aussenwand des Kreises kegelig machen?  
+module distribution_box_cover(
+    r0=45,   // outer radius of cover
+    r1=18,   // cut away, if r1<r0
+    di=9,    // inner diameter of inner rim
+    hi=7,    // height of inner rim
+    ho=4,    // height of outer rim
+    w=1.6    // wall thickness
+    ) {
+    difference() {
+      union() {
+        // bottom and outer rim
+        difference() {
+          translate([0,0,0]) linear_extrude(height=ho) cut_circle_2D( r0=r0,   r1=r1);
+          translate([0,0,w]) linear_extrude(height=ho) cut_circle_2D( r0=r0-w, r1=r1-w);
+        }
+        // inner rim
+        difference() {
+          translate([0,0,   0])   linear_extrude(height=w+hi) cut_circle_2D( r0=di/2+w, r1=r0);
+          // set 1mm lower at inner for a tight fit at the outer rim
+          translate([0,0,w+ho-1]) linear_extrude(height=hi  ) cut_circle_2D( r0=di/2,   r1=r0-w);
+        }
+      }
+      // center bore hole for countersunk Spax screw
+      translate([0,0,20]) rotate([-90,0,0])  ccyl(r1=2, h1=16, h2=4, ang=-30, h3=1);
+    }
+}
+ 
+
+//-------------------------------------------
+// Unterputzdose fuer Steckdosen
+//-------------------------------------------
+
+// Dose ohne Boden
+
+module updoseA(
+    da=69,   // standard wall bore hole diameter:68
+    db=62,   // outer diameter
+    dc=60,   // inner diameter
+    dd=71,   // Dosendistanz bei Doppeldosen, typ: 71
+    zz=32,   // height
+    ww=1.2,  // wall thickness
+    nn=4     // number of fin pairs
+    ) {
+    difference() {
+      linear_extrude(height=zz)
+      union() { 
+        circle(r=db/2, $fn=180);
+        for (i = [0 : nn-1]) {
+	  rotate([0, 0, 360.01/nn*i +8]) translate([(db+dc)/4,-ww/2]) square( [da/2 -(db+dc)/4, ww]);
+	  rotate([0, 0, 360.01/nn*i -8]) translate([(db+dc)/4,-ww/2]) square( [da/2 -(db+dc)/4, ww]);
+        }
+        if(dd > da) {
+          xsq=(dd-da)/2;
+          ysq=10.78;      // Augenschein, nicht gerechnet.
+          translate([dd/2-xsq-0.6, -ysq/2]) square( [xsq+0.6, ysq]);
+        }
+      }
+      // Innenraum
+      translate([0,0,-1]) cylinder(d=dc, h=zz+2, $fn=180); 
+    }
+}
+
+//----------------------------------------------------
+// Sicherungshalter fuer Wohnwagen-Stromanschluss
+//----------------------------------------------------
+module fuseplugA(
+    d1=7.7,   // inner diameter, cut M8 screw
+    d2=12,   // outer diameter
+    h1=25,   // outer height
+    fn=12    // outer face number
+    ) {
+    dnut=d2/cos(180/fn);
+    difference() {
+      cylinder(d=dnut, h=h1, $fn=fn);
+      translate([0,0,-0.01])
+      union() {
+         cylinder(d=5,  h=h1-3, $fn=24);
+         cylinder(d=6,  h=8,    $fn=24);
+         cylinder(d=d1, h=5,    $fn=24);
+         // slot for Screwdriver
+         translate([0,0, h1+2-1.6]) cube([2,2*d2,4], center=true);  
+      }  
+    }
+}
 
 //------------- Instances --------------------
 // test
 //rotate([90,0,0]) ccyl(r1=20, h1=10, h2=5, ang=30, h3=0);
 
+
 //Wandhalterung_A();
 //Lampenfusshalterung();
 //Lampenfusshalterung_A();
 //Lampenfusshalterung_B();
-Lampenfusshalterung_C();
+//Lampenfusshalterung_C();
+//distribution_box_cover();
+
+//updoseA();
+fuseplugA();
