@@ -17,7 +17,7 @@ function genShape2D( outFileName, shape, par )
 
 
 pkg load signal            % need rms function
-close all
+%close all
 
 if ~exist('par','var')
  par='';
@@ -78,6 +78,31 @@ switch shape
     x=[ 0     8.4    9.5  12   13.3 14.0  15  19.8  20  ]
     y=[  12   12     9.5  9.5  12   12    10  10   9.8  ]/2
     xi=0:0.1:x(end);
+    hollow=0;
+
+  case {'7','meander'}       % Halteclip fuer Gabelschluesselsatz
+    [x,y] = meander();
+    x=[x 1.01*x(end-1:-1:2)];
+    y=[y 1.01*y(end-1:-1:2)];
+    xi=x;
+    yi=y;
+    hollow=0;
+
+  case {'8','winch'}       % Halb-Kontour fuer eine Seilwinde
+    if(isempty(par))
+      par=[10 10];         % halbe Breite x Tiefe
+    end
+    x=sqrt(0:0.05:1);
+    y=2*(x.^4)./(1 + x.^8) * par(2);
+    y=(0.5*(1-cos(pi*x))).^4 * par(2);
+    if 0
+      t=(0:0.05:1);
+      y=(sin(pi/2*t)).^(3) * par(2);
+      x=[0 0.5+0.5*t]*par(1);
+      y=[0 y];
+    end
+    xi=x;
+    yi=y;
     hollow=0;
     
   otherwise
@@ -147,3 +172,23 @@ for ii=1:length(s)
 end
 fprintf(fh, ' ]);\n\n');
 fclose(fh);
+
+
+
+% Gabelschluessel-Halter-Funktion, 
+% TODO: besser als Bezier-Kurve mit Referenzpunkten, statt als parametrische Kurve?
+function [x,y] = meander()
+  f=4;
+  t=(0:0.002:1.02)+0.04;
+  scale=10*exp(t*log(2));   % geometric scaling
+  
+  x= 1.5*t - 0.06*sin(2*2*pi*f*t).*(sqrt(t)+1) + 0.02*sin(4*2*pi*f*t);
+  y= 1.01*sin(2*pi*f*t) + 0.00*sin(5*2*pi*f*t);
+  x=1.5*scale.*x;
+  y=scale.*y;
+  plot(x,y); grid on; ylim=([-1.2 1.2]); 
+
+  hold on
+  y= 1.01*sin(2*pi*f*t) + 0.04*sin(5*2*pi*f*t);
+  y=scale.*y;
+  plot(x,y); grid on; ylim=([-1.2 1.2]); 

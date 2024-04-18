@@ -25,6 +25,11 @@ module ringC(di=16) {
              polygon( points=ellipse(num=6, dx=2,dy=5));
 }
 
+module ringD(di=16, num=14) {
+         rotate_extrude($fn = 80)
+           translate([(di+2)/2, 0, 0])
+             polygon( points=ellipse(num=num, dx=6,dy=12));
+}
 
 // --------------------- Instances ------------------------------
 
@@ -34,3 +39,4 @@ color("red")   translate([30,  0, 0])  ringB();
 
 color("green") translate([15, 26, 0])  ringC();
 
+color("cyan") translate([15, 10, 0])  ringD(di=65);  // Fischfutterring do=68
