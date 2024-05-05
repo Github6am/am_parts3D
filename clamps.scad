@@ -252,6 +252,47 @@ module steckdosenleistenclip2(width=53.4, cz=20, modify=0) {
      }
 }
 
+
+//---------------- Protecting foot cap for chair ---------------------
+
+// clip on chromed steel rods of an italian design chair.
+
+module rodclip(
+     l=35,           // length of pedestal foot
+     b=15,           // width ( Breite )
+     d=10.7,         // rod diameter to snap-on
+     f=1.4           // chamfer ( Fase )
+     ) {
+     x=l-2*f;
+     y=b-2*f;
+     po=0.85;        // opening percentage, depending on elasticity of material
+     ho=d/2*sqrt(1-po^2);
+     
+     difference() {
+       // outer contour
+       minkowski() {
+         difference() {
+           union() {
+             translate([ 0, 0, y/4])                  cube([x,y,y/2], center=true);
+             translate([ 0, 0, y/2]) rotate([0,90,0]) cylinder(h=x, d=y, center=true, $fn=48);
+           }
+           union() {
+             // cut the  top
+             translate([ 0, 0, y-f+ho]) cube([x+2,y+2,y], center=true);
+           }
+         }
+         octaeder(r=f);  // chamfer
+       }
+       // cut center gap/hole
+       union() {
+         translate([ 0, 0, y/2]) rotate([0,90,0]) cylinder(h=l+2, d=d, center=true, $fn=48);
+         //translate([ 0, 0, y]) cube([x+4,d*po,y], center=true);
+       }
+     }
+}
+
+
+
 //---------------- Book stand, Standfuss fuer Leitz-Order ---------------------
 
 module pedestalshape2D(
@@ -460,4 +501,5 @@ module starwheel4(r1=wz_r1) {     // outer rim segments to click into starwheel2
 //pedestalA();
 
 //clampshape2half();
-steckdosenleistenclip2(cz=20);
+//steckdosenleistenclip2(cz=20);
+rotate([0,90,0]) rodclip();
