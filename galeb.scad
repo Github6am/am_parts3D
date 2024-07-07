@@ -534,26 +534,33 @@ module vcase_bottom( lx=150, ly=34, lz=25,    // box outer dimensions
 //-------------------------------------------------------------------------
 
 module adapter_sup2dinghy( 
-    dii=21.5,   // inlet inner diameter
+    dii=22.0, // inlet inner diameter
+    d3=0,     // outlet cone min diameter. if zero, we assume a cone of 1/10
+    h3=14,    // outlet cone height
+    w3=2,     // wall thickness at outlet
     c=0.3,    // clearance
     ) {
     dq=6-c;   // Querstange diameter
-    hq=10-0.1;// Querstange offset from inlet rim
+    hq=10-0.4;// Querstange offset from inlet rim
     h1=20;    // SUP inlet height
     h2=4;     // center part height
-    h3=16;    // cone  height
-    d2=22;    // dinghy cone max diameter
-    d3=20;    // dinghy cone min diameter
+    d2=22.4;  // dinghy cone max diameter
     ff=1;     // chamfer (de: Fase)
     w=3;      // wall thickness
     u=h2/3;   // dirty: Knickpunkt nach oben oder unten verschieben, dass Wandstaerke ~konstant
+    cone = d3==0 ? 1/10 : (d2-d3)/(2*h3) ;
+    H =  d2/2/cone;        // virtual tip of outer cone
+    echo(H);
+    d4 = d2*(H-h3)/H; 
+    echo(d4);  // check: this is the outlet cone min diameter
     union() {
       difference() {
-        conesN(n=4, hh=[0,          ff,      h1+u,  h1+h2,     h1+h2+h3 ], 
-                    dd=[dii+2*w-ff, dii+2*w, dii+2*w, 22,        20], fn=96);
-        conesN(n=4, hh=[-0.01,          ff,   h1,      h1+h2-u,  h1+h2+h3+0.1  ], 
-                    dd=[dii+1.4*ff,     dii+c,   dii+c,   22-2*w,    20-1.5*w,     ], fn=96);
+        conesN(n=4, hh=[0,          ff,      h1+u,    h1+h2,     h1+h2+h3 ], 
+                    dd=[dii+2*w-ff, dii+2*w, dii+2*w, d2,        d4     ], fn=96);
+        conesN(n=4, hh=[-0.01,      ff,      h1,      h1+h2-u,   h1+h2+h3+0.1 ], 
+                    dd=[dii+1.4*ff, dii+c,   dii+c,   d2-2*w,    d4-2*w3], fn=96);
       }
+      // Querstange
       translate([0,(dii+w)/2, hq]) rotate([90,0,0]) cylinder(d=dq, h=dii+w, $fn=48);
     }
 }
@@ -588,4 +595,6 @@ module adapter_sup2dinghy(
 
 //difference() {
 adapter_sup2dinghy();
-//translate([0,0,-0.1]) cube([50,50,50]);}
+//translate([0,0,-0.1]) cube([50,50,150]);}
+
+//adapter_sup2dinghy(h3=50,d3=11.8,w3=1.2);
