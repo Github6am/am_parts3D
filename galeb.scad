@@ -18,6 +18,8 @@
 //     housing for three 4-digit COM-VM433 Voltmeter modules, Joy-It, EAN: 4250236817873 
 //     https://www.pollin.de/p/joy-it-digital-voltmeter-4-digit-einbauinstrument-830840
 //     intended to be plugged onto the battery power switch control panel.
+//   - adapter_sup2dinghy:
+//     allow using a SUP or kite pump to inflate a dinghy
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
@@ -189,9 +191,8 @@ module galeb_M8cover_i(
     dm=8.0;   // diameter M8
     dn=14.0;  // diameter Nut
     db=4.0;   // diameter Bananenstecker
-    zn=6;     // height of nut
-    w=1;      // wall thickness
-    c=0.2;    // clearance
+    zn=6.4;   // height of nut
+    c=0.4;    // clearance
     fn=48;    // face number for cylinders, affects rendering time and smoothness
     
     union() {
@@ -200,20 +201,22 @@ module galeb_M8cover_i(
 	// 4 mm jack holes
         translate([  (db+dm-c)/2,   0, 0 ]) cylinder( d=db+c,   h=L+bz, center=false, $fn=fn);
 	translate([-((db+dm-c)/2),  0, 0 ]) cylinder( d=db+c,   h=L+bz, center=false, $fn=fn);
-        translate([  (db+dm-c)/2,   0, L ]) cylinder( d=db+0.8, h=bz,   center=false, $fn=fn);
-	translate([-((db+dm-c)/2),  0, L ]) cylinder( d=db+0.8, h=bz,   center=false, $fn=fn);
+        translate([  (db+dm-c)/2,   0, L ]) cylinder( d1=db+c, d2=db+c+1.2, h=bz, center=false, $fn=fn);
+	translate([-((db+dm-c)/2),  0, L ]) cylinder( d1=db+c, d2=db+c+1.2, h=bz, center=false, $fn=fn);
 	// Nut cover
-        translate([   0,            0, 0 ]) cylinder( d=dn+c,   h=zn,   center=false, $fn=fn);
-        translate([   0,            0, zn]) cylinder( d1=dn+c, d2=dm+c, h=3, center=false, $fn=fn);
+        translate([   0,            0, 0 ]) cylinder( d= dn+c-0.1,          h=zn, center=false, $fn=fn);
+        translate([   0,            0, zn]) cylinder( d1=dn+c-0.1, d2=dm+c, h=4,  center=false, $fn=fn);
     }
 }
 
 // cover for a M8 screw, outer hull
 
-module galeb_M8cover_o() {
+module galeb_M8cover_o(
+        w=1.2  // wall thickness
+        ) {
 	minkowski() {
           hull() galeb_M8cover_i();
-          ccyl(h1=0.75, h2=0.75, r1=1.0, ang=30);
+          ccyl(h1=0.75, h2=0.75, r1=w, ang=30);
         }
 }
 
@@ -580,7 +583,7 @@ module adapter_sup2dinghy(
 //galeb_plateE();
 //galeb_lockE();
 
-//galeb_M8cover();
+galeb_M8cover();
 
 //galeb_fan_adapter();
 //galeb_fan_inlet();
@@ -594,7 +597,7 @@ module adapter_sup2dinghy(
 //vcase_bottom();
 
 //difference() {
-adapter_sup2dinghy();
+//adapter_sup2dinghy();
 //translate([0,0,-0.1]) cube([50,50,150]);}
 
 //adapter_sup2dinghy(h3=50,d3=11.8,w3=1.2);
