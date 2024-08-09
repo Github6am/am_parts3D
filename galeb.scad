@@ -537,9 +537,9 @@ module vcase_bottom( lx=150, ly=34, lz=25,    // box outer dimensions
 //-------------------------------------------------------------------------
 
 module adapter_sup2dinghy( 
-    dii=22.0, // inlet inner diameter
+    dii=22.5, // inlet inner diameter
     d3=0,     // outlet cone min diameter. if zero, we assume a cone of 1/10
-    h3=14,    // outlet cone height
+    h3=15,    // outlet cone height
     w3=2,     // wall thickness at outlet
     c=0.3,    // clearance
     ) {
@@ -547,7 +547,7 @@ module adapter_sup2dinghy(
     hq=10-0.4;// Querstange offset from inlet rim
     h1=20;    // SUP inlet height
     h2=4;     // center part height
-    d2=22.4;  // dinghy cone max diameter
+    d2=23.4;  // dinghy cone max diameter
     ff=1;     // chamfer (de: Fase)
     w=3;      // wall thickness
     u=h2/3;   // dirty: Knickpunkt nach oben oder unten verschieben, dass Wandstaerke ~konstant
@@ -583,7 +583,7 @@ module adapter_sup2dinghy(
 //galeb_plateE();
 //galeb_lockE();
 
-galeb_M8cover();
+//galeb_M8cover();
 
 //galeb_fan_adapter();
 //galeb_fan_inlet();
@@ -597,7 +597,7 @@ galeb_M8cover();
 //vcase_bottom();
 
 //difference() {
-//adapter_sup2dinghy();
+adapter_sup2dinghy();
 //translate([0,0,-0.1]) cube([50,50,150]);}
 
 //adapter_sup2dinghy(h3=50,d3=11.8,w3=1.2);
