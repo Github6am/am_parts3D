@@ -2,6 +2,9 @@
 // 
 // Background:
 //   - fix a stylish but poor quality broken water tap with rectangular cross-section
+//   - sliderA and nozzleA werden auf den Wasserhahn montiert
+//   - nozzleC or nozzleD are the steerable outlets to be plugged on nozzleA
+//   - see also: plumbing.scad
 //
 // Author: Andreas Merz, 2025-03-21
 //  GPLv3 or later, see http://www.gnu.org/licenses 
@@ -51,7 +54,7 @@ module nozzleB(
     ang=15
     ) {
       do=(dd+4*w);       // outer diameter of nozzle
-      h1=tan(ang)*do/2;  // required height excess according to tilt angle
+      h1=abs(tan(ang)*do/2);  // required height excess according to tilt angle
       difference() {
         union() {
           // outer cylinder
@@ -83,6 +86,36 @@ module nozzleC(
         rotate([-2*ang,0,0]) 
         translate([0, 0, (hh+h1)]) mirror([0,0,1]) nozzleB(ang=ang,dd=dd, hh=hh, hr=hr, w=w);
       } 
+}
+
+// improve nozzleC for a less turbulent water flow -  print with increased adhesion surface
+module nozzleD(
+    dd=27,       // design inner diameter
+    hh=28,       // overall height of cylindrical section
+    hr=10,       // height of overlapping region, distance to ridge of nozzleA
+    w=1.6,       // wall thickness
+    ang=30
+    ) {
+      h0=10;     // heigth of lower tube
+      ws=0.8;    // wall of inner shield
+      do=(dd+4*w);  // outer diameter of nozzle
+      h1=tan(ang)*do/2;  // required height excess according to tilt angle
+      difference() {
+        union() {
+          // this pipe shall be plugged on nozzleA, but is printed at bottom
+          translate([0, 0, -(h0+h1)]) nozzleB(ang=ang,dd=dd, hh=h0, hr=hr, w=w);
+          // inner shield: directs adhering water to the other side of the tube
+          translate([0, 0, -(h1)]) nozzleB(ang=-ang/2,dd=dd+2*(w-ws), hh=h0/2, hr=hr, w=ws, c=0);
+
+          // this is the outlet pipe
+          rotate([-2*ang,0,0]) 
+          translate([0, 0, (hh+h1)]) mirror([0,0,1]) nozzleB(ang=ang,dd=dd, hh=hh, hr=hr, w=w, c=0);
+        }
+          // cut vertical
+          translate([0, 0,   ]) translate([0,2*hh-5,0]) cube([dd*2,dd*2,dd*8], center=true);
+          // chamfer 
+          translate([0, 0, -(h0+h1)-0.01]) cylinder(h=dd+w, d1=dd+3*w, d2=0, $fn=fn);
+      }    
 }
 
 // fixture for nozzleA
@@ -126,6 +159,7 @@ sliderA();
 
 //---------------- Instances ---------------------
 
-nozzleA();
+//nozzleA();
 //mirror([0,1,0]) nozzleC();
+nozzleD();
 //sliderA();
