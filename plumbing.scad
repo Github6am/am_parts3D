@@ -21,7 +21,7 @@ use <scad-utils/transformations.scad>    // https://github.com/openscad/scad-uti
 use <list-comprehension-demos/skin.scad> // https://github.com/openscad/list-comprehension-demos
 
 inch=25.4;   // mm
-fn=120;      // default face number
+fn=360;      // default face number
 clr=0.4;     // default clearance
 wall=1.0;    // default wall thickness
 
@@ -293,29 +293,52 @@ module adapterB_G1(
 
 // ------------- Plugs ---------------------
 
-// simple cylindrical plug
+// simple cylindrical or conical plug
 module plugA(
     w=1.0,       // wall thickness
     b=1.2,       // bottom thickness
-    do=25    ,   // outer diameter - clearance
+    do=25,       // average outer diameter - clearance 
+    co=0,        // cone: diameter change from top to bottom
     rr=4,        // additional rim radius
-    hh=10        // height of whole plug
+    hh=10,        // height of whole plug
     ) {
     di=do-2*w;   // inner diameter
     difference() { 
       union() {
-	    translate([0, 0, 0])    cylinder(h=hh-w, d=do  , $fn=fn);
-	    translate([0, 0, hh-w]) cylinder(h=w,   d1=do, d2=do-w/2, $fn=fn);
+	    translate([0, 0, 0])    cylinder(h=hh-w, d1=do+co/2,   d2=do-co/2, $fn=fn);
+	    translate([0, 0, hh-w]) cylinder(h=w,   d1=do-co/2, d2=do-co/2-w/2, $fn=fn);
             // chamfered cap
 	    translate([0, 0, b/2]) cylinder(h=b/2,  d=do+2*rr, $fn=fn);
 	    translate([0, 0, 0])   cylinder(h=b/2,  d1=do+2*rr-b, d2=do+2*rr, $fn=fn);
       }
       union() {
-	    translate([0, 0,1]) cylinder(h=hh, d=di, $fn=fn);
+	    translate([0, 0,1]) cylinder(h=hh, d1=di+co/2, d2=di-co/2, $fn=fn);
       }
     }
 }
 
+// ------------- Adapters ---------------------
+
+// very simple version without chamfer  - under construction
+module gardena_fitA(
+    c=0.0   // radial clearance
+    ) {
+    d1=16;
+    h1=9.4;
+    d2=17;
+    h2=3.4;
+    d3=14;
+    h3=1;
+    h4=4;
+    union() {
+          translate([0, 0, 0])       cylinder(h=w,   d1=d1, d2=d1, $fn=fn);
+          translate([0, 0, w])       cylinder(h=h1,  d1=d1, d2=d2, $fn=fn);
+          translate([0, 0, w+h1])    cylinder(h=w,   d1=d2, d2=d2, $fn=fn);
+          translate([0, 0, 2*w+h1 ]) cylinder(h=hh-h1-2*w,  d1=d3, d2=d4, $fn=fn);
+          translate([0, 0, hh-6 ])   cylinder(h=1,  d1=d4, d2=df, $fn=fn);
+          translate([0, 0, hh-5 ])   cylinder(h=5,  d1=df, d2=d4, $fn=fn);
+    }
+}    
 
 // fit hose to a G1 nut
 module hose_cone(
@@ -341,6 +364,34 @@ module hose_cone(
         union() {
 	      translate([0, 0, -0.1])      cylinder(h=h1+1.4*w,  d1=d1-2*w, d2=d3-3*w, $fn=fn);
 	      translate([0, 0, h1-0.1])  cylinder(h=hh-h1+1, d1=d3-2*w, d2=d4-w, $fn=fn);
+        }
+      }
+}
+
+// fit gardena to a G1 nut
+module gardena_cone(
+    d1=30.25,   // inner diameter of outgoing pipe, outer diameter of G1 thread
+    d2=27,      // hole diameter
+    d3=17,      // max stub outer diameter, hose inner diameter
+    d4=12,      // min stub outer diameter, hose inner diameter
+    hh=20,
+    w=wall,
+    c=clr 
+    ) {
+      df=d4+3;    // diameter to fit hose tightly, alt: d4*1.15 ?
+      h1=(d1-d2)/2;
+      difference() {
+        union() {
+	      translate([0, 0, 0])       cylinder(h=w,   d1=d1, d2=d1, $fn=fn);
+	      translate([0, 0, w])       cylinder(h=h1,  d1=d1, d2=d2, $fn=fn);
+	      translate([0, 0, w+h1])    cylinder(h=w,   d1=d2, d2=d2, $fn=fn);
+	      translate([0, 0, 2*w+h1 ]) cylinder(h=hh-h1-2*w,  d1=d3, d2=d4, $fn=fn);
+        }
+        union() {
+	      translate([0, 0, -0.1])      cylinder(h=h1+1.4*w,  d1=d1-2*w, d2=d3-3*w, $fn=fn);
+	      translate([0, 0, h1-0.1])  cylinder(h=hh-h1+1, d1=d3-2*w, d2=d4-w, $fn=fn);
+	      //translate([0, 0, hh-6 ])   cylinder(h=1,  d1=d4, d2=df, $fn=fn);
+	      //translate([0, 0, hh-5 ])   cylinder(h=5,  d1=df, d2=d4, $fn=fn);
         }
       }
 }
@@ -532,10 +583,15 @@ module valve(
 
 //plugA();
 //plugA(do=23.2, rr=6.4);
+plugA(do=85.0, rr=4, w=1.8, co=0.8);
 
 //pumpC(debug=1);     // Fehlkonstruktion :-(
 
 //valve();
 
 //pipe_thread_nut_G1();
-hose_cone();
+//hose_cone();
+
+// --- under construction
+//gardena_cone();   //  derived from hose_cone();
+//gardena_fitA();   // 

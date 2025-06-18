@@ -21,4 +21,12 @@ stays at the same place on the wall.
 
 Various helper programs are there to support this.
 
+## References
 
+gpredict - real-time satellite tracking. https://oz9aec.dk/gpredict/index.php
+
+libhamlib - https://github.com/Hamlib/Hamlib/wiki
+
+  man hamlib
+  man hamlib-utilities
+  rotctl -l

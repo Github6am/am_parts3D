@@ -8,6 +8,10 @@
 //   - related designs, see also:
 //     - battery_holder.scad
 //       for 610mAh flat LiPo accumulators
+//   - other designs I found on thingiverse
+//       https://www.thingiverse.com/thing:456900
+//       https://www.thingiverse.com/thing:331394
+//       https://www.thingiverse.com/thing:2339441
 //     - galeb_M8cover.scad
 //       cover to be printed in red(+) and black(-) covering M8 
 //       high-current battery connections.
