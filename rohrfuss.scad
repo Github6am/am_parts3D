@@ -11,7 +11,7 @@ fn=48;  // default face number for cylinders
 // Standfuss - stand to be plugged on the end of a tube
 module tubefootA(
     dd=37.6,      // tube design inner diameter (minus printer nozzle width)
-    hc=30,        // height of cylindrical section
+    hc=24,        // height of cylindrical section
     hf=20,        // height of foot without rr radius excess
     xf=2,         // excess of quadratic section
     rr=5,         // edge radius
