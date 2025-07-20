@@ -46,8 +46,13 @@ module tubefootA(
     }
 }
 
-
+// protective cap to cover open 38mm inner diameter pipe ends
+//
+use <plumbing.scad> 
+// use rohrfuss.scad plugA cover
 
 //---------------- Instances ---------------------
 
-tubefootA();
+plugA(do=38.2, rr=4, w=1.2, b=0.8, co=0.6);
+
+//tubefootA();
