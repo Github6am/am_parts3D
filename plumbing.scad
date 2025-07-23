@@ -19,6 +19,7 @@
 
 use <scad-utils/transformations.scad>    // https://github.com/openscad/scad-utils
 use <list-comprehension-demos/skin.scad> // https://github.com/openscad/list-comprehension-demos
+use <galeb.scad>  // import cones
 
 inch=25.4;   // mm
 fn=360;      // default face number
@@ -340,6 +341,31 @@ module gardena_fitA(
     }
 }    
 
+// this ist a Gardena 3/4'' connection from the "professional" series
+module gardena_fitB(
+    c=0.0,      // radial clearance
+    di1=13,     // inner diameter at bottom
+    di2=11.1,   // inner diameter at top
+    nn=16,      // omit segments, if set e.g. to 12 
+    ) {
+    d1=22.2;
+    d2=23.5;
+    d3=20.0;
+    d4=25.5;
+    d5=13.5;    // 1/2'' hose connection
+    h5=50;
+    difference() {
+      conesN( n=nn, 
+        hh=[0,    2, 4.0,  4.0,    6.5,  8, 11.5, 12, 17, 17, 21, 25.5, 29.5, 30, h5-4, h5-4, h5], 
+        dd=[d1-2, d1, d1, d1-7, d1-7,  d1,  d1, d2, d2, d3, d3,   d4,   d4,   d5,   d5, d5+1, d5-1 ],
+        fn=180);
+      union() {
+        translate([0, 0, -0.1 ]) conesN(n=3, hh=[0, 17, 60], dd=[di1, di2, di2], $fn=fn);
+        //translate([0, 0, -0.1 ]) cube([20,20,80]);
+      }
+    }
+}    
+
 // fit hose to a G1 nut
 module hose_cone(
     d1=30.25,   // inner diameter of outgoing pipe, outer diameter of G1 thread
@@ -583,7 +609,7 @@ module valve(
 
 //plugA();
 //plugA(do=23.2, rr=6.4);
-plugA(do=85.0, rr=4, w=1.8, co=0.8);
+//plugA(do=85.0, rr=4, w=1.8, co=0.8);
 
 //pumpC(debug=1);     // Fehlkonstruktion :-(
 
@@ -594,4 +620,4 @@ plugA(do=85.0, rr=4, w=1.8, co=0.8);
 
 // --- under construction
 //gardena_cone();   //  derived from hose_cone();
-//gardena_fitA();   // 
+gardena_fitB();   // 
