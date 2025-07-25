@@ -341,7 +341,9 @@ module gardena_fitA(
     }
 }    
 
-// this ist a Gardena 3/4'' connection from the "professional" series
+// Gardena 3/4'' connector from the bigger "professional" series
+// with a stub for a 1/2'' hose
+
 module gardena_fitB(
     c=0.0,      // radial clearance, dummy variable
     di2=10.4,   // inner diameter at top
@@ -366,6 +368,26 @@ module gardena_fitB(
       }
     }
 }    
+
+// Gardena 3/4'' connector from the bigger "professional" series
+// with a direct connection to a 1/2'' jack
+
+module gardena_fitC(
+    di=13.2,    // inner diameter at top
+    go=2.4      // gasket thickness / O-Ring
+    ) {
+    difference() {  
+      union() {  
+        gardena_fitB(nn=12, go=go);
+        // hier soll sich die Kralle mit der Ueberwurfmutter draufklemmen
+        translate([0, 0, 29.5-0.1 ]) conesN(n=3, hh=[0, 14, 18, 24], dd=[17, 18, 19, 17], fn=180);
+      }
+      union() {
+        conesN(n=2, hh=[0, 50, 70], dd=[di, di, di+8], fn=180);    }
+        //translate([0, 0, -0.1 ]) cube([20,20,80]);  // debug cross-section
+      }
+}
+
 
 // fit hose to a G1 nut
 module hose_cone(
@@ -621,4 +643,5 @@ module valve(
 
 // --- under construction
 //gardena_cone();   //  derived from hose_cone();
-gardena_fitB();   // 
+//gardena_fitB(); 
+gardena_fitC();
