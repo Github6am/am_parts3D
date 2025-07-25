@@ -16,7 +16,9 @@
 // Werkzeuge, um Fasen mit minkowski() herzustellen
 
 module pyramid(h=1) {
+    //translate([0,0,h/2]) 
     linear_extrude(height=h, scale=0) rotate([0,0,45]) square(sqrt(2)*h,center=true);
+    //linear_extrude(height=h/2, scale=1) rotate([0,0,45]) square(sqrt(2)*h,center=true);
 }
 
 module octaeder(r=0.3) {
@@ -26,26 +28,18 @@ module octaeder(r=0.3) {
   }
 }
 
-module clampshape1half(s1=3.7, y1=17.5) {
-             // y1        // clamp length
-             // s1        // clamp width at bottom
-             c=0.3;       // clearance / spiel in mm
-             w=2;         // wall thickness
-             b=w*3/2;     // bottom thickness
-             m=0.3;       // reduce shape for minkowski()
-             s2=(s1+c)/2;     // width at bottom
-             translate([0,b])
-               polygon(points=[
-                [0,0-m],[s2-0.3+m,0-m],[s2-0.1+m,0.1-m],[s2+m,0.3-m],[s2+0.1+m,0.5-m],[s2+m+0.1,1-m],[s2+m,1.5-m],
-                [s1/2-c-0.1+m,3.5],[s2+m,5], 
-                [min(0.35,s1/2-1+0.05)+m,y1-3],[min(0.3,s1/2-1)+m,y1-2.5],[min(0.3,s1/2)+0.2+m,y1-2.1],
-                [(s1+1)/2+m/2,y1-m],                   // outer contour starts here
-                [min(0.3,s1/2-1)+w-0.9-m,y1-2.8],
-                [s2+w-m-c,5],
-                [1+s2+w-m,0],
-                [1+s2+w-m,-b+m],
-                [0,-b+m]]);
+// conesN, sequence of n conical sections, adapted to drilling of countersunk screws
+module conesN(n=2, hh=[0, 10, 12], dd=[4, 4, 8], fn=30) {
+    for (i = [0 : n-1]) {
+      translate([0,0, hh[i] -i*0.002])
+        cylinder(d1=dd[i], d2=dd[i+1], h = hh[i+1]-hh[i], $fn=fn);
+    }
 }
+
+module ccyl(ll=10, dhole=4) {
+  conesN(n=2, hh=[-ll, 0, 2], dd=[dhole, dhole, dhole+2*2], fn=30);
+}
+
 
 
 //-------------------------------
@@ -91,6 +85,28 @@ module dovetail3D(h=20, s=45, t=0.8) {
 
 
 //---------------- Clamps ---------------------
+
+module clampshape1half(s1=3.7, y1=17.5) {
+             // y1        // clamp length
+             // s1        // clamp width at bottom
+             c=0.3;       // clearance / spiel in mm
+             w=2;         // wall thickness
+             b=w*3/2;     // bottom thickness
+             m=0.3;       // reduce shape for minkowski()
+             s2=(s1+c)/2;     // width at bottom
+             translate([0,b])
+               polygon(points=[
+                [0,0-m],[s2-0.3+m,0-m],[s2-0.1+m,0.1-m],[s2+m,0.3-m],[s2+0.1+m,0.5-m],[s2+m+0.1,1-m],[s2+m,1.5-m],
+                [s1/2-c-0.1+m,3.5],[s2+m,5], 
+                [min(0.35,s1/2-1+0.05)+m,y1-3],[min(0.3,s1/2-1)+m,y1-2.5],[min(0.3,s1/2)+0.2+m,y1-2.1],
+                [(s1+1)/2+m/2,y1-m],                   // outer contour starts here
+                [min(0.3,s1/2-1)+w-0.9-m,y1-2.8],
+                [s2+w-m-c,5],
+                [1+s2+w-m,0],
+                [1+s2+w-m,-b+m],
+                [0,-b+m]]);
+}
+
 
 module clampshape1(clampwidth=3.7, clamplength=17.5, cz=20) {
      w=2;
@@ -150,6 +166,132 @@ module clampshape4(clampwidth=3.7, clamplength=17.5, cz=20) {
          translate([0,-w-(4-wl),cz/2]) rotate([90,90,0]) linear_extrude(height=0.3) text(str(clampwidth), size = fontsize, font = fontname, halign = "center", valign = "center", $fn = 32);
      }       
 }
+
+//--------------------------------------
+// Wandhalterung fuer Steckdosenleiste
+//--------------------------------------
+
+
+// Kontur fuer Steckdosenleiste
+module clampshape2half(x1=53.4) {
+             // x1        // clamp nominal width
+             // y1        // clamp length
+             // z1        // clamp extrusion height
+             m1=0.8;      // reduce shape for 3D minkowski()
+             w1=3.5-m1;     // minimum wall thickness
+             b1=4.0-m1;     // bottom thickness
+             x=x1/2-m1;   // nominal width
+             d=0.1;       // infinitesimal offset
+
+             w=w1-m1;
+             h=w/2;
+             //w=0.1;
+             b=b1-m1-h;
+             difference() {
+               minkowski() {
+                 polygon(points=[
+                   // outer contour
+                   [0 -0 +0.0 - 0.0,     -b + 0.0   ],
+                   [x +h -0.0 - 0.0,     -b + 0.0   ],
+                   [x +h -0.0 + 1.0,     +0 + 0.0   ],
+                   [x +h -0.0 - 0.9,     +0 +20.0   ],
+                   [x +h -0.0 - 1.3,     +0 +25.0   ],
+                   [x +h -0.5 - 1.7,     +0 +30.0   ],
+                   [x +h -1.5 - 2.1,     +0 +34.5   ],
+                   [x +h -3.5 - 2.5,     +0 +39.0   ],
+
+                   [x +0 +0.0 -10.0,     +0 +10.0   ],
+                   [0 +0 +0.0 - 0.0,     +0 + 0.0   ],
+
+                 ]);
+                 circle(d=w, $fn=24);
+               }
+               minkowski() {
+                 polygon(points=[
+                   // inner contour
+                   [0 -h +0.0 - 0.0,     +h + 0.0   ],
+                   [x -h -3.0 - 0.0,     +h + 0.0   ],
+                   [x -h -1.0 - 0.0,     +h + 1.0   ],
+                   [x -h -0.0 - 0.0,     +h + 3.0   ],
+                   [x -h -0.0 - 0.9,     +h +20.0   ],
+                   [x -h -0.0 - 1.25,    +h +25.0   ],
+                   [x -h -0.5 - 1.5,     +h +30.0   ],
+                   [x -h -1.5 - 1.75,    +h +34.5   ],
+                   [x -h -3.5 - 2.0,     +h +39.0   ],
+
+                   [x -h -3.5 - 2.0,     +h +48.0   ],
+                   [0 -h +0.0 - 0.0,     +h +48.0   ],
+
+                 ]);
+                 circle(d=w, $fn=24);
+               }
+             }
+}
+
+module steckdosenleistenclip2(width=53.4, cz=20, modify=0) {
+     difference() {
+         minkowski() {
+           union() {
+             if (modify==1)
+               translate([-(width-10)/2, 0, 0]) cube([width-10, 6, 2]);
+             linear_extrude(height=cz)
+               union() {
+                 mirror([1,0,0]) 
+                 clampshape2half(x1=width);
+                 clampshape2half(x1=width);
+               }
+           } 
+           octaeder(r=0.8);
+       }
+       union() {
+         // mounting holes
+         translate([  0, -1, cz/2]) rotate([-90,0,0]) ccyl();
+         translate([-15, -1, cz/2]) rotate([-90,0,0]) ccyl();
+         translate([ 15, -1, cz/2]) rotate([-90,0,0]) ccyl();
+       }
+     }
+}
+
+
+//---------------- Protecting foot cap for chair ---------------------
+
+// clip on chromed steel rods of an italian design chair.
+
+module rodclip(
+     l=35,           // length of pedestal foot
+     b=15,           // width ( Breite )
+     d=10.7,         // rod diameter to snap-on
+     f=1.4           // chamfer ( Fase )
+     ) {
+     x=l-2*f;
+     y=b-2*f;
+     po=0.85;        // opening percentage, depending on elasticity of material
+     ho=d/2*sqrt(1-po^2);
+     
+     difference() {
+       // outer contour
+       minkowski() {
+         difference() {
+           union() {
+             translate([ 0, 0, y/4])                  cube([x,y,y/2], center=true);
+             translate([ 0, 0, y/2]) rotate([0,90,0]) cylinder(h=x, d=y, center=true, $fn=48);
+           }
+           union() {
+             // cut the  top
+             translate([ 0, 0, y-f+ho]) cube([x+2,y+2,y], center=true);
+           }
+         }
+         octaeder(r=f);  // chamfer
+       }
+       // cut center gap/hole
+       union() {
+         translate([ 0, 0, y/2]) rotate([0,90,0]) cylinder(h=l+2, d=d, center=true, $fn=48);
+         //translate([ 0, 0, y]) cube([x+4,d*po,y], center=true);
+       }
+     }
+}
+
+
 
 //---------------- Book stand, Standfuss fuer Leitz-Order ---------------------
 
@@ -348,7 +490,6 @@ module starwheel4(r1=wz_r1) {     // outer rim segments to click into starwheel2
 }
 
 //---------------- Instances ---------------------
-
 //clampshape3();
 
 //schwalbenschwanz_hollow(h=2);
@@ -357,4 +498,8 @@ module starwheel4(r1=wz_r1) {     // outer rim segments to click into starwheel2
 //starwheel2();
 //starwheel4();
 
-pedestalA();
+//pedestalA();
+
+//clampshape2half();
+//steckdosenleistenclip2(cz=20);
+rotate([0,90,0]) rodclip();

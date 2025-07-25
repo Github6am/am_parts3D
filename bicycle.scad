@@ -86,10 +86,97 @@ module bldc_wheelA(
   }
 }
 
+//-----------------------------------------------------------
+// BLDC - 36V 600W Brushless DC-Motor von Bosch 2607022335
+//-----------------------------------------------------------
+// Pollin 002-034-04
+
+// the contour of the motor drive shaft, a slightly "concave" hexagon...
+module bldc_drive_shaft6_2D(
+  a=5,   // min radius 
+  r=6,   // max radius
+  ) {
+  k= r*sqrt(3)/2 - a;   // concaveness
+  R= r*r/(8*k) + k/2;   // the concave radius
+  echo (str ("R: ", R));
+  difference() {
+    circle(R+1);
+    union() {
+      for ( i =[0 : 1 : 5] )
+        rotate([0,0,60*i+30]) translate([a+R,0,0]) circle(R, $fn=1808);
+    }
+  }
+    
+}
+
+// test part, hexagonal outer contour
+module bldc_hexwheelA(
+  a=5,    // min radius 
+  r=6.3,  // max radius
+  c=0.1,  // clearance
+  h=4,    // heigth
+  ) {
+  difference() {
+    cylinder(d=20.0, h=h, $fn=6);
+    translate([0,0,-1])linear_extrude(height=h+2)
+      bldc_drive_shaft6_2D(a=a+c, r=r+c);
+  }
+}
+
+use <gears/gears.scad>
+
+// test part as drive gear
+module bldc_hexwheelB(
+  a=5,    // min radius 
+  r=6.3,  // max radius
+  c=0.1,  // clearance
+  h=4,    // heigth
+  nt=10    // number of teeth, needs to be >9
+  ) {
+  di = (nt <= 10)? 14 : 15;
+  difference() {
+    union() {
+    herringbone_gear(modul=2, tooth_number=nt, width=h, bore=12.5, helix_angle=22.5);
+    cylinder(d=di, h=h+0.2, $fn=180);
+    echo (str ("di: ", di));
+    }
+    translate([0,0,-2])linear_extrude(height=h+4)
+      bldc_drive_shaft6_2D(a=a+c, r=r+c);
+  }
+}
+
+// test part with winch pulley, for coupling motor + generator BLDCs face to face
+module bldc_hexwheelC(
+  a=5,    // min radius 
+  r=6.3,  // max radius
+  c=0.1,  // clearance
+  h1=12,   // heigth pulley
+  h=40,    // heigth overall
+  nt=10    // number of teeth, needs to be >9
+  ) {
+  r1=(h1-2)/2; // Seilrollen-Nut
+  di = 15;
+  difference() {
+    union() {
+    cylinder(d=di, h=h, $fn=180);
+    cylinder(d=2*r+h1/2+5, h=h1+0.2, $fn=180);
+    }
+    union() {
+    translate([0,0,-2])linear_extrude(height=h+4)
+      bldc_drive_shaft6_2D(a=a+c, r=r+c);
+    // Seil-Nut
+    rotate_extrude($fn = 80) translate([r+r1+1.5,r1+1,0]) circle(r=r1);
+    }
+  }
+}
+
 
 //------------- Instances --------------------
 
 //lnut();
+//bldc_hexwheelA();
+//bldc_hexwheelB();
+bldc_hexwheelC();
 
 //bldc_drive_shaftB();
-bldc_wheelA();
+//bldc_wheelA();
