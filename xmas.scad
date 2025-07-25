@@ -9,6 +9,9 @@
 //   - see also dodekaeder.scad as "Adventskalender"
 //   - hosted on:
 //     git@github.com:Github6am/am_parts3D.git
+//   
+//   - this is a nice star made of treble clefs:
+//     https://www.thingiverse.com/thing:3225609
 //
 // Andreas Merz 2021-12-21, v1.0 
 // GPLv3 or later, see http://www.gnu.org/licenses
@@ -79,6 +82,29 @@ module star(
       }
 }
 
+// 
+
+//-----------------------------------------------
+// stars for musicians
+//-----------------------------------------------
+
+// das sieht nicht gut aus, png23D ist vielleicht besser?
+//surface(file = "ViolinschluesselA.png", center = true, convexity = 5);
+module violinschluessel_stern(
+  sc=1.0,   // scale 1.0 -> 95mm diameter
+  hh=1.2,   // height or thickness in mm
+  lines=0   // add 5 lines
+  ) {
+  union() {
+    difference() {
+      scale(sc)
+        import("/home/amerz/download/thingiverse/Treble_Clef_Christmas_Ornament-3225609/files/Treble_Clef_Ornament.stl");
+      translate([0,0,hh]) cylinder(d=100*sc, h=5*sc);
+    }
+    if ( lines ) rotate([0,0,18])  // only relevant if fn=8
+      scale(sc) for (i =[15 : 6 :41] ) { rotate_extrude($fn=180) translate([i,0]) square([1.2,hh*3/4/sc]); }
+  }
+}
 
 
 //---------------- Instances ---------------------
@@ -95,3 +121,5 @@ star( h=1.0, w=1.2, a=50, b=19,   n=5, m=5, rot=0.5,   scl=0.618, zinc=0.2);
 
 //star( h=1.0, w=1.2, a=80, b=12,   n=3, m=5, rot=4/12,   scl=0.7, zinc=0.2);
 //star( h=1.0, w=1.2, a=80, b=12,   n=4, m=6, rot=2/5,   scl=0.8, zinc=0.2);
+
+//violinschluessel_stern();

@@ -18,6 +18,8 @@
 //     housing for three 4-digit COM-VM433 Voltmeter modules, Joy-It, EAN: 4250236817873 
 //     https://www.pollin.de/p/joy-it-digital-voltmeter-4-digit-einbauinstrument-830840
 //     intended to be plugged onto the battery power switch control panel.
+//   - adapter_sup2dinghy:
+//     allow using a SUP or kite pump to inflate a dinghy
 //   - repository: https://github.com/Github6am/am_parts3D
 //   - CAD manual: http://www.openscad.org/documentation.html
 //
@@ -189,9 +191,8 @@ module galeb_M8cover_i(
     dm=8.0;   // diameter M8
     dn=14.0;  // diameter Nut
     db=4.0;   // diameter Bananenstecker
-    zn=6;     // height of nut
-    w=1;      // wall thickness
-    c=0.2;    // clearance
+    zn=6.4;   // height of nut
+    c=0.4;    // clearance
     fn=48;    // face number for cylinders, affects rendering time and smoothness
     
     union() {
@@ -200,20 +201,22 @@ module galeb_M8cover_i(
 	// 4 mm jack holes
         translate([  (db+dm-c)/2,   0, 0 ]) cylinder( d=db+c,   h=L+bz, center=false, $fn=fn);
 	translate([-((db+dm-c)/2),  0, 0 ]) cylinder( d=db+c,   h=L+bz, center=false, $fn=fn);
-        translate([  (db+dm-c)/2,   0, L ]) cylinder( d=db+0.8, h=bz,   center=false, $fn=fn);
-	translate([-((db+dm-c)/2),  0, L ]) cylinder( d=db+0.8, h=bz,   center=false, $fn=fn);
+        translate([  (db+dm-c)/2,   0, L ]) cylinder( d1=db+c, d2=db+c+1.2, h=bz, center=false, $fn=fn);
+	translate([-((db+dm-c)/2),  0, L ]) cylinder( d1=db+c, d2=db+c+1.2, h=bz, center=false, $fn=fn);
 	// Nut cover
-        translate([   0,            0, 0 ]) cylinder( d=dn+c,   h=zn,   center=false, $fn=fn);
-        translate([   0,            0, zn]) cylinder( d1=dn+c, d2=dm+c, h=3, center=false, $fn=fn);
+        translate([   0,            0, 0 ]) cylinder( d= dn+c-0.1,          h=zn, center=false, $fn=fn);
+        translate([   0,            0, zn]) cylinder( d1=dn+c-0.1, d2=dm+c, h=4,  center=false, $fn=fn);
     }
 }
 
 // cover for a M8 screw, outer hull
 
-module galeb_M8cover_o() {
+module galeb_M8cover_o(
+        w=1.2  // wall thickness
+        ) {
 	minkowski() {
           hull() galeb_M8cover_i();
-          ccyl(h1=0.75, h2=0.75, r1=1.0, ang=30);
+          ccyl(h1=0.75, h2=0.75, r1=w, ang=30);
         }
 }
 
@@ -534,26 +537,33 @@ module vcase_bottom( lx=150, ly=34, lz=25,    // box outer dimensions
 //-------------------------------------------------------------------------
 
 module adapter_sup2dinghy( 
-    dii=21.5,   // inlet inner diameter
+    dii=22.5, // inlet inner diameter
+    d3=0,     // outlet cone min diameter. if zero, we assume a cone of 1/10
+    h3=15,    // outlet cone height
+    w3=2,     // wall thickness at outlet
     c=0.3,    // clearance
     ) {
     dq=6-c;   // Querstange diameter
-    hq=10-0.1;// Querstange offset from inlet rim
+    hq=10-0.4;// Querstange offset from inlet rim
     h1=20;    // SUP inlet height
     h2=4;     // center part height
-    h3=16;    // cone  height
-    d2=22;    // dinghy cone max diameter
-    d3=20;    // dinghy cone min diameter
+    d2=23.4;  // dinghy cone max diameter
     ff=1;     // chamfer (de: Fase)
     w=3;      // wall thickness
     u=h2/3;   // dirty: Knickpunkt nach oben oder unten verschieben, dass Wandstaerke ~konstant
+    cone = d3==0 ? 1/10 : (d2-d3)/(2*h3) ;
+    H =  d2/2/cone;        // virtual tip of outer cone
+    echo(H);
+    d4 = d2*(H-h3)/H; 
+    echo(d4);  // check: this is the outlet cone min diameter
     union() {
       difference() {
-        conesN(n=4, hh=[0,          ff,      h1+u,  h1+h2,     h1+h2+h3 ], 
-                    dd=[dii+2*w-ff, dii+2*w, dii+2*w, 22,        20], fn=96);
-        conesN(n=4, hh=[-0.01,          ff,   h1,      h1+h2-u,  h1+h2+h3+0.1  ], 
-                    dd=[dii+1.4*ff,     dii+c,   dii+c,   22-2*w,    20-1.5*w,     ], fn=96);
+        conesN(n=4, hh=[0,          ff,      h1+u,    h1+h2,     h1+h2+h3 ], 
+                    dd=[dii+2*w-ff, dii+2*w, dii+2*w, d2,        d4     ], fn=96);
+        conesN(n=4, hh=[-0.01,      ff,      h1,      h1+h2-u,   h1+h2+h3+0.1 ], 
+                    dd=[dii+1.4*ff, dii+c,   dii+c,   d2-2*w,    d4-2*w3], fn=96);
       }
+      // Querstange
       translate([0,(dii+w)/2, hq]) rotate([90,0,0]) cylinder(d=dq, h=dii+w, $fn=48);
     }
 }
@@ -588,4 +598,6 @@ module adapter_sup2dinghy(
 
 //difference() {
 adapter_sup2dinghy();
-//translate([0,0,-0.1]) cube([50,50,50]);}
+//translate([0,0,-0.1]) cube([50,50,150]);}
+
+//adapter_sup2dinghy(h3=50,d3=11.8,w3=1.2);
