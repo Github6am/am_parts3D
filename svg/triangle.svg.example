@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="tiny" height="100%" version="1.2" width="100%">
+  <defs/>
+  <path d="M   2.000   2.000 L 102.000   2.000 L  52.000  88.603 Z" fill="yellow" stroke="red" stroke-width="1"/>
+  <path d="M  52.000   2.000 L  27.000  45.301 L  77.000  45.301 Z" fill="none" stroke="blue" stroke-width="1"/>
+</svg>
