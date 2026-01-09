@@ -157,6 +157,23 @@ module ballbearing_inner_cage(
 }
 
 
+// conical spreader to boldly fix topE within the ball bearing 
+module ballbearing_inner_cone(
+      d0=30,   // inner diameter of bearing
+      h1=10,   // height of cone
+      c=0.4,   // clearance radius
+      w=1.6,   // wall thickness, default according to topE
+      ) {
+      fn=192;  // face number
+      difference() {
+        // outer contour slightly conical by 0.4mm
+        translate([0,0, -0.0]) cylinder(d1=d0-2*w-2*c, d2=d0-2*w-2*c-0.4, h=h1, $fn=fn);
+        // center hole
+        translate([0,0, -0.1]) cylinder(d=d0-4*w, h=h1+1, $fn=fn);
+      }
+}
+
+
 // Lagerflansch
 module ballbearing_flange(
       d1=48,     // inner diameter of flange
@@ -691,13 +708,14 @@ module fixtureH() {
 //mountB();
 //mirror([1,0,0]) mountB();
 //mountC();
-mountD();
+//mountD();
 //rotate([-90,0,0]) mountC();
 //mirror([1,0,0]) mountC();
 
 //drive_gear();
 //turntable_topA();
 //turntable_topE();
+ballbearing_inner_cone();
 
 //turntable_botB();
 //turntable_botC();
