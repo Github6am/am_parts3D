@@ -11,6 +11,8 @@ function [new_azel, msg] = posctl(com, azel, cmd)
 %   posctl(com, [ 45  90], 'goto')
 %   posctl(com, [180   0], 'manual')   % control by keyboard
 %
+%   srl_close( com );
+%
 % Background:
 %   - Arguments:
 %     com  -  a serial object from the instrument-control package
