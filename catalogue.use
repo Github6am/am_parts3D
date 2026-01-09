@@ -32,6 +32,17 @@ accase();
 //battery_shapeI();
 battery_holder1();
 
+# gitscadfile=battery.scad
+holderN();
+
+# gitscadfile=bicycle.scad
+lnut();
+bldc_hexwheelA();
+bldc_hexwheelB();
+bldc_hexwheelC();
+bldc_drive_shaftB();
+bldc_wheelA();
+
 # gitscadfile=brillenetui.scad
 scharnierA();
 
@@ -80,11 +91,17 @@ foot2();
 //translate([0, 0, -10]) cube(40, center=false); }
 if(false) {
 
+# gitscadfile=drums.scad
+drum_rim_i();
+//drum_rim_o();
+//mirror([0,0,1]) drum_rim_o();
+
 # scadfile=ersatzteil_umwaelzpumpe.scad
 umwaelzpumpe_ersatzteil();
 
 # gitscadfile=fingerhut.scad
 fingerhutA();
+fingerhutA(d=17-clr,l=49);     // lipstick cover
 
 # gitscadfile=galeb.scad
 //translate([0,-40,0]) ccyl();
@@ -136,6 +153,11 @@ shape_3D();
 # gitscadfile=KFZ_Buchse.scad
 translate([0,0,0]) KFZstecker();
 
+# gitscadfile=knob.scad
+kugel(d=9, b=4.0, w=0.8);  // kugelW
+
+# scadfile=meander.scad
+
 # gitscadfile=microwave_MD12801_spacer.scad
 microwave_MD12801_spacer(h=5);   // make it a bit higher than the original part
 
@@ -154,22 +176,34 @@ adapterA_G1();
 adapterB_G1();
 release_ring();
 plugA();
+valve();
+pipe_thread_nut_G1();
+hose_cone();
+gardena_fitB(); 
+gardena_fitC();
+
+# scadfile=poly1.scad
+
+# scadfile=poly.scad
 
 # gitscadfile=positioner.scad
-//bearingflange_contour_2D();
-//bearingflange_holes_2D();
 mountA();
 mountB();
 mountC();
-//mirror([1,0,0]) mountB();
+mountD();
 drive_gear();
 turntable_topA();
+turntable_topE();
 turntable_botB();
 turntable_botC();
 turntable_botD();
+turntable_botE();
 fixtureB();
 fixtureD();
 fixtureH();
+ballbearing_outerA();
+ballbearing_outerB();
+ballbearing_innerA();
 
 
 # gitscadfile=raspi_RJ45fix.scad
@@ -202,6 +236,8 @@ cone_o();
 # gitscadfile=ssdframe.scad
 ssdframe1();
 
+# gitscadfile=tools.scad
+wrench_holder();
 
 # gitscadfile=TP-Link_MR3020_fix.scad
 MR3020fixture();
@@ -213,6 +249,15 @@ Lampenfusshalterung();
 Lampenfusshalterung_A();
 Lampenfusshalterung_B();
 Lampenfusshalterung_C();
+distribution_box_cover();
+updoseA();
+fuseplugA();
+
+# gitscadfile=wasserhahn.scad
+//nozzleA();
+//mirror([0,1,0]) nozzleC();
+nozzleD();
+//sliderA();
 
 # gitscadfile=xmas.scad
 //star();
